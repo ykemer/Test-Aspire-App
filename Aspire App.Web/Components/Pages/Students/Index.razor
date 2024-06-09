@@ -1,0 +1,46 @@
+﻿@page "/students"
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+
+@inject StudentApiClient StudentsApi
+
+<PageTitle>Students</PageTitle>
+
+<h1>Students</h1>
+
+<p>This component demonstrates showing data loaded from a backend API service.</p>
+
+@if (students == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Date of Birth</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.LastSurname @student.FirstName</td>
+                    <td>@(student.DateOfBirth.ToString("dd-mm-yyyy"))</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private StudentListItem[]? students;
+
+    protected override async Task OnInitializedAsync()
+    {
+        students = await StudentsApi.GetStudentsListAsync();
+    }
+}

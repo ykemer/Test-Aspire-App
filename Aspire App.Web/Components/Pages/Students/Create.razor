@@ -1,0 +1,77 @@
+﻿@page "/students/create"
+@using System.ComponentModel.DataAnnotations
+
+@attribute [StreamRendering(true)]
+
+@inject StudentApiClient StudentsApi
+
+<PageTitle>Create student</PageTitle>
+
+<h3>Create Student</h3>
+
+<EditForm Model="_studentForm" OnValidSubmit="HandleValidSubmit" FormName="test">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="firstName">First Name:</label>
+        <InputText id="firstName" class="form-control" @bind-Value="_studentForm.FirstName" />
+    </div>
+
+    <div class="form-group">
+        <label for="lastSurname">Last Surname:</label>
+        <InputText id="lastSurname" class="form-control" @bind-Value="_studentForm.LastSurname" />
+    </div>
+
+    <div class="form-group">
+        <label for="email">Email:</label>
+        <InputText id="email" class="form-control" @bind-Value="_studentForm.Email" />
+    </div>
+
+    <div class="form-group">
+        <label for="dateOfBirth">Date of Birth:</label>
+        <InputDate id="dateOfBirth" class="form-control" @bind-Value="_studentForm.DateOfBirth" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create</button>
+</EditForm>
+
+@code {
+    private StudentForm _studentForm = new StudentForm();
+
+    private async Task HandleValidSubmit()
+    {
+        var newStudent = new StudentListItem(_studentForm.FirstName, _studentForm.LastSurname, _studentForm.Email, _studentForm.DateOfBirth);
+        await StudentsApi.CreateStudent(newStudent);
+        _studentForm = new StudentForm(); // reset the form
+    }
+
+    public class StudentForm
+    {
+        [Required]
+        public string FirstName { get; set; } = "";
+
+        [Required]
+        public string LastSurname { get; set; } = "";
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = "";
+
+        [Required]
+        public DateTime DateOfBirth { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            var age = DateTime.Today.Year - DateOfBirth.Year;
+            if (DateOfBirth.Date > DateTime.Today.AddYears(-age)) age--;
+
+            if (age < 18 || age > 90)
+            {
+                yield return new ValidationResult(
+                    "Age must be between 18 and 90 years",
+                    new[] { nameof(DateOfBirth) });
+            }
+        }
+    }
+}
