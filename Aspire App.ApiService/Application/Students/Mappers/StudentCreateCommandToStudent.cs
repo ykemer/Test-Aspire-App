@@ -2,13 +2,12 @@
 using Aspire_App.ApiService.Domain.Models;
 using AutoMapper;
 
-namespace Aspire_App.ApiService.Application.Students.Mappers
+namespace Aspire_App.ApiService.Application.Students.Mappers;
+
+public class StudentCreateCommandToStudent : Profile
 {
-    public class StudentCreateCommandToStudent: Profile
+    public StudentCreateCommandToStudent()
     {
-        public StudentCreateCommandToStudent()
-        {
-            CreateMap<StudentCreateCommand, Student>();
-        }
+        CreateMap<StudentCreateCommand, Student>();
     }
 }

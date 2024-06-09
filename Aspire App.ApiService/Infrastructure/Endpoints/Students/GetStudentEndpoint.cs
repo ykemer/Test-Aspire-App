@@ -1,5 +1,4 @@
-﻿using Aspire_App.ApiService.Application.Students.Commands;
-using Aspire_App.ApiService.Application.Students.Queries;
+﻿using Aspire_App.ApiService.Application.Students.Queries;
 using Aspire_App.ApiService.Application.Students.Responses;
 using FastEndpoints;
 using MediatR;
@@ -26,10 +25,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<Results<Ok<StudentRespo
     {
         var id = Route<Guid>("StudentId");
         var getStudentResult = await _mediator.Send(new GetStudentQuery(id));
-        if (getStudentResult == null)
-        {
-            return TypedResults.NotFound();
-        }
+        if (getStudentResult == null) return TypedResults.NotFound();
         return TypedResults.Ok(getStudentResult);
     }
 }

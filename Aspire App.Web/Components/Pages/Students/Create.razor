@@ -9,57 +9,71 @@
 
 <h3>Create Student</h3>
 
-<EditForm Model="_studentForm" OnValidSubmit="HandleValidSubmit" FormName="test">
+<EditForm Model="studentForm" OnValidSubmit="HandleValidSubmit" FormName="CreateStudentForm">
     <DataAnnotationsValidator />
     <ValidationSummary />
 
     <div class="form-group">
         <label for="firstName">First Name:</label>
-        <InputText id="firstName" class="form-control" @bind-Value="_studentForm.FirstName" />
+        <InputText id="firstName" class="form-control" @bind-Value="studentForm.FirstName" />
     </div>
 
     <div class="form-group">
         <label for="lastSurname">Last Surname:</label>
-        <InputText id="lastSurname" class="form-control" @bind-Value="_studentForm.LastSurname" />
+        <InputText id="lastSurname" class="form-control" @bind-Value="studentForm.LastName" />
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <InputText id="email" class="form-control" @bind-Value="_studentForm.Email" />
+        <InputText id="email" class="form-control" @bind-Value="studentForm.Email" />
     </div>
 
     <div class="form-group">
         <label for="dateOfBirth">Date of Birth:</label>
-        <InputDate id="dateOfBirth" class="form-control" @bind-Value="_studentForm.DateOfBirth" />
+        <InputDate id="dateOfBirth" class="form-control" @bind-Value="studentForm.DateOfBirth" />
     </div>
 
     <button type="submit" class="btn btn-primary">Create</button>
 </EditForm>
 
 @code {
-    private StudentForm _studentForm = new StudentForm();
+    
+ 
+
+    [SupplyParameterFromForm]
+    public StudentForm studentForm { get; set; }
+
+    protected override Task OnInitializedAsync()
+    {
+        studentForm ??= new();
+        return base.OnInitializedAsync();
+    }
 
     private async Task HandleValidSubmit()
     {
-        var newStudent = new StudentListItem(_studentForm.FirstName, _studentForm.LastSurname, _studentForm.Email, _studentForm.DateOfBirth);
+        var newStudent = new StudentListItem(studentForm.FirstName, studentForm.LastName, studentForm.Email, studentForm.DateOfBirth);
         await StudentsApi.CreateStudent(newStudent);
-        _studentForm = new StudentForm(); // reset the form
+        studentForm = new StudentForm(); // reset the form
     }
 
     public class StudentForm
     {
         [Required]
-        public string FirstName { get; set; } = "";
+        public string FirstName { get; set; }
 
         [Required]
-        public string LastSurname { get; set; } = "";
+        public string LastName { get; set; }
 
         [Required]
         [EmailAddress]
-        public string Email { get; set; } = "";
+        public string Email { get; set; }
 
         [Required]
+        [DataType(DataType.Date)]
         public DateTime DateOfBirth { get; set; }
+
+        [Range(18, 80, ErrorMessage = "Age must be between 18 and 80.")]
+        public int Age => DateTime.Today.Year - DateOfBirth.Year;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

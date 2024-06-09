@@ -1,17 +1,16 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Aspire_App.ApiService.Domain.Models
+namespace Aspire_App.ApiService.Domain.Models;
+
+public class StudentEnrollment
 {
-    public class StudentEnrollment
-    {
-        [Key]
-        public Guid Id { get; init; } = Guid.NewGuid();
-        public DateTime Enroled { get; set; } = DateTime.Now;
+    [Key] public Guid Id { get; init; } = Guid.NewGuid();
 
-        public Guid StudentId { get; set; }
-        public Student Student { get; set; }
+    public DateTime Enroled { get; set; } = DateTime.Now;
 
-        public Guid CourseId { get; set; }
-        public Course Course { get; set; }
-    }
+    public Guid StudentId { get; set; }
+    public Student Student { get; set; }
+
+    public Guid CourseId { get; set; }
+    public Course Course { get; set; }
 }

@@ -4,9 +4,10 @@ public class StudentApiClient(HttpClient httpClient)
 {
     public async Task<StudentListItem[]> GetStudentsListAsync(int maxItems = 10, CancellationToken cancellationToken = default)
     {
+        
         List<StudentListItem>? students = null;
 
-        await foreach (var student in httpClient.GetFromJsonAsAsyncEnumerable<StudentListItem>("/students", cancellationToken))
+        await foreach (var student in httpClient.GetFromJsonAsAsyncEnumerable<StudentListItem>("/api/students", cancellationToken))
         {
             if (students?.Count >= maxItems)
             {
@@ -24,10 +25,9 @@ public class StudentApiClient(HttpClient httpClient)
 
     public async Task<StudentListItem?> CreateStudent(StudentListItem student,  CancellationToken cancellationToken = default)
     {
-        var result = await httpClient.PostAsJsonAsync("/students", student, cancellationToken);
+        var result = await httpClient.PostAsJsonAsync("/api/students", student, cancellationToken);
         result.EnsureSuccessStatusCode();
         return await result.Content.ReadFromJsonAsync<StudentListItem>(cancellationToken: cancellationToken)  ;
-       
     }
 }
 
@@ -37,7 +37,7 @@ public class StudentApiClient(HttpClient httpClient)
 
 public record StudentListItem(
  string FirstName,
- string LastSurname,
+ string LastName,
  string Email,
  DateTime DateOfBirth
 );

@@ -7,10 +7,11 @@ using MediatR;
 
 namespace Aspire_App.ApiService.Application.Students.Handlers;
 
-public class CreateStudentHandler: IRequestHandler<StudentCreateCommand, StudentResponse>
+public class CreateStudentHandler : IRequestHandler<StudentCreateCommand, StudentResponse>
 {
     private readonly IMapper _mapper;
     private readonly IStudentRepository _studentRepository;
+
     public CreateStudentHandler(IMapper mapper, IStudentRepository studentRepository)
     {
         _mapper = mapper;

@@ -24,10 +24,10 @@ public class CreateStudentEndpoint : Endpoint<StudentCreateCommand,
             .ProducesProblemFE<InternalErrorResponse>(500));
     }
 
-    public override async Task<StudentResponse> ExecuteAsync(StudentCreateCommand studentCreateCommand, CancellationToken cancellationToken)
+    public override async Task<StudentResponse> ExecuteAsync(StudentCreateCommand studentCreateCommand,
+        CancellationToken cancellationToken)
     {
         var createdStudentOutput = await _mediator.Send(studentCreateCommand);
         return createdStudentOutput;
     }
 }
-

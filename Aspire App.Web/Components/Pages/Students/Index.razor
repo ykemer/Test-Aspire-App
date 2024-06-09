@@ -14,6 +14,11 @@
 {
     <p><em>Loading...</em></p>
 }
+else if (students.Length == 0)
+{
+    <p><em>No students found.</em></p>
+
+}
 else
 {
     <table class="table">
@@ -27,8 +32,8 @@ else
             @foreach (var student in students)
             {
                 <tr>
-                    <td>@student.LastSurname @student.FirstName</td>
-                    <td>@(student.DateOfBirth.ToString("dd-mm-yyyy"))</td>
+                    <td>@student.LastName @student.FirstName</td>
+                    <td>@(student.DateOfBirth.ToString("dd-MM-yyyy"))</td>
                 </tr>
             }
         </tbody>
