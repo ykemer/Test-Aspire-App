@@ -1,14 +1,15 @@
-﻿using Aspire_App.ApiService.Application.Students.Queries;
+﻿using Aspire_App.ApiService.Application.Common;
+using Aspire_App.ApiService.Application.Students.Queries;
 using Aspire_App.ApiService.Application.Students.Responses;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Library.Pagination;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aspire_App.ApiService.Application.Students.Handlers;
 
-public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, List<StudentResponse>>
+public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, PagedList<StudentResponse>>
 {
     private readonly IMapper _mapper;
     private readonly IStudentRepository _studentRepository;
@@ -19,11 +20,12 @@ public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, List<Stude
         _mapper = mapper;
     }
 
-    public async Task<List<StudentResponse>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
+    public Task<PagedList<StudentResponse>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
     {
-        return await _studentRepository
+        var output =  _studentRepository
             .GetAllAsync(cancellationToken)
-            .ProjectTo<StudentResponse>(_mapper.ConfigurationProvider)
-            .ToListAsync(cancellationToken);
+            .ProjectTo<StudentResponse>(_mapper.ConfigurationProvider);
+
+        return Task.FromResult(PagedList<StudentResponse>.Create(output, request.Page, request.PageSize));
     }
 }

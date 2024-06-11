@@ -1,11 +1,12 @@
 ﻿using Aspire_App.ApiService.Application.Students.Queries;
 using Aspire_App.ApiService.Application.Students.Responses;
 using FastEndpoints;
+using Library.Pagination;
 using MediatR;
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Students;
 
-public class ListStudentsEndpoint : EndpointWithoutRequest<List<StudentResponse>>
+public class ListStudentsEndpoint : Endpoint<ListStudentsQuery, PagedList<StudentResponse>>
 {
     private readonly IMediator _mediator;
 
@@ -20,8 +21,8 @@ public class ListStudentsEndpoint : EndpointWithoutRequest<List<StudentResponse>
         AllowAnonymous();
     }
 
-    public override async Task<List<StudentResponse>> ExecuteAsync(CancellationToken cancellationToken)
+    public override async Task<PagedList<StudentResponse>> ExecuteAsync(ListStudentsQuery query, CancellationToken cancellationToken)
     {
-        return await _mediator.Send(new ListStudentsQuery());
+        return await _mediator.Send(query);
     }
 }

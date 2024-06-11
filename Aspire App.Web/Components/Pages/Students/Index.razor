@@ -1,4 +1,8 @@
 ﻿@page "/students"
+@rendermode InteractiveServer
+
+@using Aspire_App.Web.Components.Shared
+@using Library.Pagination
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
 
@@ -10,11 +14,11 @@
 
 <p>This component demonstrates showing data loaded from a backend API service.</p>
 
-@if (students == null)
+@if (_students == null)
 {
     <p><em>Loading...</em></p>
 }
-else if (students.Length == 0)
+else if (_students.Items.Count == 0)
 {
     <p><em>No students found.</em></p>
 
@@ -29,7 +33,7 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var student in students)
+            @foreach (var student in _students.Items)
             {
                 <tr>
                     <td>@student.LastName @student.FirstName</td>
@@ -38,14 +42,26 @@ else
             }
         </tbody>
     </table>
+
+    @if(_students.TotalPages > 1)
+    {
+        <Pager records="_students" ChangePage="GetStudents" />
+    }
 }
 
 
 @code {
-    private StudentListItem[]? students;
+    private PagedList<StudentListItem>? _students;
 
     protected override async Task OnInitializedAsync()
     {
-        students = await StudentsApi.GetStudentsListAsync();
+        await GetStudents();
     }
+
+    protected async Task GetStudents(int page = 1)
+    {
+        _students = null;
+        _students = await StudentsApi.GetStudentsListAsync(page);
+    }
+
 }

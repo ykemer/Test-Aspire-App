@@ -17,6 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\Library\Library.csproj" />
   </ItemGroup>
 
 </Project>

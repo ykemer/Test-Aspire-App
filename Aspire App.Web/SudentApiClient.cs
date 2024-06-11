@@ -1,33 +1,33 @@
+using System.Text.Json;
+using Library.Pagination;
+
 namespace Aspire_App.Web;
 
 public class StudentApiClient(HttpClient httpClient)
 {
-    public async Task<StudentListItem[]> GetStudentsListAsync(int maxItems = 10, CancellationToken cancellationToken = default)
+    public async Task<PagedList<StudentListItem>> GetStudentsListAsync(int page, int pageSize = 10, CancellationToken cancellationToken = default)
     {
-        
-        List<StudentListItem>? students = null;
-
-        await foreach (var student in httpClient.GetFromJsonAsAsyncEnumerable<StudentListItem>("/api/students", cancellationToken))
+        var options = new JsonSerializerOptions
         {
-            if (students?.Count >= maxItems)
-            {
-                break;
-            }
-            if (student is not null)
-            {
-                students ??= [];
-                students.Add(student);
-            }
-        }
+            PropertyNameCaseInsensitive = true
+        };
 
-        return students?.ToArray() ?? [];
+        var response = await httpClient.GetAsync($"/api/students?page={page}&pageSize={pageSize}", cancellationToken);
+
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ApplicationException($"Error fetching attributes");
+        }
+     
+        var res = await response.Content.ReadFromJsonAsync<PagedList<StudentListItem>>(options);
+        return res;
     }
 
-    public async Task<StudentListItem?> CreateStudent(StudentListItem student,  CancellationToken cancellationToken = default)
+    public async Task<StudentListItem?> CreateStudent(StudentListItem student, CancellationToken cancellationToken = default)
     {
         var result = await httpClient.PostAsJsonAsync("/api/students", student, cancellationToken);
         result.EnsureSuccessStatusCode();
-        return await result.Content.ReadFromJsonAsync<StudentListItem>(cancellationToken: cancellationToken)  ;
+        return await result.Content.ReadFromJsonAsync<StudentListItem>(cancellationToken: cancellationToken);
     }
 }
 
@@ -35,9 +35,13 @@ public class StudentApiClient(HttpClient httpClient)
 
 
 
-public record StudentListItem(
- string FirstName,
- string LastName,
- string Email,
- DateTime DateOfBirth
-);
+public class StudentListItem
+{
+    public Guid Id { get; init; } = Guid.NewGuid();
+
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string Email { get; set; }
+
+    public DateTime DateOfBirth { get; set; }
+}

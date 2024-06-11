@@ -37,8 +37,8 @@
 </EditForm>
 
 @code {
-    
- 
+
+
 
     [SupplyParameterFromForm]
     public StudentForm studentForm { get; set; }
@@ -51,7 +51,14 @@
 
     private async Task HandleValidSubmit()
     {
-        var newStudent = new StudentListItem(studentForm.FirstName, studentForm.LastName, studentForm.Email, studentForm.DateOfBirth);
+        var newStudent = new StudentListItem
+            {
+                FirstName = studentForm.FirstName,
+                LastName = studentForm.LastName,
+                Email = studentForm.Email,
+                DateOfBirth = studentForm.DateOfBirth
+
+            };
         await StudentsApi.CreateStudent(newStudent);
         studentForm = new StudentForm(); // reset the form
     }
