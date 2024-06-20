@@ -1,10 +1,10 @@
-﻿@inherits LayoutComponentBase
-@using Microsoft.AspNetCore.Components.Authorization
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inherits LayoutComponentBase
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu/>
     </div>
 
     <main>
@@ -29,7 +29,7 @@
                     </NotAuthorized>
                 </AuthorizeView>
             </CascadingAuthenticationState>
-            
+
         </div>
 
         <article class="content px-4">
@@ -45,17 +45,18 @@
 </div>
 
 
-@code{ 
+@code{
 
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
     private string? userName { get; set; }
 
-    protected async override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
         base.OnInitialized();
-        
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         userName = user?.Identity?.Name;
     }
+
 }

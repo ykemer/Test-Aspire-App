@@ -26,16 +26,16 @@ public class JwtService
             o =>
             {
                 o.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
-                o.Issuer = "https+http://apiservice";//Environment.GetEnvironmentVariable("JWT_KEY_ISSUER");
-                o.Audience = "https+http://apiservice";//Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE");
+                o.Issuer = "https+http://apiservice"; //Environment.GetEnvironmentVariable("JWT_KEY_ISSUER");
+                o.Audience = "https+http://apiservice"; //Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE");
                 o.ExpireAt = expiresAt;
                 o.User.Claims.Add((ClaimTypes.Name, user.FirstName));
                 o.User.Claims.Add((ClaimTypes.Surname, user.LastName));
                 o.User.Claims.Add((ClaimTypes.Email, user.Email));
                 o.User.Claims.Add((ClaimTypes.Role, roles.FirstOrDefault()));
-                
-               
-               
+                o.User.Claims.Add((ClaimTypes.Sid, user.Id));
+
+
                 o.User.Roles.Add(roles.ToArray());
             });
 
@@ -45,15 +45,15 @@ public class JwtService
             ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
         };
     }
-    
-    private ClaimsPrincipal? GetPrincipalFromExpiredToken (string token) 
+
+    private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
     {
-        var secret =  Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
+        var secret = Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
 
         var validation = new TokenValidationParameters
         {
-            ValidIssuer = "https+http://apiservice",// Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
-            ValidAudience = "https+http://apiservice",//Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
+            ValidIssuer = "https+http://apiservice", // Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
+            ValidAudience = "https+http://apiservice", //Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
             ValidateLifetime = false
         };

@@ -1,14 +1,13 @@
 ﻿@page "/admin/students"
-@attribute [Authorize]
-
-@rendermode InteractiveServer
-
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Models.Students
 @using Aspire_App.Web.Services.Students
 @using Library.Pagination
+@attribute [Authorize]
 
-@attribute [StreamRendering(true)]
+@rendermode InteractiveServer
+
+@attribute [StreamRendering()]
 @attribute [OutputCache(Duration = 5)]
 
 @inject IStudentApiService StudentsApi
@@ -20,46 +19,49 @@
 
 @if (_students == null)
 {
-    <p><em>Loading...</em></p>
+    <p>
+        <em>Loading...</em>
+    </p>
 }
 else if (_students.Items.Count == 0)
 {
-    <p><em>No students found.</em></p>
-
+    <p>
+        <em>No students found.</em>
+    </p>
 }
 else
 {
     <table class="table">
         <thead>
-            <tr>
-                <th>Name</th>
-                <th>Date of Birth</th>
-            </tr>
+        <tr>
+            <th>Name</th>
+            <th>Date of Birth</th>
+        </tr>
         </thead>
         <tbody>
-            @foreach (var student in _students.Items)
-            {
-                <tr>
-                    <td>@student.LastName @student.FirstName</td>
-                    <td>@(student.DateOfBirth.ToString("dd-MM-yyyy"))</td>
-                </tr>
-            }
+        @foreach (var student in _students.Items)
+        {
+            <tr>
+                <td>@student.LastName @student.FirstName</td>
+                <td>@(student.DateOfBirth.ToString("dd-MM-yyyy"))</td>
+            </tr>
+        }
         </tbody>
     </table>
 
-    @if(_students.TotalPages > 1)
+    @if (_students.TotalPages > 1)
     {
-        <Pager records="_students" ChangePage="GetStudents" />
+        <Pager records="_students" ChangePage="GetStudents"/>
     }
 }
 
 
 @code {
-    private PagedList<StudentListItem>? _students;
+    private PagedList<StudentResponse>? _students;
 
     protected override async Task OnInitializedAsync()
     {
-       await GetStudents();
+        await GetStudents();
     }
 
     protected async Task GetStudents(int page = 1)
@@ -67,4 +69,5 @@ else
         _students = null;
         _students = await StudentsApi.GetStudentsListAsync(page);
     }
+
 }

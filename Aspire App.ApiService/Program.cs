@@ -1,6 +1,7 @@
 using System.Reflection;
 using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Domain.Persistence;
+using Aspire_App.ApiService.Infrastructure.Middleware;
 using Aspire_App.ApiService.Infrastructure.Persistence;
 using Aspire_App.ApiService.Infrastructure.Persistence.Repositories;
 using Aspire_App.ApiService.Infrastructure.Services;
@@ -12,7 +13,6 @@ using Library.Tools;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using NSwag;
-
 
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
@@ -45,26 +45,21 @@ builder.Services
         options.AddPolicy("RequireAdministratorRole",
             policy => policy.RequireRole("Administrator"));
         options.AddPolicy("RequireUserRole",
-            policy =>   policy.RequireRole("User", "Administrator"));
+            policy => policy.RequireRole("User", "Administrator"));
     })
-    .AddAuthenticationJwtBearer(options =>
-    {
-        options.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
-        
-    })
+    .AddAuthenticationJwtBearer(options => { options.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY"); })
     .AddFastEndpoints()
     .AddSwaggerDocument(options =>
     {
         options.AddSecurity("Bearer", new OpenApiSecurityScheme
         {
             Description = "Please enter 'Bearer [jwt]'",
-            Name = "Authorization",
+            Name = "Authorization"
         });
-        
+
         options.Title = "Aspire App API";
         options.Version = "v1";
     });
-
 
 
 builder.Services.AddAuthentication(options =>
@@ -79,8 +74,7 @@ builder.Services.AddScoped<ApplicationDbContextInitialiser>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
 builder.Services.AddScoped<ICourseRepository, CourseRepository>();
-
-
+builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 
 
 var app = builder.Build();
@@ -96,6 +90,7 @@ app.UseSwaggerGen();
 
 using (var scope = app.Services.CreateScope())
 {
+    app.UseMiddleware<JwtMiddleware>();
     var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
     await Waiter.Wait(5000);
     await initialiser.InitialiseAsync();

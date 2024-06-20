@@ -1,11 +1,10 @@
-﻿using Aspire_App.ApiService.Application.Common;
-using Aspire_App.ApiService.Application.Courses.Responses;
+﻿using Aspire_App.ApiService.Application.Courses.Responses;
 using Library.Pagination;
 using MediatR;
 
-namespace Aspire_App.ApiService.Application.Students.Queries;
+namespace Aspire_App.ApiService.Application.Courses.Queries;
 
-public class ListCoursesQuery: PagedQuery, IRequest<PagedList<CourseResponse>>
+public class ListCoursesQuery : ListCoursesGeneralQuery, IRequest<PagedList<CourseResponse>>
 {
-    
+    public Guid StudentId { get; set; }
 }

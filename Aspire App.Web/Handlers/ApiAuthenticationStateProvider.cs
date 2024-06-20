@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using Aspire_App.Web.Services;
 using Aspire_App.Web.Services.Auth;
 using Microsoft.AspNetCore.Components.Authorization;
 
@@ -17,15 +16,14 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var token = await _authenticationService.GetJwtAsync();
-        if(string.IsNullOrEmpty(token))
-        {
-            return new AuthenticationState(new ClaimsPrincipal());
-        }
+        if (string.IsNullOrEmpty(token)) return new AuthenticationState(new ClaimsPrincipal());
 
         var userName = _authenticationService.GetUsername(token);
         var userRole = _authenticationService.GetUserRole(token);
 
-        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, userRole) }, "apiauth"); // Simplified
+        var identity =
+            new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, userRole) },
+                "apiauth"); // Simplified
 
         var user = new ClaimsPrincipal(identity);
         return new AuthenticationState(user);

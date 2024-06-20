@@ -5,4 +5,3 @@ public interface ICookiesService
     string GenerateUserIdCookie();
     string GetUserId();
 }
-

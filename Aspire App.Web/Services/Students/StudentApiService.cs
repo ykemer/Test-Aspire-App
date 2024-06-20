@@ -8,35 +8,26 @@ public class StudentApiService : IStudentApiService
 {
     private readonly HttpClient _httpClient;
 
-    public StudentApiService( HttpClient httpClient)
+    public StudentApiService(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
 
 
-    public async Task<PagedList<StudentListItem>> GetStudentsListAsync(int page, int pageSize = 10, CancellationToken cancellationToken = default)
+    public async Task<PagedList<StudentResponse>> GetStudentsListAsync(int page, int pageSize = 10,
+        CancellationToken cancellationToken = default)
     {
         var options = new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
         };
 
-         var response = await _httpClient.GetAsync($"/api/students?page={page}&pageSize={pageSize}", cancellationToken);
+        var response =
+            await _httpClient.GetAsync($"/api/students/list?page={page}&pageSize={pageSize}", cancellationToken);
 
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new ApplicationException($"Error fetching attributes");
-        }
-     
-        var res = await response.Content.ReadFromJsonAsync<PagedList<StudentListItem>>(options);
+        if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching attributes");
+
+        var res = await response.Content.ReadFromJsonAsync<PagedList<StudentResponse>>(options);
         return res;
     }
-
-   
 }
-
-
-
-
-
-

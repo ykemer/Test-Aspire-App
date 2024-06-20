@@ -2,8 +2,8 @@
 
 public class CookiesService : ICookiesService
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
     private const string UserIdCookieName = "UserId";
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CookiesService(IHttpContextAccessor httpContextAccessor)
     {
@@ -26,16 +26,12 @@ public class CookiesService : ICookiesService
         // Add the cookie to the response
         _httpContextAccessor.HttpContext.Response.Cookies.Append(UserIdCookieName, userId, cookieOptions);
         return userId;
-    }   
-    
+    }
+
     public string GetUserId()
     {
-      
         var userId = _httpContextAccessor.HttpContext?.Request.Cookies[UserIdCookieName];
-        if (string.IsNullOrEmpty(userId))
-        {
-            userId = GenerateUserIdCookie();
-        }
+        if (string.IsNullOrEmpty(userId)) userId = GenerateUserIdCookie();
         return userId;
     }
 }

@@ -8,6 +8,7 @@ public class CourseToCourseResponse : Profile
 {
     public CourseToCourseResponse()
     {
-        CreateMap<Course, CourseResponse>();
+        CreateMap<Course, CourseResponse>()
+            .ForMember(dest => dest.Enrolled, src => src.MapFrom(course => course.StudentEnrollments.Any()));
     }
 }

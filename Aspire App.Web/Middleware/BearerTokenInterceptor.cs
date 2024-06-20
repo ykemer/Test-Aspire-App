@@ -1,6 +1,5 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using Aspire_App.Web.Services;
 using Aspire_App.Web.Services.Auth;
 
 namespace Aspire_App.Web.Middleware;
@@ -17,7 +16,8 @@ public class BearerTokenInterceptor : DelegatingHandler
         _configuration = configuration;
     }
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
+        CancellationToken cancellationToken)
     {
         var jwt = await _authenticationService.GetJwtAsync();
         var isToServer = request.RequestUri?.AbsoluteUri.StartsWith(_configuration["ServerUrl"] ?? "") ?? false;
@@ -25,10 +25,9 @@ public class BearerTokenInterceptor : DelegatingHandler
         if (isToServer && !string.IsNullOrEmpty(jwt))
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
 
-        var response =  await base.SendAsync(request, cancellationToken);
+        var response = await base.SendAsync(request, cancellationToken);
 
         if (!_refreshing && !string.IsNullOrEmpty(jwt) && response.StatusCode == HttpStatusCode.Unauthorized)
-        {
             try
             {
                 _refreshing = true;
@@ -47,7 +46,6 @@ public class BearerTokenInterceptor : DelegatingHandler
             {
                 _refreshing = false;
             }
-        }
 
         return response;
     }

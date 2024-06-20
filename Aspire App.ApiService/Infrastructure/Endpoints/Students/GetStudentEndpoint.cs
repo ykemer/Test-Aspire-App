@@ -17,7 +17,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<Results<Ok<StudentRespo
 
     public override void Configure()
     {
-        Get("/api/student/{StudentId}");
+        Get("/api/students/{StudentId}");
         Policies("RequireAdministratorRole");
     }
 

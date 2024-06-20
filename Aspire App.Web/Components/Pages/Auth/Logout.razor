@@ -1,8 +1,6 @@
 ﻿@page "/logout"
-@rendermode InteractiveServer
-
-@using Aspire_App.Web.Services
 @using Aspire_App.Web.Services.Auth
+@rendermode InteractiveServer
 
 @inject IAuthenticationService AuthenticationService;
 @inject NavigationManager NavigationManager;
@@ -12,6 +10,7 @@
 </div>
 
 @code {
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -21,4 +20,5 @@
             NavigationManager.NavigateTo("/");
         }
     }
+
 }

@@ -7,7 +7,7 @@
     </div>
 </div>
 
-<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+<input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
     <nav class="flex-column">
@@ -39,7 +39,7 @@
                         </NavLink>
                     </div>
                 }
-                
+
                 @if (IsUser)
                 {
                     <div class="nav-item px-3">
@@ -60,13 +60,13 @@
     </nav>
 </div>
 
-@code{ 
+@code{
 
-    
+
     [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
     [Parameter] public RouteData RouteData { get; set; }
 
-    private bool pageRequiresAuthorization => RouteData.PageType.GetCustomAttributes(typeof(AuthorizeAttribute), inherit: true).Any();
+    private bool pageRequiresAuthorization => RouteData.PageType.GetCustomAttributes(typeof(AuthorizeAttribute), true).Any();
 
     private bool IsAdministrator { get; set; }
     private bool IsUser { get; set; }
@@ -84,4 +84,5 @@
 
         return user.IsInRole(role);
     }
+
 }

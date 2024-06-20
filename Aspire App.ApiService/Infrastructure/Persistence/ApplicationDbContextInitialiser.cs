@@ -61,38 +61,36 @@ public sealed class ApplicationDbContextInitialiser
             await _roleManager.CreateAsync(administratorRole);
             await _roleManager.CreateAsync(userRole);
         }
-           
 
 
         // Default users
         var administrator = new ApplicationUser
         {
-            UserName = Environment.GetEnvironmentVariable("ADMIN_USER_NAME"), 
-            Email = Environment.GetEnvironmentVariable("ADMIN_USER_EMAIL"),
+            UserName = "admin@localhost",
+            Email = "admin@localhost",
             FirstName = "John",
             LastName = "Doe",
             DateOfBirth = DateTime.Now.AddYears(-30),
-            EmailConfirmed = true,
+            EmailConfirmed = true
         };
-        
+
         var student = new ApplicationUser
         {
-            UserName = "student@mail.com", 
-            Email = "student@mail.com",
+            UserName = "student@localhost",
+            Email = "student@localhost",
             FirstName = "Marry",
             LastName = "Doe",
             DateOfBirth = DateTime.Now.AddYears(-25),
-            EmailConfirmed = true,
+            EmailConfirmed = true
         };
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
             await _userManager.CreateAsync(administrator, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD"));
             await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name }!);
-            
+
             await _userManager.CreateAsync(student, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD"));
             await _userManager.AddToRolesAsync(student, new[] { userRole.Name }!);
-
         }
 
         if (!_context.Students.Any())
@@ -114,23 +112,23 @@ public sealed class ApplicationDbContextInitialiser
             var math = new Course
             {
                 Name = "Math",
-                Description = "Math course",
+                Description = "Math course"
             };
-            
+
             _context.Courses.Add(math);
-            
+
             _context.Courses.Add(new Course
             {
                 Name = "Physics",
-                Description = "Physics course",
+                Description = "Physics course"
             });
-            
+
             _context.Courses.Add(new Course
             {
                 Name = "Coding",
-                Description = "Coding course",
+                Description = "Coding course"
             });
-            
+
             _context.StudentEnrollments.Add(new StudentEnrollment
             {
                 StudentId = Guid.Parse(student.Id),

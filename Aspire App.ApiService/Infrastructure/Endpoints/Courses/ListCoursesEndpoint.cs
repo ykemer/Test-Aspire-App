@@ -1,12 +1,12 @@
-﻿using Aspire_App.ApiService.Application.Courses.Responses;
-using Aspire_App.ApiService.Application.Students.Queries;
+﻿using Aspire_App.ApiService.Application.Courses.Queries;
+using Aspire_App.ApiService.Application.Courses.Responses;
 using FastEndpoints;
 using Library.Pagination;
 using MediatR;
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Courses;
 
-public class ListCoursesEndpoint : Endpoint<ListCoursesQuery, PagedList<CourseResponse>>
+public class ListCoursesEndpoint : Endpoint<ListCoursesGeneralQuery, IResult>
 {
     private readonly IMediator _mediator;
 
@@ -17,13 +17,23 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesQuery, PagedList<CourseRe
 
     public override void Configure()
     {
-        Get("/api/courses");
+        Get("/api/courses/list");
         Policies("RequireUserRole");
-        Policies("RequireAdministratorRole");
     }
 
-    public override async Task<PagedList<CourseResponse>> ExecuteAsync(ListCoursesQuery query, CancellationToken cancellationToken)
+    public override async Task<IResult> ExecuteAsync(ListCoursesGeneralQuery query,
+        CancellationToken cancellationToken)
     {
-        return await _mediator.Send(query);
+        HttpContext.Items.TryGetValue("UserId", out var userIdObj);
+        var userId = Guid.Parse(userIdObj.ToString());
+
+        var output = await _mediator.Send(new ListCoursesQuery
+        {
+            StudentId = userId,
+            Page = query.Page,
+            PageSize = query.PageSize
+        });
+        
+        return Results.Ok(output);
     }
 }

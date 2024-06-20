@@ -29,26 +29,25 @@ builder.Services.AddHttpClient<IStudentApiService, StudentApiService>(client =>
 {
     // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
     // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new("https+http://apiservice");
+    client.BaseAddress = new Uri("https+http://apiservice");
 }).AddHttpMessageHandler<BearerTokenInterceptor>();
 
 builder.Services.AddHttpClient<ICoursesApiService, CoursesApiService>(client =>
 {
     // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
     // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new("https+http://apiservice");
+    client.BaseAddress = new Uri("https+http://apiservice");
 }).AddHttpMessageHandler<BearerTokenInterceptor>();
 
 
-
-builder.Services.AddHttpClient("ServerApi").ConfigureHttpClient(c => c.BaseAddress = new Uri("https+http://apiservice"));
+builder.Services.AddHttpClient("ServerApi")
+    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https+http://apiservice"));
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICookiesService, CookiesService>();
 builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<ITokenService, RedisTokenService>();
-
 
 
 builder.Services.AddCascadingAuthenticationState();
@@ -63,7 +62,7 @@ var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
+    app.UseExceptionHandler("/Error", true);
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }

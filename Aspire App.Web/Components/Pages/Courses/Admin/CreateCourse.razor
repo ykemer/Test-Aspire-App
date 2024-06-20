@@ -1,0 +1,64 @@
+﻿@page "/admin/courses/create"
+@using Aspire_App.Web.Contracts.Requests.Courses
+@using Aspire_App.Web.Services.Courses
+@rendermode InteractiveServer
+
+@inject ICoursesApiService CoursesApiService
+@inject NavigationManager NavigationManager;
+
+<h3>Create course</h3>
+
+<EditForm Model="@CreateCourseForm" OnValidSubmit="SubmitAsync" FormName="createCourseForm">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+        <label for="Name">Name:</label>
+        <InputText id="Name" class="form-control" @bind-Value="CreateCourseForm.Name"/>
+    </div>
+    <div class="form-group">
+        <label for="Name">Description:</label>
+        <InputText id="Description" class="form-control" @bind-Value="CreateCourseForm.Description"/>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Login</button>
+</EditForm>
+
+@if (_successMessage is not null)
+{
+<p>@_successMessage</p>
+}
+
+@if (_errorMessage is not null)
+{
+    <p class="error">@_errorMessage</p>
+}
+
+@code {
+    [SupplyParameterFromForm] public CreateCourseRequest CreateCourseForm { get; set; } = new();
+
+    private string? _errorMessage;
+    private string? _successMessage;
+
+   
+
+    private async Task SubmitAsync()
+    {
+        try
+        {
+            await CoursesApiService.CreateCourse(CreateCourseForm);
+            CreateCourseForm = new CreateCourseRequest();
+            _errorMessage = null;
+            _successMessage = "Course created successfully!";
+            NavigationManager.NavigateTo("/admin/courses");
+        }
+        catch (Exception ex)
+        {
+            _successMessage = null;
+            _errorMessage = ex.Message;
+        }
+    }
+
+   
+
+}

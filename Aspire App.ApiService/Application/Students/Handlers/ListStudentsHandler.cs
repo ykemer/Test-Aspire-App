@@ -1,5 +1,4 @@
-﻿using Aspire_App.ApiService.Application.Common;
-using Aspire_App.ApiService.Application.Students.Queries;
+﻿using Aspire_App.ApiService.Application.Students.Queries;
 using Aspire_App.ApiService.Application.Students.Responses;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
@@ -22,7 +21,7 @@ public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, PagedList<
 
     public Task<PagedList<StudentResponse>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
     {
-        var output =  _studentRepository
+        var output = _studentRepository
             .GetAllAsync(cancellationToken)
             .ProjectTo<StudentResponse>(_mapper.ConfigurationProvider);
 

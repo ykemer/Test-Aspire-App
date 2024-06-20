@@ -9,8 +9,8 @@ namespace Aspire_App.ApiService.Application.Courses.Handlers;
 
 public class CreateCourseHandler : IRequestHandler<CourseCreateCommand, CourseResponse>
 {
-    private readonly IMapper _mapper;
     private readonly ICourseRepository _courseRepository;
+    private readonly IMapper _mapper;
 
     public CreateCourseHandler(IMapper mapper, ICourseRepository studentRepository)
     {

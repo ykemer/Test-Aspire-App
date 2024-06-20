@@ -1,6 +1,5 @@
 ﻿using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Domain.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace Aspire_App.ApiService.Infrastructure.Persistence.Repositories;
 

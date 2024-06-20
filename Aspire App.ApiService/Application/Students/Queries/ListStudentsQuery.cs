@@ -5,7 +5,6 @@ using MediatR;
 
 namespace Aspire_App.ApiService.Application.Students.Queries;
 
-public class ListStudentsQuery: PagedQuery, IRequest<PagedList<StudentResponse>>
+public class ListStudentsQuery : PagedQuery, IRequest<PagedList<StudentResponse>>
 {
-    
 }
