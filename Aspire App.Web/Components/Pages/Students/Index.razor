@@ -1,13 +1,17 @@
-﻿@page "/students"
+﻿@page "/admin/students"
+@attribute [Authorize]
+
 @rendermode InteractiveServer
 
 @using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Models.Students
+@using Aspire_App.Web.Services.Students
 @using Library.Pagination
+
 @attribute [StreamRendering(true)]
 @attribute [OutputCache(Duration = 5)]
 
-@inject StudentApiClient StudentsApi
-
+@inject IStudentApiService StudentsApi
 <PageTitle>Students</PageTitle>
 
 <h1>Students</h1>
@@ -55,7 +59,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await GetStudents();
+       await GetStudents();
     }
 
     protected async Task GetStudents(int page = 1)
@@ -63,5 +67,4 @@ else
         _students = null;
         _students = await StudentsApi.GetStudentsListAsync(page);
     }
-
 }

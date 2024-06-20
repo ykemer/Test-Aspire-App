@@ -1,0 +1,79 @@
+﻿@page "/login"
+@rendermode InteractiveServer
+
+@using Aspire_App.Web.Models.Auth
+@using Aspire_App.Web.Services
+@using Aspire_App.Web.Services.Auth
+
+@inject IAuthenticationService AuthenticationService;
+@inject NavigationManager NavigationManager;
+
+<h3>Login</h3>
+
+<fieldset disabled="@(expiration is not null)">
+    <EditForm Model="@loginForm" OnValidSubmit="SubmitAsync" FormName="loginForm">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div class="form-group">
+            <label for="Email">Email:</label>
+            <InputText id="Email" class="form-control" @bind-Value="loginForm.Email" />
+        </div>
+
+        <div class="form-group">
+            <label for="Password">Password:</label>
+            <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password" />
+        </div>
+        <br/>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </EditForm>
+</fieldset>
+
+@if(expiration is not null)
+{
+    <p>You are logged in until @expiration?.ToLongTimeString()</p>
+}
+
+@if (errorMessage is not null)
+{
+    <p class="error">@errorMessage</p>
+}
+
+@code {
+    [SupplyParameterFromForm] 
+    public LoginModel loginForm { get; set; }
+    
+    private DateTime? expiration;
+    private string? errorMessage;
+    
+    protected override Task OnInitializedAsync()
+    {
+        loginForm ??= new();
+        return base.OnInitializedAsync();
+    }
+
+    private async Task SubmitAsync()
+    {
+        try
+        {
+            expiration = await AuthenticationService.LoginAsync(loginForm);
+            errorMessage = null;
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            expiration = null;
+            errorMessage = ex.Message;
+        }
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        
+        if (firstRender)
+        {
+            StateHasChanged();
+        }
+    }
+
+}

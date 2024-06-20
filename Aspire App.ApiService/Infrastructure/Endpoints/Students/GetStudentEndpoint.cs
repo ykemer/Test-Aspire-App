@@ -18,7 +18,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<Results<Ok<StudentRespo
     public override void Configure()
     {
         Get("/api/student/{StudentId}");
-        AllowAnonymous();
+        Policies("RequireAdministratorRole");
     }
 
     public override async Task<Results<Ok<StudentResponse>, NotFound>> ExecuteAsync(CancellationToken cancellationToken)

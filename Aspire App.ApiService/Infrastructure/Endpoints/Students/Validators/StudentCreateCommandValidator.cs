@@ -2,7 +2,7 @@
 using FastEndpoints;
 using FluentValidation;
 
-namespace Aspire_App.ApiService.Application.Students.Validators;
+namespace Aspire_App.ApiService.Infrastructure.Endpoints.Students.Validators;
 
 public class StudentCreateCommandValidator : Validator<StudentCreateCommand>
 {

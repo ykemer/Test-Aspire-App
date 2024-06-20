@@ -1,7 +1,7 @@
 ﻿using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Domain.Persistence;
 
-namespace Aspire_App.ApiService.Infrastructure.Persistence;
+namespace Aspire_App.ApiService.Infrastructure.Persistence.Repositories;
 
 public class StudentRepository : IStudentRepository
 {

@@ -3,5 +3,5 @@ using MediatR;
 
 namespace Aspire_App.ApiService.Application.Students.Commands;
 
-public record StudentCreateCommand(string FirstName, string LastName, string Email, DateTime DateOfBirth)
+public record StudentCreateCommand(Guid Id, string FirstName, string LastName, string Email, DateTime DateOfBirth)
     : IRequest<StudentResponse>;

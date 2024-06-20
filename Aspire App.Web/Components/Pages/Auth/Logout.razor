@@ -1,0 +1,24 @@
+﻿@page "/logout"
+@rendermode InteractiveServer
+
+@using Aspire_App.Web.Services
+@using Aspire_App.Web.Services.Auth
+
+@inject IAuthenticationService AuthenticationService;
+@inject NavigationManager NavigationManager;
+
+<div>
+    <h3>Logging out...</h3>
+</div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StateHasChanged();
+            await AuthenticationService.LogoutAsync();
+            NavigationManager.NavigateTo("/");
+        }
+    }
+}

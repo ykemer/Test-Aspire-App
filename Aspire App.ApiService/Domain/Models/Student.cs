@@ -5,7 +5,8 @@ namespace Aspire_App.ApiService.Domain.Models;
 
 public class Student
 {
-    [Key] public Guid Id { get; init; } = Guid.NewGuid();
+    [Key] 
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     public string FirstName { get; set; }
     public string LastName { get; set; }

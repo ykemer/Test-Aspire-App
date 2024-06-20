@@ -1,0 +1,69 @@
+﻿@page "/admin/course/{courseId:guid}"
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Models.Courses
+@using Aspire_App.Web.Services.Courses
+@using Library.Pagination
+
+@attribute [StreamRendering(true)]
+@attribute [OutputCache(Duration = 5)]
+
+@inject ICoursesApiService CoursesApiService
+<PageTitle>Courses</PageTitle>
+
+<h1>Courses</h1>
+
+
+@if (_course == null)
+{
+    <p>
+        <em>Loading...</em>
+    </p>
+}
+else
+{
+    <h3>@_course.Name</h3>
+    <h4>@_course.Description</h4>
+    if (_course.EnrolledStudents.Count == 0)
+    {
+        <p>
+            <em>No students enrolled.</em>
+        </p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var student in _course.EnrolledStudents)
+            {
+                <tr>
+                    <td>@student.FirstName @student.LastName</td>
+                    <td>
+                        <button class="btn btn-primary">Remove</button>
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    }
+}
+
+
+@code {
+    [Parameter] public Guid CourseId { get; set; }
+    private CoursesListItem? _course;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _course = await CoursesApiService.GetCourse(CourseId);
+    }
+}
