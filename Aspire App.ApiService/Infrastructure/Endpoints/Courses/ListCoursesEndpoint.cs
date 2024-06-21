@@ -24,16 +24,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesGeneralQuery, IResult>
     public override async Task<IResult> ExecuteAsync(ListCoursesGeneralQuery query,
         CancellationToken cancellationToken)
     {
-        HttpContext.Items.TryGetValue("UserId", out var userIdObj);
-        var userId = Guid.Parse(userIdObj.ToString());
-
-        var output = await _mediator.Send(new ListCoursesQuery
-        {
-            StudentId = userId,
-            Page = query.Page,
-            PageSize = query.PageSize
-        });
-        
+        var userId = HttpContext.GetUserId();
+        var output = await _mediator.Send(new ListCoursesQuery(userId, query), cancellationToken);
         return Results.Ok(output);
     }
 }

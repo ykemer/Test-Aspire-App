@@ -3,7 +3,7 @@ using Aspire_App.ApiService.Domain.Persistence;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
-namespace Aspire_App.ApiService.Application.Courses.Handlers;
+namespace Aspire_App.ApiService.Application.Enrollment.Handlers;
 
 public class LeaveCourseHandler : IRequestHandler<LeaveCourseCommand>
 {

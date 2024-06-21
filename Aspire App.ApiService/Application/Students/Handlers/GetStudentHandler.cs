@@ -20,7 +20,7 @@ public class GetStudentHandler : IRequestHandler<GetStudentQuery, StudentRespons
     public async Task<StudentResponse?> Handle(GetStudentQuery request, CancellationToken cancellationToken)
     {
         var result = await _studentRepository
-            .GetAsync(request.id, cancellationToken);
+            .GetAsync(request.Id, cancellationToken);
 
         return result == null ? null : _mapper.Map<StudentResponse>(result);
     }
