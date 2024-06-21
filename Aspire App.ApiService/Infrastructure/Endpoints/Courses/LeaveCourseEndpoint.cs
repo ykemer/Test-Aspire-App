@@ -24,8 +24,7 @@ public class LeaveCourseEndpoint : Endpoint<StudentChangeEnrollRequest,
     public override async Task<IResult> ExecuteAsync(StudentChangeEnrollRequest request,
         CancellationToken cancellationToken)
     {
-        HttpContext.Items.TryGetValue("UserId", out var userIdObj);
-        var userId = Guid.Parse(userIdObj.ToString());
+        var userId = HttpContext.GetUserId();
 
         await _mediator.Send(new LeaveCourseCommand(request.CourseId, userId), cancellationToken);
         return Results.Ok();

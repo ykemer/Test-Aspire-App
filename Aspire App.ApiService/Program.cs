@@ -92,7 +92,7 @@ using (var scope = app.Services.CreateScope())
 {
     app.UseMiddleware<JwtMiddleware>();
     var initialiser = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitialiser>();
-    await Waiter.Wait(5000);
+    await Waiter.Wait(10_000); // TODO wait for db to be ready
     await initialiser.InitialiseAsync();
     await initialiser.SeedAsync();
 }

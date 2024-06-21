@@ -23,9 +23,7 @@ public class EnrollToCourseEndpoint : Endpoint<StudentChangeEnrollRequest, IResu
     public override async Task<IResult> ExecuteAsync(StudentChangeEnrollRequest request,
         CancellationToken cancellationToken)
     {
-        HttpContext.Items.TryGetValue("UserId", out var userIdObj);
-        var userId = Guid.Parse(userIdObj.ToString());
-
+        var userId = HttpContext.GetUserId();
         await _mediator.Send(new EnrollToCourseCommand(request.CourseId, userId), cancellationToken);
         return Results.Ok();
     }

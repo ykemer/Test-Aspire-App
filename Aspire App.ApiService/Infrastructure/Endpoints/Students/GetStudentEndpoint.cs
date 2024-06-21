@@ -24,7 +24,8 @@ public class GetStudentEndpoint : EndpointWithoutRequest<Results<Ok<StudentRespo
     public override async Task<Results<Ok<StudentResponse>, NotFound>> ExecuteAsync(CancellationToken cancellationToken)
     {
         var id = Route<Guid>("StudentId");
-        var getStudentResult = await _mediator.Send(new GetStudentQuery(id));
+        var getStudentResult = await _mediator.Send(new GetStudentQuery(id), cancellationToken);
+        
         if (getStudentResult == null) return TypedResults.NotFound();
         return TypedResults.Ok(getStudentResult);
     }
