@@ -1,4 +1,5 @@
-﻿using Aspire_App.ApiService.Application.Courses.Queries;
+﻿using System.Security.Claims;
+using Aspire_App.ApiService.Application.Courses.Queries;
 using Aspire_App.ApiService.Application.Courses.Responses;
 using FastEndpoints;
 using Library.Pagination;
@@ -19,12 +20,14 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesGeneralQuery, IResult>
     {
         Get("/api/courses/list");
         Policies("RequireUserRole");
+        Claims("UserId");
     }
 
     public override async Task<IResult> ExecuteAsync(ListCoursesGeneralQuery query,
         CancellationToken cancellationToken)
     {
-        var userId = HttpContext.GetUserId();
+
+        Guid.TryParse(User.FindFirstValue("UserId"), out Guid userId);
         var output = await _mediator.Send(new ListCoursesQuery(userId, query), cancellationToken);
         return Results.Ok(output);
     }

@@ -1,4 +1,5 @@
-﻿using Aspire_App.ApiService.Application.Courses.Command;
+﻿using System.Security.Claims;
+using Aspire_App.ApiService.Application.Courses.Command;
 using Aspire_App.ApiService.Infrastructure.Endpoints.Courses.Requrests.Courses;
 using FastEndpoints;
 using MediatR;
@@ -18,12 +19,13 @@ public class EnrollToCourseEndpoint : Endpoint<StudentChangeEnrollRequest, IResu
     {
         Post("/api/courses/enroll");
         Policies("RequireUserRole");
+        Claims("UserId");
     }
 
     public override async Task<IResult> ExecuteAsync(StudentChangeEnrollRequest request,
         CancellationToken cancellationToken)
     {
-        var userId = HttpContext.GetUserId();
+        Guid.TryParse(User.FindFirstValue("UserId"), out Guid userId);
         await _mediator.Send(new EnrollToCourseCommand(request.CourseId, userId), cancellationToken);
         return Results.Ok();
     }

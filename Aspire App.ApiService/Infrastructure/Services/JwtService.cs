@@ -34,9 +34,8 @@ public class JwtService
                 o.User.Claims.Add((ClaimTypes.Email, user.Email));
                 o.User.Claims.Add((ClaimTypes.Role, roles.FirstOrDefault()));
                 o.User.Claims.Add((ClaimTypes.Sid, user.Id));
-
-
                 o.User.Roles.Add(roles.ToArray());
+                o.User["UserId"] = user.Id; //indexer based claim setting
             });
 
         return new JwtTokenServiceResponse
