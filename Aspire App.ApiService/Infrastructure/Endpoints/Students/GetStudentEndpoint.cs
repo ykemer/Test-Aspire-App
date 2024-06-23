@@ -25,7 +25,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<Results<Ok<StudentRespo
     {
         var id = Route<Guid>("StudentId");
         var getStudentResult = await _mediator.Send(new GetStudentQuery(id), cancellationToken);
-        
+
         if (getStudentResult == null) return TypedResults.NotFound();
         return TypedResults.Ok(getStudentResult);
     }

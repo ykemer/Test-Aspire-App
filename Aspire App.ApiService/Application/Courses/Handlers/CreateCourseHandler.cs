@@ -3,11 +3,12 @@ using Aspire_App.ApiService.Application.Courses.Responses;
 using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
+using ErrorOr;
 using MediatR;
 
 namespace Aspire_App.ApiService.Application.Courses.Handlers;
 
-public class CreateCourseHandler : IRequestHandler<CourseCreateCommand, CourseResponse>
+public class CreateCourseHandler : IRequestHandler<CourseCreateCommand, ErrorOr<CourseResponse>>
 {
     private readonly ICourseRepository _courseRepository;
     private readonly IMapper _mapper;
@@ -18,11 +19,13 @@ public class CreateCourseHandler : IRequestHandler<CourseCreateCommand, CourseRe
         _courseRepository = studentRepository;
     }
 
-    public async Task<CourseResponse> Handle(CourseCreateCommand request, CancellationToken cancellationToken)
+    public async Task<ErrorOr<CourseResponse>> Handle(CourseCreateCommand request, CancellationToken cancellationToken)
     {
-        var studentToSave = _mapper.Map<Course>(request);
-        await _courseRepository.AddAsync(studentToSave, cancellationToken);
-        var output = _mapper.Map<CourseResponse>(studentToSave);
-        return output;
+        var course = _courseRepository.GetAllAsync(cancellationToken).FirstOrDefault(i => i.Name == request.Name);
+        if (course != null) return Error.Conflict(description: "Course already exists");
+
+        var courseToSave = _mapper.Map<Course>(request);
+        await _courseRepository.AddAsync(courseToSave, cancellationToken);
+        return _mapper.Map<CourseResponse>(courseToSave);
     }
 }

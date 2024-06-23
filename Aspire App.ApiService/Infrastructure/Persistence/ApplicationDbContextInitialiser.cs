@@ -86,10 +86,10 @@ public sealed class ApplicationDbContextInitialiser
 
         if (_userManager.Users.All(u => u.UserName != administrator.UserName))
         {
-            await _userManager.CreateAsync(administrator, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD"));
+            await _userManager.CreateAsync(administrator, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!);
             await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name }!);
 
-            await _userManager.CreateAsync(student, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD"));
+            await _userManager.CreateAsync(student, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!);
             await _userManager.AddToRolesAsync(student, new[] { userRole.Name }!);
         }
 

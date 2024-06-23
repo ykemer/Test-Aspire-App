@@ -44,7 +44,7 @@ builder.Services.AddAuthentication(options =>
 }).AddJwtBearer(
     o =>
     {
-        o.TokenValidationParameters = new()
+        o.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateAudience = false,
             ValidateIssuer = false,
@@ -56,7 +56,6 @@ builder.Services.AddAuthentication(options =>
     });
 
 
-
 builder.Services.AddScoped<ApplicationDbContextInitialiser>();
 builder.Services.AddScoped<JwtService>();
 builder.Services.AddScoped<IStudentRepository, StudentRepository>();
@@ -65,13 +64,13 @@ builder.Services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
 
 
 builder.Services.AddAuthorization(options =>
-{
-    options.AddPolicy("RequireAdministratorRole",
-        policy => policy.RequireRole("Administrator"));
-    options.AddPolicy("RequireUserRole",
-        policy => policy.RequireRole("User", "Administrator"));
-}).AddFastEndpoints()
-.SwaggerDocument();
+    {
+        options.AddPolicy("RequireAdministratorRole",
+            policy => policy.RequireRole("Administrator"));
+        options.AddPolicy("RequireUserRole",
+            policy => policy.RequireRole("User", "Administrator"));
+    }).AddFastEndpoints()
+    .SwaggerDocument();
 
 
 var app = builder.Build();
@@ -80,7 +79,6 @@ app.UseAuthentication()
     .UseAuthorization()
     .UseFastEndpoints()
     .UseSwaggerGen();
-
 
 
 using (var scope = app.Services.CreateScope())

@@ -1,12 +1,12 @@
 ﻿using Aspire_App.ApiService.Application.Courses.Command;
-using Aspire_App.ApiService.Application.Courses.Responses;
+using ErrorOr;
 using FastEndpoints;
 using MediatR;
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Courses.Admin;
 
 public class CreateCourseEndpoint : Endpoint<CourseCreateCommand,
-    CourseResponse>
+    IResult>
 {
     private readonly IMediator _mediator;
 
@@ -21,10 +21,17 @@ public class CreateCourseEndpoint : Endpoint<CourseCreateCommand,
         Policies("RequireAdministratorRole");
     }
 
-    public override async Task<CourseResponse> ExecuteAsync(CourseCreateCommand courseCreateCommand,
+    public override async Task<IResult> ExecuteAsync(CourseCreateCommand courseCreateCommand,
         CancellationToken cancellationToken)
     {
-        var output = await _mediator.Send(courseCreateCommand);
-        return output;
+        var result = await _mediator.Send(courseCreateCommand);
+        return result.MatchFirst(
+            course => Results.Ok(course),
+            ProblemHelper.Problem
+        );
     }
+    
+  
 }
+
+

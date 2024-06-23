@@ -2,6 +2,6 @@
 
 public class JwtTokenServiceResponse
 {
-    public string AccessToken { get; set; }
-    public long ExpiresIn { get; set; }
+    public string AccessToken { get; init; }
+    public long ExpiresIn { get; init; }
 }

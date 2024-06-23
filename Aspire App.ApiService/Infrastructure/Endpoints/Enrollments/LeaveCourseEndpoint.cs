@@ -1,5 +1,5 @@
 ﻿using System.Security.Claims;
-using Aspire_App.ApiService.Application.Courses.Command;
+using Aspire_App.ApiService.Application.Enrollment.Command;
 using Aspire_App.ApiService.Infrastructure.Endpoints.Courses.Requrests.Courses;
 using FastEndpoints;
 using MediatR;
@@ -26,8 +26,11 @@ public class LeaveCourseEndpoint : Endpoint<StudentChangeEnrollRequest,
     public override async Task<IResult> ExecuteAsync(StudentChangeEnrollRequest request,
         CancellationToken cancellationToken)
     {
-        Guid.TryParse(User.FindFirstValue("UserId"), out Guid userId);
-        await _mediator.Send(new LeaveCourseCommand(request.CourseId, userId), cancellationToken);
-        return Results.Ok();
+        Guid.TryParse(User.FindFirstValue("UserId"), out var userId);
+        var result = await _mediator.Send(new LeaveCourseCommand(request.CourseId, userId), cancellationToken);
+        return result.MatchFirst(
+            _ => Results.Ok(),
+            ProblemHelper.Problem
+        );
     }
 }

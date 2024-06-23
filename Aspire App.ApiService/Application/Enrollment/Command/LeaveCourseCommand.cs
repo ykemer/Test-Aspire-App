@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using ErrorOr;
+using MediatR;
 
-namespace Aspire_App.ApiService.Application.Courses.Command;
+namespace Aspire_App.ApiService.Application.Enrollment.Command;
 
 public record LeaveCourseCommand(Guid CourseId, Guid StudentId)
-    : IRequest;
+    : IRequest<ErrorOr<Unit>>;

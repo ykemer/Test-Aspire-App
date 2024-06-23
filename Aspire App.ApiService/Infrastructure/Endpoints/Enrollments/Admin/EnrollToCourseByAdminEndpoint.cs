@@ -1,5 +1,4 @@
-﻿using Aspire_App.ApiService.Application.Courses.Command;
-using Aspire_App.ApiService.Infrastructure.Endpoints.Courses.Requrests.Courses;
+﻿using Aspire_App.ApiService.Application.Enrollment.Command;
 using FastEndpoints;
 using MediatR;
 
@@ -24,7 +23,10 @@ public class EnrollToCourseByAdminEndpoint : Endpoint<EnrollToCourseCommand,
     public override async Task<IResult> ExecuteAsync(EnrollToCourseCommand studentLeaveCourseCommand,
         CancellationToken cancellationToken)
     {
-        await _mediator.Send(studentLeaveCourseCommand, cancellationToken);
-        return Results.Ok();
+        var result = await _mediator.Send(studentLeaveCourseCommand, cancellationToken);
+        return result.MatchFirst(
+            _ => Results.Ok(),
+            ProblemHelper.Problem
+        );
     }
 }

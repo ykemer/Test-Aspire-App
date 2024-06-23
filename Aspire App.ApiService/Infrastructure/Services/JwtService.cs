@@ -25,14 +25,14 @@ public class JwtService
         var jwtToken = JwtBearer.CreateToken(
             o =>
             {
-                o.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
+                o.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY")!;
                 o.Issuer = "https+http://apiservice"; //Environment.GetEnvironmentVariable("JWT_KEY_ISSUER");
                 o.Audience = "https+http://apiservice"; //Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE");
                 o.ExpireAt = expiresAt;
                 o.User.Claims.Add((ClaimTypes.Name, user.FirstName));
                 o.User.Claims.Add((ClaimTypes.Surname, user.LastName));
-                o.User.Claims.Add((ClaimTypes.Email, user.Email));
-                o.User.Claims.Add((ClaimTypes.Role, roles.FirstOrDefault()));
+                o.User.Claims.Add((ClaimTypes.Email, user.Email!));
+                o.User.Claims.Add((ClaimTypes.Role, roles.FirstOrDefault()!));
                 o.User.Claims.Add((ClaimTypes.Sid, user.Id));
                 o.User.Roles.Add(roles.ToArray());
                 o.User["UserId"] = user.Id; //indexer based claim setting
