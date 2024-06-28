@@ -1,11 +1,12 @@
 ﻿using Aspire_App.ApiService.Domain.Models;
+using Contracts.Auth.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Auth;
 
-public class RefreshTokenRevokeEndpoint : Endpoint<RefreshRequest, IResult>
+public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, IResult>
 {
     private readonly UserManager<ApplicationUser> _userManager;
 
@@ -20,7 +21,7 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshRequest, IResult>
         AllowAnonymous();
     }
 
-    public override async Task<IResult> ExecuteAsync(RefreshRequest req, CancellationToken ct)
+    public override async Task<IResult> ExecuteAsync(RefreshAccessTokenRequest req, CancellationToken ct)
     {
         var user = _userManager.Users.FirstOrDefault(i => i.RefreshToken == req.RefreshToken);
         if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)

@@ -1,7 +1,7 @@
 ﻿using Aspire_App.ApiService.Application.Students.Queries;
-using Aspire_App.ApiService.Application.Students.Responses;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
+using Contracts.Students.Responses;
 using MediatR;
 
 namespace Aspire_App.ApiService.Application.Students.Handlers;

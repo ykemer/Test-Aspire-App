@@ -1,4 +1,4 @@
-﻿namespace Aspire_App.Web.Contracts.Requests.Auth;
+﻿namespace Contracts.Auth.Requests;
 
 public class RefreshAccessTokenRequest
 {

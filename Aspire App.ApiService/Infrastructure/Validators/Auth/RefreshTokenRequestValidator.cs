@@ -1,10 +1,10 @@
-﻿using FastEndpoints;
+﻿using Contracts.Auth.Requests;
+using FastEndpoints;
 using FluentValidation;
-using Microsoft.AspNetCore.Identity.Data;
 
-namespace Aspire_App.ApiService.Validators.Auth;
+namespace Aspire_App.ApiService.Infrastructure.Validators.Auth;
 
-public class RefreshTokenRequestValidator : Validator<RefreshRequest>
+public class RefreshTokenRequestValidator : Validator<RefreshAccessTokenRequest>
 {
     public RefreshTokenRequestValidator()
     {

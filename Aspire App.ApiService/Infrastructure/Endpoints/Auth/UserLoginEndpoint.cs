@@ -1,14 +1,15 @@
 ﻿using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Infrastructure.Services;
+using Contracts.Auth.Requests;
 using FastEndpoints;
 using Library.Auth;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.Data;
+
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Auth;
 
-public class UserLoginEndpoint : Endpoint<LoginRequest, IResult>
+public class UserLoginEndpoint : Endpoint<UserLoginRequest, IResult>
 {
     private readonly JwtService _jwtService;
     private readonly SignInManager<ApplicationUser> _signInManager;
@@ -25,7 +26,7 @@ public class UserLoginEndpoint : Endpoint<LoginRequest, IResult>
         AllowAnonymous();
     }
 
-    public override async Task<IResult> ExecuteAsync(LoginRequest req, CancellationToken ct)
+    public override async Task<IResult> ExecuteAsync(UserLoginRequest req, CancellationToken ct)
     {
         var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, false);
         if (!result.Succeeded)

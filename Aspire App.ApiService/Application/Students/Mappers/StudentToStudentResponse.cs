@@ -1,6 +1,6 @@
-﻿using Aspire_App.ApiService.Application.Students.Responses;
-using Aspire_App.ApiService.Domain.Models;
+﻿using Aspire_App.ApiService.Domain.Models;
 using AutoMapper;
+using Contracts.Students.Responses;
 
 namespace Aspire_App.ApiService.Application.Students.Mappers;
 

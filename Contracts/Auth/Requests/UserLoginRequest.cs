@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Aspire_App.Web.Contracts.Requests.Auth;
+namespace Contracts.Auth.Requests;
 
-public class LoginRequest
+public class UserLoginRequest
 {
     [Required] [EmailAddress] public string Email { get; set; }
 

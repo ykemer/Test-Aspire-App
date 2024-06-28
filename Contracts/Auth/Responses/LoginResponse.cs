@@ -1,4 +1,4 @@
-﻿namespace Aspire_App.Web.Models.Auth;
+﻿namespace Contracts.Auth.Responses;
 
 public class LoginResponse
 {

@@ -1,5 +1,5 @@
 ﻿using Aspire_App.ApiService.Application.Students.Queries;
-using Aspire_App.ApiService.Application.Students.Responses;
+using Contracts.Students.Responses;
 using FastEndpoints;
 using Library.Pagination;
 using MediatR;

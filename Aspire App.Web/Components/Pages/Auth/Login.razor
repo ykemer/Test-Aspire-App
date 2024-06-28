@@ -1,7 +1,7 @@
 ﻿@page "/login"
-@using Aspire_App.Web.Contracts.Requests.Auth
-@using Aspire_App.Web.Models.Auth
+
 @using Aspire_App.Web.Services.Auth
+@using global::Contracts.Auth.Requests
 @rendermode InteractiveServer
 
 @inject IAuthenticationService AuthenticationService;
@@ -10,18 +10,18 @@
 <h3>Login</h3>
 
 <fieldset disabled="@(expiration is not null)">
-    <EditForm Model="@loginForm" OnValidSubmit="SubmitAsync" FormName="loginForm">
+    <EditForm Model="@UserLoginForm" OnValidSubmit="SubmitAsync" FormName="loginForm">
         <DataAnnotationsValidator/>
         <ValidationSummary/>
 
         <div class="form-group">
             <label for="Email">Email:</label>
-            <InputText id="Email" class="form-control" @bind-Value="loginForm.Email"/>
+            <InputText id="Email" class="form-control" @bind-Value="UserLoginForm.Email"/>
         </div>
 
         <div class="form-group">
             <label for="Password">Password:</label>
-            <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password"/>
+            <InputText id="Password" type="password" class="form-control" @bind-Value="UserLoginForm.Password"/>
         </div>
         <br/>
         <button type="submit" class="btn btn-primary">Login</button>
@@ -39,14 +39,14 @@
 }
 
 @code {
-    [SupplyParameterFromForm] public LoginRequest loginForm { get; set; }
+    [SupplyParameterFromForm] public UserLoginRequest UserLoginForm { get; set; }
 
     private DateTime? expiration;
     private string? errorMessage;
 
     protected override Task OnInitializedAsync()
     {
-        loginForm ??= new LoginRequest();
+        UserLoginForm ??= new UserLoginRequest();
         return base.OnInitializedAsync();
     }
 
@@ -54,7 +54,7 @@
     {
         try
         {
-            expiration = await AuthenticationService.LoginAsync(loginForm);
+            expiration = await AuthenticationService.LoginAsync(UserLoginForm);
             errorMessage = null;
             NavigationManager.NavigateTo("/");
         }

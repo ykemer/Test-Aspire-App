@@ -1,5 +1,5 @@
 using System.Text.Json;
-using Aspire_App.Web.Models.Students;
+using Contracts.Students.Responses;
 using Library.Pagination;
 
 namespace Aspire_App.Web.Services.Students;

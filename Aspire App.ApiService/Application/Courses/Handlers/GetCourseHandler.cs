@@ -1,8 +1,8 @@
 ﻿using Aspire_App.ApiService.Application.Courses.Queries;
 using Aspire_App.ApiService.Application.Courses.Responses;
-using Aspire_App.ApiService.Application.Students.Responses;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
+using Contracts.Students.Responses;
 using ErrorOr;
 using MediatR;
 using Microsoft.EntityFrameworkCore;

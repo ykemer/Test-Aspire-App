@@ -1,4 +1,4 @@
-﻿namespace Aspire_App.Web.Models.Students;
+﻿namespace Contracts.Students.Responses;
 
 public class StudentResponse
 {

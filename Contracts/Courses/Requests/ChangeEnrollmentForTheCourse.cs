@@ -1,7 +1,6 @@
-﻿namespace Aspire_App.Web.Contracts.Requests.Courses;
+﻿namespace Contracts.Courses.Requests;
 
 public class ChangeEnrollmentForTheCourse
 {
     public Guid CourseId { get; set; }
-   
 }

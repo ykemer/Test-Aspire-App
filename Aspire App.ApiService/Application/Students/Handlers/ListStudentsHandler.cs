@@ -1,8 +1,8 @@
 ﻿using Aspire_App.ApiService.Application.Students.Queries;
-using Aspire_App.ApiService.Application.Students.Responses;
 using Aspire_App.ApiService.Domain.Persistence;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
+using Contracts.Students.Responses;
 using Library.Pagination;
 using MediatR;
 

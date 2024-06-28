@@ -1,6 +1,6 @@
-﻿using Aspire_App.ApiService.Application.Students.Responses;
+﻿using Contracts.Students.Responses;
 
-namespace Aspire_App.Web.Models.Courses;
+namespace Contracts.Courses.Responses;
 
 public class CourseResponse
 {

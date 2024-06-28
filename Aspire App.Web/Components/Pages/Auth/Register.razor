@@ -1,0 +1,95 @@
+﻿@page "/register"
+
+@using Aspire_App.Web.Services.Auth
+@using global::Contracts.Auth.Requests
+
+@rendermode InteractiveServer
+
+@inject IAuthenticationService AuthenticationService;
+@inject NavigationManager NavigationManager;
+
+<h3>Registration</h3>
+
+<fieldset>
+    <EditForm Model="@registerForm" OnValidSubmit="SubmitAsync" FormName="loginForm">
+        <DataAnnotationsValidator/>
+        <ValidationSummary/>
+
+        <div class="form-group">
+            <label for="Firstname">FirstName:</label>
+            <InputText id="Firstname" class="form-control" @bind-Value="registerForm.FirstName"/>
+        </div>
+        <div class="form-group">
+            <label for="LastName">LastName:</label>
+            <InputText id="LastName" class="form-control" @bind-Value="registerForm.LastName"/>
+        </div>
+        <div class="form-group">
+            <label for="Email">Email:</label>
+            <InputText id="Email" class="form-control" @bind-Value="registerForm.Email"/>
+        </div>
+        <div class="form-group">
+            <label for="Password">Password:</label>
+            <InputText id="Password" type="password" class="form-control" @bind-Value="registerForm.Password"/>
+        </div>
+        <div class="form-group">
+            <label for="RepeatPassword">RepeatPassword:</label>
+            <InputText id="RepeatPassword" type="password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
+        </div>
+        <div class="form-group">
+            <label for="DateOfBirth">DateOfBirth:</label>
+            <InputDate id="DateOfBirth" type="date" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
+        </div>
+        <br/>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </EditForm>
+</fieldset>
+
+
+@if (errorMessage is not null)
+{
+    <p class="error">@errorMessage</p>
+}
+
+@if (successMessage is not null)
+{
+<p class="error">@successMessage</p>
+}
+
+
+@code {
+    [SupplyParameterFromForm] public UserRegisterRequest registerForm { get; set; } = new();
+
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override Task OnInitializedAsync()
+    {
+        registerForm ??= new UserRegisterRequest();
+        return base.OnInitializedAsync();
+    }
+
+    private async Task SubmitAsync()
+    {
+        try
+        {
+            await AuthenticationService.RegisterAsync(registerForm);
+            successMessage = "Registration successful";
+            registerForm = new UserRegisterRequest();
+            errorMessage = null;
+            NavigationManager.NavigateTo("/");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = ex.Message;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            StateHasChanged();
+        }
+    }
+
+}

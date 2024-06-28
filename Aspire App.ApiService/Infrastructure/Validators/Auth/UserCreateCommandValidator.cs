@@ -1,10 +1,10 @@
-﻿using Aspire_App.ApiService.Application.Auth.Commmands;
+﻿using Contracts.Auth.Requests;
 using FastEndpoints;
 using FluentValidation;
 
-namespace Aspire_App.ApiService.Validators.Auth;
+namespace Aspire_App.ApiService.Infrastructure.Validators.Auth;
 
-public class UserCreateCommandValidator : Validator<UserRegistrationCommand>
+public class UserCreateCommandValidator : Validator<UserRegisterRequest>
 {
     public UserCreateCommandValidator()
     {

@@ -1,5 +1,5 @@
 ﻿using Aspire_App.ApiService.Application.Common;
-using Aspire_App.ApiService.Application.Students.Responses;
+using Contracts.Students.Responses;
 using Library.Pagination;
 using MediatR;
 

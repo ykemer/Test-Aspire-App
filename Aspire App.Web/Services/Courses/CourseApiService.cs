@@ -1,6 +1,7 @@
 using System.Text.Json;
 using Aspire_App.Web.Contracts.Requests.Courses;
-using Aspire_App.Web.Models.Courses;
+using Contracts.Courses.Requests;
+using Contracts.Courses.Responses;
 using Library.Pagination;
 
 namespace Aspire_App.Web.Services.Courses;

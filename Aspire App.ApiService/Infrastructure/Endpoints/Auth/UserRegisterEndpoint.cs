@@ -1,7 +1,7 @@
-﻿using Aspire_App.ApiService.Application.Auth.Commmands;
-using Aspire_App.ApiService.Application.Students.Commands;
+﻿using Aspire_App.ApiService.Application.Students.Commands;
 using Aspire_App.ApiService.Domain.Models;
 using Aspire_App.ApiService.Infrastructure.Services;
+using Contracts.Auth.Requests;
 using FastEndpoints;
 using Library.Auth;
 using MediatR;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace Aspire_App.ApiService.Infrastructure.Endpoints.Auth;
 
-public class UserRegisterEndpoint : Endpoint<UserRegistrationCommand, IResult>
+public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, IResult>
 {
     private readonly JwtService _jwtService;
     private readonly ILogger<UserRegisterEndpoint> _logger;
@@ -32,7 +32,7 @@ public class UserRegisterEndpoint : Endpoint<UserRegistrationCommand, IResult>
         AllowAnonymous();
     }
 
-    public override async Task<IResult> ExecuteAsync(UserRegistrationCommand req, CancellationToken ct)
+    public override async Task<IResult> ExecuteAsync(UserRegisterRequest req, CancellationToken ct)
     {
         var existingUser = await _userManager.FindByNameAsync(req.Email);
         if (existingUser != null)
