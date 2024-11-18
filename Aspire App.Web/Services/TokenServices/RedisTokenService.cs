@@ -1,8 +1,7 @@
 ﻿using Aspire_App.Web.Services.CookiesServices;
-using Aspire_App.Web.Services.TokenServices;
 using Microsoft.Extensions.Caching.Distributed;
 
-namespace Aspire_App.Web.Services;
+namespace Aspire_App.Web.Services.TokenServices;
 
 public class RedisTokenService : ITokenService
 {

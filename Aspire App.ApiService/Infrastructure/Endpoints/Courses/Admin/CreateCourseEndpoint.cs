@@ -1,5 +1,4 @@
 ﻿using Aspire_App.ApiService.Application.Courses.Command;
-using ErrorOr;
 using FastEndpoints;
 using MediatR;
 
@@ -24,7 +23,7 @@ public class CreateCourseEndpoint : Endpoint<CourseCreateCommand,
     public override async Task<IResult> ExecuteAsync(CourseCreateCommand courseCreateCommand,
         CancellationToken cancellationToken)
     {
-        var result = await _mediator.Send(courseCreateCommand);
+        var result = await _mediator.Send(courseCreateCommand, cancellationToken);
         return result.MatchFirst(
             course => Results.Ok(course),
             ProblemHelper.Problem

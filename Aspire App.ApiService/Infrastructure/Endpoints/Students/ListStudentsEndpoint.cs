@@ -24,6 +24,6 @@ public class ListStudentsEndpoint : Endpoint<ListStudentsQuery, PagedList<Studen
     public override async Task<PagedList<StudentResponse>> ExecuteAsync(ListStudentsQuery query,
         CancellationToken cancellationToken)
     {
-        return await _mediator.Send(query);
+        return await _mediator.Send(query, cancellationToken);
     }
 }

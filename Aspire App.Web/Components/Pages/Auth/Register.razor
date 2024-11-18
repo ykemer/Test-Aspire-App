@@ -33,14 +33,15 @@
         </div>
         <div class="form-group">
             <label for="RepeatPassword">RepeatPassword:</label>
-            <InputText id="RepeatPassword" type="password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
+            <InputText id="RepeatPassword" type="password" class="form-control"
+                       @bind-Value="registerForm.RepeatPassword"/>
         </div>
         <div class="form-group">
             <label for="DateOfBirth">DateOfBirth:</label>
-            <InputDate id="DateOfBirth" type="date" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
+            <InputDate id="DateOfBirth" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
         </div>
         <br/>
-        <button type="submit" class="btn btn-primary">Login</button>
+        <button type="submit" class="btn btn-primary">Register</button>
     </EditForm>
 </fieldset>
 
@@ -52,7 +53,7 @@
 
 @if (successMessage is not null)
 {
-<p class="error">@successMessage</p>
+    <p class="error">@successMessage</p>
 }
 
 
@@ -62,11 +63,7 @@
     private string? errorMessage;
     private string? successMessage;
 
-    protected override Task OnInitializedAsync()
-    {
-        registerForm ??= new UserRegisterRequest();
-        return base.OnInitializedAsync();
-    }
+   
 
     private async Task SubmitAsync()
     {
@@ -84,12 +81,14 @@
         }
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             StateHasChanged();
         }
+
+        return Task.CompletedTask;
     }
 
 }

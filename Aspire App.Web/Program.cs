@@ -1,7 +1,7 @@
+using Aspire_App.Web;
 using Aspire_App.Web.Components;
 using Aspire_App.Web.Handlers;
 using Aspire_App.Web.Middleware;
-using Aspire_App.Web.Services;
 using Aspire_App.Web.Services.CookiesServices;
 using Aspire_App.Web.Services.Courses;
 using Aspire_App.Web.Services.Students;
@@ -20,42 +20,8 @@ builder.AddRedisOutputCache("cache");
 builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
-builder.Services
-    .AddRazorComponents()
-    .AddInteractiveServerComponents();
-
-builder.Services.AddScoped<BearerTokenInterceptor>();
-builder.Services.AddHttpClient<IStudentApiService, StudentApiService>(client =>
-{
-    // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-    // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new Uri("https+http://apiservice");
-}).AddHttpMessageHandler<BearerTokenInterceptor>();
-
-builder.Services.AddHttpClient<ICoursesApiService, CoursesApiService>(client =>
-{
-    // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
-    // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-    client.BaseAddress = new Uri("https+http://apiservice");
-}).AddHttpMessageHandler<BearerTokenInterceptor>();
-
-
-builder.Services.AddHttpClient("ServerApi")
-    .ConfigureHttpClient(c => c.BaseAddress = new Uri("https+http://apiservice"));
-
-builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<ICookiesService, CookiesService>();
-builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-builder.Services.AddScoped<ITokenService, RedisTokenService>();
-
-
-builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddAuthorizationCore();
-
-
-builder.Services.AddAuthentication("Custom")
-    .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>("Custom", options => { });
+builder.Services.AddWebServices();
 
 
 var app = builder.Build();

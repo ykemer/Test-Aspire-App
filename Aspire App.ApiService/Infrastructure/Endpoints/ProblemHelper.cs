@@ -43,7 +43,7 @@ public static class ProblemHelper
             {
                 modelStateDictionary.Add(
                     error.Code,
-                    new string[] { error.Description });
+                    [error.Description]);
                 continue;                
             }
             

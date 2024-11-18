@@ -1,6 +1,8 @@
 ﻿using Aspire_App.ApiService.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Aspire_App.ApiService.Infrastructure.Persistence;
 
@@ -29,6 +31,21 @@ public sealed class ApplicationDbContextInitialiser
                 _context.Database.EnsureCreated();
                 await _context.Database.MigrateAsync();
             }
+            else if(_context.Database.IsSqlServer())
+            {
+                var dbCreator = _context.GetService<IRelationalDatabaseCreator>();
+                var strategy = _context.Database.CreateExecutionStrategy();
+                await strategy.ExecuteAsync(async () =>
+                {
+                    if (!await dbCreator.ExistsAsync())
+                    {
+                        await dbCreator.CreateAsync();
+                        // migrate
+                        await _context.Database.MigrateAsync();
+                    }
+                });
+            }
+            
         }
         catch (Exception ex)
         {

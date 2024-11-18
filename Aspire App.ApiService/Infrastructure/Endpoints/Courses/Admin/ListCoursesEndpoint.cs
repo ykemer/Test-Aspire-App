@@ -24,6 +24,6 @@ public class ListAdminCoursesEndpoint : Endpoint<ListCoursesAdminQuery, PagedLis
     public override async Task<PagedList<CourseResponse>> ExecuteAsync(ListCoursesAdminQuery query,
         CancellationToken cancellationToken)
     {
-        return await _mediator.Send(query);
+        return await _mediator.Send(query, cancellationToken);
     }
 }

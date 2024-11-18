@@ -32,23 +32,23 @@ public class AuthenticationService : IAuthenticationService
     {
         var refreshToken = await _tokenService.GetRefreshTokenAsync();
         if (string.IsNullOrEmpty(refreshToken)) return;
-        
+
         var request = new RefreshAccessTokenRequest
         {
             RefreshToken = refreshToken
         };
-        
+
         await _tokenService.ClearRefreshTokenAsync();
         await _tokenService.ClearAccessTokenAsync();
 
         var response = await _factory.CreateClient("ServerApi").PostAsync("api/auth/revoke",
             JsonContent.Create(request));
-     
+
 
         await Console.Out.WriteLineAsync($"Revoke gave response {response.StatusCode}");
     }
 
-   
+
     public string GetUsername(string token)
     {
         return GetClaimFromToken(token, ClaimTypes.Name);
@@ -67,12 +67,11 @@ public class AuthenticationService : IAuthenticationService
 
         return content.ExpiresAt;
     }
-    
+
     public async Task RegisterAsync(UserRegisterRequest request)
     {
         var content = await GetLoginResponseAsync("/api/auth/register", request);
         await SetTokensAsync(content);
-       
     }
 
     public async Task<bool> RefreshAsync()
@@ -112,7 +111,11 @@ public class AuthenticationService : IAuthenticationService
         var response = await _factory.CreateClient("ServerApi").PostAsJsonAsync(url, request);
 
         if (!response.IsSuccessStatusCode)
+        {
+            var resp = response.Content.ReadAsStringAsync();
             throw new UnauthorizedAccessException("Request failed.");
+        }
+
 
         var content = await response.Content.ReadFromJsonAsync<LoginResponse>();
 
