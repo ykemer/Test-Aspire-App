@@ -1,6 +1,6 @@
 ﻿@page "/admin/course/{courseId:guid}"
-@using Aspire_App.Web.Contracts.Requests.Courses
 @using Aspire_App.Web.Services.Courses
+@using Contracts.Courses.Requests
 @using global::Contracts.Courses.Responses
 @attribute [Authorize]
 
@@ -73,7 +73,7 @@ else
     private async Task LeaveCourse(Guid studentId)
    
     {
-        await CoursesApiService.LeaveCourseByAdmin(new ChangeEnrollmentForTheCourseByAdmin
+        await CoursesApiService.LeaveCourseByAdmin(new ChangeCourseEnrollmentAdminRequest
         {
             CourseId = CourseId,
             StudentId = studentId

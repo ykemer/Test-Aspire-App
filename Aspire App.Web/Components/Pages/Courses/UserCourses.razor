@@ -79,7 +79,7 @@ else
     {
         Page = page;
         _courses = null;
-        _courses = await CoursesApiService.GetCoursesListForStudentAsync(page);
+        _courses = await CoursesApiService.GetCoursesListAsync(page);
     }
 
     private async Task EnrollCourse(Guid courseId)

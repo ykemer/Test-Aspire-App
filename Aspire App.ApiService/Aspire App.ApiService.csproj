@@ -1,35 +1,50 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-  <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
-    <PackageReference Include="Aspire.MySqlConnector" Version="9.0.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.2.2" />
-    <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="8.0.2" />
-    <PackageReference Include="AutoMapper" Version="13.0.1" />
-    <PackageReference Include="ErrorOr" Version="2.0.1" />
-    <PackageReference Include="FastEndpoints" Version="5.31.0" />
-    <PackageReference Include="FastEndpoints.Security" Version="5.31.0" />
-    <PackageReference Include="FastEndpoints.Swagger" Version="5.31.0" />
-    <PackageReference Include="MediatR" Version="12.4.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Contracts\Contracts.csproj" />
-    <ProjectReference Include="..\Library\Library.csproj" />
-  </ItemGroup>
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    <ItemGroup>
+      <Compile Remove="Features\Auth\**" />
+      <Content Remove="Features\Auth\**" />
+      <EmbeddedResource Remove="Features\Auth\**" />
+      <None Remove="Features\Auth\**" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Include="Features\Auth\ApplicationUser.cs" />
+      <Compile Include="Features\Auth\RefreshAccessToken\RefreshAccessTokenEndpoint.cs" />
+      <Compile Include="Features\Auth\RefreshAccessToken\RefreshTokenRequestValidator.cs" />
+      <Compile Include="Features\Auth\RefreshTokenRevoke\RefreshTokenRevokeEndpoint.cs" />
+      <Compile Include="Features\Auth\UserLogin\UserLoginCommandValidator.cs" />
+      <Compile Include="Features\Auth\UserLogin\UserLoginEndpoint.cs" />
+      <Compile Include="Features\Auth\UserRegister\UserRegisterCommandValidator.cs" />
+      <Compile Include="Features\Auth\UserRegister\UserRegisterEndpoint.cs" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+        <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.0" />
+        <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0" />
+        <PackageReference Include="AutoMapper" Version="13.0.1" />
+        <PackageReference Include="ErrorOr" Version="2.0.1" />
+        <PackageReference Include="FastEndpoints" Version="5.32.0" />
+        <PackageReference Include="FastEndpoints.Security" Version="5.32.0" />
+        <PackageReference Include="FastEndpoints.Swagger" Version="5.32.0" />
+        <PackageReference Include="MediatR" Version="12.4.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.0">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj" />
+        <ProjectReference Include="..\Contracts\Contracts.csproj" />
+        <ProjectReference Include="..\Library\Library.csproj" />
+    </ItemGroup>
 </Project>

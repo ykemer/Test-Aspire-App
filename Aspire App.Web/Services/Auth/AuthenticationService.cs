@@ -1,8 +1,11 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Text.Json;
+using Aspire_App.Web.Exceptions;
 using Aspire_App.Web.Services.TokenServices;
 using Contracts.Auth.Requests;
 using Contracts.Auth.Responses;
+using ProblemDetails = FastEndpoints.ProblemDetails;
 
 namespace Aspire_App.Web.Services.Auth;
 
@@ -61,7 +64,7 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task<DateTime> LoginAsync(UserLoginRequest request)
     {
-        var content = await GetLoginResponseAsync("/api/auth/login", request);
+        var content = await GetApiResponseAsync("/api/auth/login", request);
 
         await SetTokensAsync(content);
 
@@ -70,13 +73,13 @@ public class AuthenticationService : IAuthenticationService
 
     public async Task RegisterAsync(UserRegisterRequest request)
     {
-        var content = await GetLoginResponseAsync("/api/auth/register", request);
+        var content = await GetApiResponseAsync("/api/auth/register", request);
         await SetTokensAsync(content);
     }
 
     public async Task<bool> RefreshAsync()
     {
-        var content = await GetLoginResponseAsync("api/auth/refresh", new RefreshAccessTokenRequest
+        var content = await GetApiResponseAsync("api/auth/refresh", new RefreshAccessTokenRequest
         {
             RefreshToken = await _tokenService.GetRefreshTokenAsync()
         });
@@ -100,29 +103,39 @@ public class AuthenticationService : IAuthenticationService
         return await RefreshAsync();
     }
 
-    private string GetClaimFromToken(string token, string claimType)
+    private static string GetClaimFromToken(string token, string claimType)
     {
         var jwt = new JwtSecurityToken(token);
         return jwt.Claims.First(c => c.Type == claimType).Value;
     }
 
-    private async Task<LoginResponse> GetLoginResponseAsync(string url, object request)
+    private async Task<LoginResponse> GetApiResponseAsync(string url, object request)
     {
         var response = await _factory.CreateClient("ServerApi").PostAsJsonAsync(url, request);
 
-        if (!response.IsSuccessStatusCode)
+        if (response.IsSuccessStatusCode)
         {
-            var resp = response.Content.ReadAsStringAsync();
-            throw new UnauthorizedAccessException("Request failed.");
+            var content = await response.Content.ReadFromJsonAsync<LoginResponse>();
+            if (content == null)
+                throw new InvalidDataException("Invalid response content.");
+
+            return content;
+        }
+        
+        if(response.Content.Headers.ContentType?.MediaType == "application/problem+json")
+        {
+            var options = new JsonSerializerOptions
+            {
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                PropertyNameCaseInsensitive = true
+            };
+            var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(options);
+            throw new ValidationException(problemDetails?.Errors.ToDictionary(e => e.Name, e => new [] {e.Reason}) ?? new Dictionary<string, string[]>());
         }
 
 
-        var content = await response.Content.ReadFromJsonAsync<LoginResponse>();
-
-        if (content == null)
-            throw new InvalidDataException();
-
-        return content;
+        var errorContent = await response.Content.ReadAsStringAsync();
+        throw new Exception($"Request failed with status code {response.StatusCode}: {errorContent}");
     }
 
     private async Task SetTokensAsync(LoginResponse content)

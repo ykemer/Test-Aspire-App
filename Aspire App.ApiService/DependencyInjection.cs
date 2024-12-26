@@ -1,14 +1,15 @@
 ﻿using System.Reflection;
 using System.Text;
-using Aspire_App.ApiService.Domain.Models;
-using Aspire_App.ApiService.Domain.Persistence;
-using Aspire_App.ApiService.Infrastructure.Persistence;
-using Aspire_App.ApiService.Infrastructure.Persistence.Repositories;
-using Aspire_App.ApiService.Infrastructure.Services;
+using Aspire_App.ApiService.Features.Auth;
+using Aspire_App.ApiService.Persistence;
+using Aspire_App.ApiService.Services.JWT;
+using Aspire_App.ApiService.Services.MailService;
+using Aspire_App.ApiService.Services.User;
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Aspire_App.ApiService;
@@ -19,6 +20,10 @@ public static class DependencyInjection
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
         services.AddAutoMapper(Assembly.GetExecutingAssembly());
+        
+        services.AddTransient<IEmailSender<ApplicationUser>, UserMailService>();
+        services.AddTransient<IEmailSender, EmailSender>();
+
         services
             .AddIdentity<ApplicationUser, IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -46,12 +51,10 @@ public static class DependencyInjection
                     };
                 });
 
-
-        services.AddScoped<ApplicationDbContextInitialiser>();
-        services.AddScoped<JwtService>();
-        services.AddScoped<IStudentRepository, StudentRepository>();
-        services.AddScoped<ICourseRepository, CourseRepository>();
-        services.AddScoped<IEnrollmentRepository, EnrollmentRepository>();
+        services.AddScoped<ApplicationDbContextInitializer>();
+        services.AddScoped<IJwtService, JwtService>();
+        services.AddScoped<IUserService, UserService>();
+        
 
 
         services.AddAuthorization(options =>
@@ -60,7 +63,15 @@ public static class DependencyInjection
                 options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Administrator"));
             })
             .AddFastEndpoints()
-            .SwaggerDocument();
+            .AddResponseCaching()
+            .SwaggerDocument(o =>
+            {
+                o.DocumentSettings = s =>
+                {
+                    s.Title = "My API";
+                    s.Version = "v1";
+                };
+            });
 
         return services;
     }

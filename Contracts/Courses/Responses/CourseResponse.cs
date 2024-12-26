@@ -10,5 +10,5 @@ public class CourseResponse
     public string Description { get; init; }
 
     public bool Enrolled { get; init; } = false;
-    public List<StudentResponse>? EnrolledStudents { get; init; }
+    public List<StudentResponse>? EnrolledStudents { get; set; }
 }

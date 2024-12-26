@@ -37,6 +37,7 @@ else
             <thead>
             <tr>
                 <th>Name</th>
+                <th>Enrolled Students</th>
                 <th></th>
             </tr>
             </thead>
@@ -45,6 +46,7 @@ else
             {
             <tr>
                 <td>@course.Name</td>
+                <td>@course.EnrolledStudents.Count</td>
                 <td>
                     <NavLink href="@($"/admin/course/{course.Id}")" class="btn btn-primary">Enrolled Students</NavLink >
                 </td>
@@ -74,6 +76,6 @@ else
     protected async Task GetStudents(int page = 1)
     {
         _courses = null;
-        _courses = await CoursesApiService.GetCoursesListForAdminAsync(page);
+        _courses = await CoursesApiService.GetCoursesListAsync(page);
     }
 }

@@ -1,5 +1,7 @@
 ﻿@page "/login"
 
+@using Aspire_App.Web.Exceptions
+@using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Auth
 @using global::Contracts.Auth.Requests
 @rendermode InteractiveServer
@@ -9,44 +11,53 @@
 
 <h3>Login</h3>
 
-<fieldset disabled="@(expiration is not null)">
-    <EditForm Model="@UserLoginForm" OnValidSubmit="SubmitAsync" FormName="loginForm">
+<fieldset disabled="@(_expiration is not null)">
+    <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="loginForm">
         <DataAnnotationsValidator/>
         <ValidationSummary/>
 
         <div class="form-group">
             <label for="Email">Email:</label>
-            <InputText id="Email" class="form-control" @bind-Value="UserLoginForm.Email"/>
+            <InputText id="Email" class="form-control" @bind-Value="loginForm.Email"/>
+            <ValidationMessage For="@(() => loginForm.Email)" />
         </div>
 
         <div class="form-group">
             <label for="Password">Password:</label>
-            <InputText id="Password" type="password" class="form-control" @bind-Value="UserLoginForm.Password"/>
+            <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password"/>
+            <ValidationMessage For="@(() => loginForm.Email)" />
         </div>
         <br/>
         <button type="submit" class="btn btn-primary">Login</button>
     </EditForm>
 </fieldset>
 
-@if (expiration is not null)
+@if (_expiration is not null)
 {
-    <p>You are logged in until @expiration?.ToLongTimeString()</p>
+    <p>You are logged in until @_expiration?.ToLongTimeString()</p>
 }
 
-@if (errorMessage is not null)
+@if (_errorMessage is not null)
 {
-    <p class="error">@errorMessage</p>
+    <p class="error">@_errorMessage</p>
 }
 
 @code {
-    [SupplyParameterFromForm] public UserLoginRequest UserLoginForm { get; set; }
 
-    private DateTime? expiration;
-    private string? errorMessage;
+    public UserLoginRequest loginForm { get; set; }
+
+    private DateTime? _expiration;
+    private string? _errorMessage;
+    
+    private EditContext _editContext;
+    private ValidationMessageStore _messageStore;
 
     protected override Task OnInitializedAsync()
     {
-        UserLoginForm ??= new UserLoginRequest();
+        loginForm = new UserLoginRequest();
+        _editContext = new EditContext(loginForm);
+        _messageStore = new ValidationMessageStore(_editContext);
+        _editContext.OnFieldChanged += EditContext_OnFieldChanged;
         return base.OnInitializedAsync();
     }
 
@@ -54,23 +65,46 @@
     {
         try
         {
-            expiration = await AuthenticationService.LoginAsync(UserLoginForm);
-            errorMessage = null;
+            _expiration = await AuthenticationService.LoginAsync(loginForm);
+            _errorMessage = null;
             NavigationManager.NavigateTo("/");
+        } catch (ValidationException ex)
+        {
+            _messageStore.Clear();
+
+            // Add server-side validation errors to the ValidationMessageStore
+            foreach (var error in ex.Errors)
+            {
+                var fieldIdentifier = new FieldIdentifier(loginForm, FrontendHelper.ToPascalCase(error.Key));
+                _messageStore.Add(fieldIdentifier, error.Value);
+            }
+
+            // Notify the EditContext that the validation state has changed
+            _editContext.NotifyValidationStateChanged();
         }
         catch (Exception ex)
         {
-            expiration = null;
-            errorMessage = ex.Message;
+            _expiration = null;
+            _errorMessage = ex.Message;
         }
     }
+    
+    private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        // Clear the validation messages for the field that changed
+        _messageStore.Clear(e.FieldIdentifier);
+        // Optionally notify that validation state has changed
+        _editContext.NotifyValidationStateChanged();
+    }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             StateHasChanged();
         }
+
+        return Task.CompletedTask;
     }
 
 }
