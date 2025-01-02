@@ -1,0 +1,58 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "StudentsGRPC";
+
+
+// The greeting service definition.
+service GrpcStudentsService {
+  // Sends a greeting
+  rpc GetStudentById (GrpcGetStudentByIdRequest) returns (GrpcStudentResponse);
+  rpc ListStudents (GrpcListStudentsRequest) returns (GrpcListStudentsResponse);
+  rpc CreateStudent (GrpcStudentCreateRequest) returns (GrpcUpdatedResponse);
+  rpc DeleteStudent (GrpcDeleteStudentRequest) returns (GrpcUpdatedResponse);
+}
+
+// Requests
+message GrpcGetStudentByIdRequest {
+  string Id = 1;
+}
+message GrpcListStudentsRequest {
+  int32 page = 1;
+  int32 pageSize = 2;
+}
+
+message GrpcStudentCreateRequest {
+  string Id = 1;
+  string FirstName = 2;
+  string LastName = 3;
+  string Email = 4;
+  google.protobuf.Timestamp Birthday = 5;
+}
+
+message GrpcDeleteStudentRequest {
+  string Id = 1;
+}
+
+// Responses
+message GrpcStudentResponse {
+  string Id = 1;
+  string FirstName = 2;
+  string LastName = 3;
+  string Email = 4;
+  google.protobuf.Timestamp Birthday = 5;
+  int32 EnrolledCourses = 6;
+}
+
+message GrpcListStudentsResponse {
+  repeated GrpcStudentResponse Items = 1;
+  int32 currentPage = 2;
+  int32 totalPages = 3;
+  int32 pageSize = 4;
+  int32 totalCount = 5;
+}
+
+message GrpcUpdatedResponse {
+  bool Updated = 1;
+  string Message = 2;
+}

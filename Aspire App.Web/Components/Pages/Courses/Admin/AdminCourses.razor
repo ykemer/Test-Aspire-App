@@ -2,8 +2,8 @@
 @using Aspire_App.Web.Components.Shared
 
 @using Aspire_App.Web.Services.Courses
+@using Contracts.Common
 @using global::Contracts.Courses.Responses
-@using Library.Pagination
 @attribute [Authorize]
 
 @rendermode InteractiveServer
@@ -46,7 +46,7 @@ else
             {
             <tr>
                 <td>@course.Name</td>
-                <td>@course.EnrolledStudents.Count</td>
+                <td>@course.EnrollmentsCount</td>
                 <td>
                     <NavLink href="@($"/admin/course/{course.Id}")" class="btn btn-primary">Enrolled Students</NavLink >
                 </td>
@@ -66,8 +66,8 @@ else
 
 
 @code {
-    private PagedList<CourseResponse>? _courses;
-
+    private PagedList<CourseListItemResponse>? _courses;
+    
     protected override async Task OnInitializedAsync()
     {
         await GetStudents();

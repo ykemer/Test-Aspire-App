@@ -1,6 +1,6 @@
 using System.Text.Json;
+using Contracts.Common;
 using Contracts.Students.Responses;
-using Library.Pagination;
 
 namespace Aspire_App.Web.Services.Students;
 

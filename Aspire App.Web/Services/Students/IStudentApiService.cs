@@ -1,5 +1,5 @@
-﻿using Contracts.Students.Responses;
-using Library.Pagination;
+﻿using Contracts.Common;
+using Contracts.Students.Responses;
 
 namespace Aspire_App.Web.Services.Students;
 

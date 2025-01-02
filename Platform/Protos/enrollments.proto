@@ -1,0 +1,102 @@
+syntax = "proto3";
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "EnrollmentsGRPCClient";
+
+
+service GrpcEnrollmentsService {
+  rpc GetEnrollment (GrpcGetEnrollmentRequest) returns (GrpcEnrollmentResponse);
+  rpc ListAllEnrollments (GrpcListAllEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
+
+  rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
+  rpc GetCourseEnrollments (GrpcGetCourseEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
+  rpc GetEnrollmentsByCourses (GrpcGetEnrollmentsByCoursesRequest) returns (ListOfEnrollmentsByCoursesResponse);
+
+  rpc CountCourseEnrollments (GrpcCountStudentEnrollmentsRequest) returns (GrpcCountResponse);
+  rpc CountStudentEnrollments (GrpcCountCourseEnrollmentsRequest) returns (GrpcCountResponse);
+
+  rpc EnrollStudent (GrpcEnrollStudentRequest) returns (GrpcUpdateEnrollmentResponse);
+  rpc DeleteEnrollment (GrpcDeleteEnrollmentRequest) returns (GrpcUpdateEnrollmentResponse);
+}
+
+
+// Requests
+message GrpcGetEnrollmentRequest {
+  string EnrollmentId = 1;
+}
+
+message GrpcGetStudentEnrollmentsRequest {
+  string StudentId = 1;
+}
+
+message GrpcGetCourseEnrollmentsRequest {
+  string CourseId = 1;
+}
+
+message GrpcCountStudentEnrollmentsRequest {
+  string StudentId = 1;
+}
+
+message GrpcCountCourseEnrollmentsRequest {
+  string CourseId = 1;
+}
+
+message GrpcListAllEnrollmentsRequest {
+  string StudentId = 1;
+  int32 Page = 2;
+  int32 PageSize = 3;
+}
+
+message GrpcEnrollStudentRequest {
+  string CourseId = 1;
+  string StudentId = 2;
+  string StudentFirstName = 3;
+  string StudentLastName = 4;
+}
+
+message GrpcDeleteEnrollmentRequest {
+  string CourseId = 1;
+  string StudentId = 2;
+}
+
+message GrpcGetEnrollmentsByCoursesRequest {
+  repeated string CourseIds = 1;
+  oneof optional_id {
+    string StudentId = 2;
+  }
+}
+
+// Responses
+message GrpcEnrollmentResponse {
+  string Id = 1;
+  string CourseId = 2;
+  string StudentId = 3;
+  google.protobuf.Timestamp EnrollmentDateTime = 4;
+  string StudentFirstName = 5;
+  string StudentLastName = 6;
+}
+
+
+
+message GrpcListEnrollmentsResponse {
+  repeated GrpcEnrollmentResponse Items = 1;
+  int32 CurrentPage = 2;
+  int32 TotalPages = 3;
+  int32 PageSize = 4;
+  int32 TotalCount = 5;
+}
+
+message GrpcCountResponse {
+  int32 Count = 1;
+}
+
+message GrpcUpdateEnrollmentResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+
+message ListOfEnrollmentsByCoursesResponse {
+  repeated GrpcEnrollmentResponse Items = 2;
+}

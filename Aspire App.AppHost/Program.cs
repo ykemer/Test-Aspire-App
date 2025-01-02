@@ -1,34 +1,59 @@
-using Aspire.Hosting;
-using Microsoft.Extensions.Configuration;
+using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
 var cache = builder.AddRedis("cache");
 
-
-// var sqlPassword = builder.AddParameter("sql-password", secret: true);
-//
-// var sqldb = builder
-//     .AddSqlServer("sql", sqlPassword)
-//     .WithDataVolume("ms-sql-aspire-volume-2")
-//     .AddDatabase("sqlDb");
-
+var postgres = builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\PG",isReadOnly: false).WithPgWeb();
+// To avoid resource consumption, we add databases to a single postgres instance
+var mainDb = postgres.AddDatabase("mainDb");
+var coursesDb = postgres.AddDatabase("coursesDb");
+var enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
+var studentsDb = postgres.AddDatabase("studentsDb");
 
 
-var postgres = builder.AddPostgres("postgres").WithPgAdmin();
-var postgresdb = postgres.AddDatabase("postgresdb");
+var rabbitmq = builder
+    .AddRabbitMQ("messaging")
+    .WithDataBindMount(source:@"C:\Volumes\RabbitMQ", isReadOnly: false)
+    .WithManagementPlugin();
 
+var coursesService = builder
+    .AddProject<Service_Courses>("coursesService")
+    .WithReference(coursesDb)
+    .WaitFor(coursesDb)
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq);
 
-var apiService = builder
-    .AddProject<Projects.Aspire_App_ApiService>("apiservice")
-    .WithReference(postgresdb)
-    .WaitFor(postgresdb);
+var enrollmentsService = builder
+    .AddProject<Service_Enrollments>("enrollmentsService")
+    .WithReference(enrollmentsDb)
+    .WaitFor(enrollmentsDb)
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq);
 
-builder.AddProject<Projects.Aspire_App_Web>("webfrontend")
+var studentsService = builder
+    .AddProject<Service_Students>("studentsService")
+    .WithReference(studentsDb)
+    .WaitFor(studentsDb)
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq);
+
+var platformService = builder
+    .AddProject<Platform>("platformService")
+    .WithReference(mainDb)
+    .WaitFor(mainDb)
+    .WithReference(rabbitmq)
+    .WaitFor(rabbitmq)
+    .WithReference(coursesService)
+    .WithReference(enrollmentsService)
+    .WithReference(studentsService);
+
+builder.AddProject<Aspire_App_Web>("webfrontend")
     .WithExternalHttpEndpoints()
     .WithReference(cache)
-    .WithReference(apiService);
+    .WithReference(platformService);
 
 
 
 
-builder.Build().Run();
+
+await builder.Build().RunAsync();

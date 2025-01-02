@@ -1,8 +1,8 @@
 using System;
 using System.Text.Json;
+using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
-using Library.Pagination;
 
 namespace Aspire_App.Web.Services.Courses;
 
@@ -17,7 +17,7 @@ public class CoursesApiService : ICoursesApiService
     }
 
 
-    public async Task<PagedList<CourseResponse>> GetCoursesListAsync(int page, int pageSize = 10,
+    public async Task<PagedList<CourseListItemResponse>> GetCoursesListAsync(int page, int pageSize = 10,
         CancellationToken cancellationToken = default)
     {
         var options = new JsonSerializerOptions
@@ -30,7 +30,7 @@ public class CoursesApiService : ICoursesApiService
 
         if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching attributes");
 
-        return await response.Content.ReadFromJsonAsync<PagedList<CourseResponse>>(options);
+        return await response.Content.ReadFromJsonAsync<PagedList<CourseListItemResponse>>(options);
     }
 
 

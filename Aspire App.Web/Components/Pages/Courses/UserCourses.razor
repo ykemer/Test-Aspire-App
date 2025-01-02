@@ -1,8 +1,8 @@
 ﻿@page "/courses"
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Services.Courses
+@using Contracts.Common
 @using global::Contracts.Courses.Responses
-@using Library.Pagination
 @attribute [Authorize]
 
 @rendermode InteractiveServer
@@ -45,7 +45,7 @@ else
                 <td>@course.Name</td>
                 <td>@course.Description</td>
                 <td>
-                    @if (course.Enrolled)
+                    @if (course.IsUserEnrolled)
                     {
                         <button class="btn btn-danger" @onclick="() => LeaveCourse(course.Id)">Leave</button>
                     }
@@ -67,7 +67,7 @@ else
 
 
 @code {
-    private PagedList<CourseResponse>? _courses;
+    private PagedList<CourseListItemResponse>? _courses;
     private int Page { get; set; }
 
     protected override async Task OnInitializedAsync()

@@ -1,4 +1,4 @@
-﻿using Contracts.Auth.Requests;
+﻿using Contracts.Users.Requests;
 
 namespace Aspire_App.Web.Services.Auth;
 

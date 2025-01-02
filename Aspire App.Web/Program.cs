@@ -7,6 +7,8 @@ using Aspire_App.Web.Services.Courses;
 using Aspire_App.Web.Services.Students;
 using Aspire_App.Web.Services.TokenServices;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
 using AuthenticationService = Aspire_App.Web.Services.Auth.AuthenticationService;
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
@@ -22,7 +24,6 @@ builder.AddRedisDistributedCache("cache");
 // Add services to the container.
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddWebServices();
-
 
 var app = builder.Build();
 

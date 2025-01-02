@@ -1,4 +1,4 @@
-﻿using Library.Pagination;
+﻿using Contracts.Common;
 
 namespace Contracts.Courses.Requests;
 

@@ -26,20 +26,20 @@ public static class DependencyInjection
         services.AddScoped<BearerTokenInterceptor>();
 
         services.AddHttpClient("ServerApi")
-            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https+http://apiservice"));
+            .ConfigureHttpClient(c => c.BaseAddress = new Uri("https+http://platformService"));
 
         services.AddHttpClient<IStudentApiService, StudentApiService>(client =>
         {
             // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
             // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-            client.BaseAddress = new Uri("https+http://apiservice");
+            client.BaseAddress = new Uri("https+http://platformService");
         }).AddHttpMessageHandler<BearerTokenInterceptor>();
 
         services.AddHttpClient<ICoursesApiService, CoursesApiService>(client =>
         {
             // This URL uses "https+http://" to indicate HTTPS is preferred over HTTP.
             // Learn more about service discovery scheme resolution at https://aka.ms/dotnet/sdschemes.
-            client.BaseAddress = new Uri("https+http://apiservice");
+            client.BaseAddress = new Uri("https+http://platformService");
         }).AddHttpMessageHandler<BearerTokenInterceptor>();
 
 

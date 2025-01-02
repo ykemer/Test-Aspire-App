@@ -1,0 +1,52 @@
+syntax = "proto3";
+
+option csharp_namespace = "CoursesGRPC";
+
+service GrpcCoursesService {
+  rpc GetCourse (GrpcGetCourseRequest) returns (GrpcCourseResponse);
+  rpc ListCourses (GrpcListCoursesRequest) returns (GrpcListCoursesResponse);
+  rpc CreateCourse (GrpcCreateCourseRequest) returns (GrpcCourseResponse);
+  rpc DeleteCourse (GrpcDeleteCourseRequest) returns (GrpcDeleteCourseResponse);
+}
+
+
+// Requests
+message GrpcGetCourseRequest {
+  string id = 1;
+}
+
+message GrpcDeleteCourseRequest {
+  string id = 1;
+}
+
+message GrpcListCoursesRequest {
+  int32 page = 1;
+  int32 pageSize = 2;
+}
+
+message GrpcCreateCourseRequest {
+  string name = 2;
+  string description = 3;
+}
+
+
+// Responses
+message GrpcCourseResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  int32 totalStudents = 4;
+}
+
+message GrpcListCoursesResponse {
+  repeated GrpcCourseResponse Items = 1;
+  int32 currentPage = 2;
+  int32 totalPages = 3;
+  int32 pageSize = 4;
+  int32 totalCount = 5;
+}
+
+message GrpcDeleteCourseResponse {
+  bool success = 1;
+  string message = 2;
+}
