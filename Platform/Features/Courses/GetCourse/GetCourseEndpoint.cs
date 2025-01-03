@@ -40,6 +40,7 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
                 Id = Guid.Parse(data.Id),
                 Name = data.Name,
                 Description = data.Description,
+                EnrollmentsCount = data.TotalStudents
             },
             error => error);
     }

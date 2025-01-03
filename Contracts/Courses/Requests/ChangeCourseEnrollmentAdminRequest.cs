@@ -2,5 +2,5 @@
 
 public class ChangeCourseEnrollmentAdminRequest : ChangeCourseEnrollmentRequest
 {
-    public Guid StudentId { get; set; }
+    public string StudentId { get; set; }
 }

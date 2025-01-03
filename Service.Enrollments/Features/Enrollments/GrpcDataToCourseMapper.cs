@@ -13,9 +13,9 @@ public static class GrpcDataToEnrollmentMapper
             Id = enrollment.Id,
             CourseId = enrollment.CourseId,
             StudentId = enrollment.StudentId,
-            StudentLastName = enrollment.StudentFirstName,
-            StudentFirstName = enrollment.StudentLastName,
-            EnrollmentDateTime = enrollment.EnrollmentDateTime.ToTimestamp()
+            StudentLastName = enrollment.StudentLastName,
+            StudentFirstName = enrollment.StudentFirstName,
+            EnrollmentDateTime = DateTime.SpecifyKind(enrollment.EnrollmentDateTime, DateTimeKind.Utc).ToTimestamp()
         };
     }
 }

@@ -3,6 +3,7 @@ using System.Text.Json;
 using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
+using Contracts.Enrollments.Responses;
 
 namespace Aspire_App.Web.Services.Courses;
 
@@ -48,6 +49,21 @@ public class CoursesApiService : ICoursesApiService
         return await response.Content.ReadFromJsonAsync<CourseResponse>(options);
     }
 
+    public async Task<List<EnrollmentResponse>> GetCourseEnrollments(Guid guid, CancellationToken cancellationToken = default)
+    {
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
+
+        if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching enrollments");
+
+        return await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+    }
+
+
     public async Task EnrollToCourse(Guid courseId, CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("/api/courses/enroll",
@@ -72,7 +88,7 @@ public class CoursesApiService : ICoursesApiService
     public async Task LeaveCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest,
         CancellationToken cancellationToken = default)
     {
-        var response = await _httpClient.PostAsJsonAsync("/api/courses/leave", adminRequest, cancellationToken);
+        var response = await _httpClient.PostAsJsonAsync("/api/courses/unenroll", adminRequest, cancellationToken);
         response.EnsureSuccessStatusCode();
     }
 

@@ -9,6 +9,5 @@ public class CourseResponse
     public string Name { get; init; }
     public string Description { get; init; }
    
-    // TODO remove and fetch from Enrollments
-    public List<StudentResponse>? EnrolledStudents { get; set; }
+    public int EnrollmentsCount { get; init; } = 0;
 }

@@ -76,9 +76,11 @@ message GrpcEnrollmentResponse {
   string StudentLastName = 6;
 }
 
-
-
 message GrpcListEnrollmentsResponse {
+  repeated GrpcEnrollmentResponse Items = 1;
+ 
+}
+message GrpcListEnrollmentsWithPaginationResponse {
   repeated GrpcEnrollmentResponse Items = 1;
   int32 CurrentPage = 2;
   int32 TotalPages = 3;
@@ -94,8 +96,6 @@ message GrpcUpdateEnrollmentResponse {
   bool success = 1;
   string message = 2;
 }
-
-
 
 message ListOfEnrollmentsByCoursesResponse {
   repeated GrpcEnrollmentResponse Items = 2;

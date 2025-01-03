@@ -2,6 +2,7 @@ using EnrollmentsGRPC;
 using Grpc.Core;
 using Library.GRPC;
 using Service.Enrollments.Features.Enrollments.EnrollStudentToCourse;
+using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 using Service.Enrollments.Features.Enrollments.ListEnrollmentsByCourses;
 using Service.Enrollments.Features.Enrollments.UnenrollStudentToCourse;
 
@@ -18,6 +19,17 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
         _logger = logger;
     }
 
+    public override async Task<GrpcListEnrollmentsResponse> GetCourseEnrollments(GrpcGetCourseEnrollmentsRequest request, ServerCallContext context)
+    {
+        var result = await _mediator.Send(new GetCourseEnrollmentsRequest(request.CourseId));
+        return result.Match(
+            enrollments => new GrpcListEnrollmentsResponse
+            {
+                Items = { enrollments.Select(GrpcDataToEnrollmentMapper.EnrollmentToGrpcEnrollmentResponseMap) }
+            },
+            error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+    }
+
     public override async Task<ListOfEnrollmentsByCoursesResponse> GetEnrollmentsByCourses(
         GrpcGetEnrollmentsByCoursesRequest request, ServerCallContext context)
     {
@@ -30,6 +42,7 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
             },
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
+
 
     public override async Task<GrpcUpdateEnrollmentResponse> EnrollStudent(GrpcEnrollStudentRequest request, ServerCallContext context)
     {

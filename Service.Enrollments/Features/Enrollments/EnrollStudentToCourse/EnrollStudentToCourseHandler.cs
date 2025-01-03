@@ -33,7 +33,7 @@ public class EnrollStudentToCourseHandler: IRequestHandler<EnrollStudentToCourse
             CourseId = command.CourseId,
             StudentId = command.StudentId,
             StudentFirstName = command.FirstName,
-            StudentLastName = command.FirstName,
+            StudentLastName = command.LastName,
         };
         await _dbContext.Enrollments.AddAsync(enrollment, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
