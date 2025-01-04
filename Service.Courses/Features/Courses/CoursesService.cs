@@ -4,6 +4,7 @@ using Library.GRPC;
 using Service.Courses.Features.Courses.DeleteCourse;
 using Service.Courses.Features.Courses.GetCourse;
 using Service.Courses.Features.Courses.ListCourses;
+using Service.Courses.Features.Courses.UpdateCourse;
 
 namespace Service.Courses.Features.Courses;
 
@@ -32,12 +33,30 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
 
-    public override async Task<GrpcDeleteCourseResponse> DeleteCourse(GrpcDeleteCourseRequest request,
+    public override async Task<GrpcUpdatedCourseResponse> UpdateCourse(GrpcUpdateCourseRequest request, ServerCallContext context)
+    {
+        var updateCourseCommand = new UpdateCourseCommand
+        {
+            Id = request.Id,
+            Name = request.Name,
+            Description = request.Description
+        };
+        var result = await _mediator.Send(updateCourseCommand);
+        return result.Match(
+            _ => new GrpcUpdatedCourseResponse
+            {
+                Message = "Course updated successfully",
+                Success = true
+            },
+            error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+    }
+
+    public override async Task<GrpcUpdatedCourseResponse> DeleteCourse(GrpcDeleteCourseRequest request,
         ServerCallContext context)
     {
         var output = await _mediator.Send(new DeleteCourseCommand(request.Id));
         return output.Match(
-            _ => new GrpcDeleteCourseResponse
+            _ => new GrpcUpdatedCourseResponse
             {
                 Success = true,
                 Message = "Course deleted successfully"

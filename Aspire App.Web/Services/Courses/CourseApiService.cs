@@ -1,5 +1,5 @@
-using System;
 using System.Text.Json;
+using Aspire_App.Web.Helpers;
 using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
@@ -29,7 +29,7 @@ public class CoursesApiService : ICoursesApiService
         var response =
             await _httpClient.GetAsync($"{CoursesUri}/list?page={page}&pageSize={pageSize}", cancellationToken);
 
-        if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching attributes");
+        if (!response.IsSuccessStatusCode) throw new ArgumentException("Error fetching course lists");
 
         return await response.Content.ReadFromJsonAsync<PagedList<CourseListItemResponse>>(options);
     }
@@ -44,7 +44,7 @@ public class CoursesApiService : ICoursesApiService
 
         var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
 
-        if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching attributes");
+        if (!response.IsSuccessStatusCode) throw new ArgumentException("Error fetching course");
 
         return await response.Content.ReadFromJsonAsync<CourseResponse>(options);
     }
@@ -58,9 +58,10 @@ public class CoursesApiService : ICoursesApiService
 
         var response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
 
-        if (!response.IsSuccessStatusCode) throw new ApplicationException("Error fetching enrollments");
+        if (!response.IsSuccessStatusCode) throw new ArgumentException("Error fetching enrollments");
 
-        return await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+        var output = await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+        return output;
     }
 
 
@@ -96,6 +97,34 @@ public class CoursesApiService : ICoursesApiService
         CancellationToken cancellationToken = default)
     {
         var response = await _httpClient.PostAsJsonAsync("/api/courses/create", createCourseRequest, cancellationToken);
-        response.EnsureSuccessStatusCode();
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+        
+        await FrontendHelper.ProcessValidationDetails(response);
+    }
+
+    public async Task DeleteCourse(Guid id, CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/api/courses/delete", new DeleteCourseRequest(id), cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+        
+        await FrontendHelper.ProcessValidationDetails(response);
+    }
+
+    public async Task UpdateCourse(UpdateCourseRequest updateCourseRequest,
+        CancellationToken cancellationToken = default)
+    {
+        var response = await _httpClient.PostAsJsonAsync("/api/courses/update", updateCourseRequest, cancellationToken);
+        if (response.IsSuccessStatusCode)
+        {
+            return;
+        }
+
+        await FrontendHelper.ProcessValidationDetails(response);
     }
 }

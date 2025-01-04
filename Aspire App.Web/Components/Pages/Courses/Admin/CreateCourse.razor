@@ -1,4 +1,6 @@
 ﻿@page "/admin/courses/create"
+@using Aspire_App.Web.Exceptions
+@using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
 @using global::Contracts.Courses.Requests
 @rendermode InteractiveServer
@@ -8,17 +10,19 @@
 
 <h3>Create course</h3>
 
-<EditForm Model="@CreateCourseForm" OnValidSubmit="SubmitAsync" FormName="createCourseForm">
+<EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="createCourseForm">
     <DataAnnotationsValidator/>
     <ValidationSummary/>
 
     <div class="form-group">
         <label for="Name">Name:</label>
-        <InputText id="Name" class="form-control" @bind-Value="CreateCourseForm.Name"/>
+        <InputText id="Name" class="form-control" @bind-Value="createCourseForm.Name"/>
+        <ValidationMessage For="@(() => createCourseForm.Name)"/>
     </div>
     <div class="form-group">
         <label for="Name">Description:</label>
-        <InputText id="Description" class="form-control" @bind-Value="CreateCourseForm.Description"/>
+        <InputText id="Description" class="form-control" @bind-Value="createCourseForm.Description"/>
+        <ValidationMessage For="@(() => createCourseForm.Description)"/>
     </div>
     <br/>
     <button type="submit" class="btn btn-primary">Login</button>
@@ -26,7 +30,7 @@
 
 @if (_successMessage is not null)
 {
-<p>@_successMessage</p>
+    <p>@_successMessage</p>
 }
 
 @if (_errorMessage is not null)
@@ -35,22 +39,46 @@
 }
 
 @code {
-    [SupplyParameterFromForm] public CreateCourseRequest CreateCourseForm { get; set; } = new();
+
+    public CreateCourseRequest createCourseForm;
+    private EditContext _editContext;
+    private ValidationMessageStore _messageStore;
 
     private string? _errorMessage;
     private string? _successMessage;
 
-   
+    protected override void OnInitialized()
+    {
+        createCourseForm = new CreateCourseRequest();
+        _editContext = new EditContext(createCourseForm);
+        _messageStore = new ValidationMessageStore(_editContext);
+        _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    }
+
 
     private async Task SubmitAsync()
     {
         try
         {
-            await CoursesApiService.CreateCourse(CreateCourseForm);
-            CreateCourseForm = new CreateCourseRequest();
+            await CoursesApiService.CreateCourse(createCourseForm);
+            createCourseForm = new CreateCourseRequest();
             _errorMessage = null;
             _successMessage = "Course created successfully!";
             NavigationManager.NavigateTo("/admin/courses");
+        }
+        catch (ValidationException ex)
+        {
+            _messageStore.Clear();
+
+            // Add server-side validation errors to the ValidationMessageStore
+            foreach (var error in ex.Errors)
+            {
+                var fieldIdentifier = new FieldIdentifier(createCourseForm, FrontendHelper.ToPascalCase(error.Key));
+                _messageStore.Add(fieldIdentifier, error.Value);
+            }
+
+            // Notify the EditContext that the validation state has changed
+            _editContext.NotifyValidationStateChanged();
         }
         catch (Exception ex)
         {
@@ -59,6 +87,18 @@
         }
     }
 
-   
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+    {
+        // Clear the validation messages for the field that changed
+        _messageStore.Clear(e.FieldIdentifier);
+        // Optionally notify that validation state has changed
+        _editContext.NotifyValidationStateChanged();
+    }
 
 }

@@ -6,7 +6,8 @@ service GrpcCoursesService {
   rpc GetCourse (GrpcGetCourseRequest) returns (GrpcCourseResponse);
   rpc ListCourses (GrpcListCoursesRequest) returns (GrpcListCoursesResponse);
   rpc CreateCourse (GrpcCreateCourseRequest) returns (GrpcCourseResponse);
-  rpc DeleteCourse (GrpcDeleteCourseRequest) returns (GrpcDeleteCourseResponse);
+  rpc UpdateCourse (GrpcUpdateCourseRequest) returns (GrpcUpdatedCourseResponse);
+  rpc DeleteCourse (GrpcDeleteCourseRequest) returns (GrpcUpdatedCourseResponse);
 }
 
 
@@ -25,9 +26,16 @@ message GrpcListCoursesRequest {
 }
 
 message GrpcCreateCourseRequest {
+  string name = 1;
+  string description = 2;
+}
+
+message GrpcUpdateCourseRequest {
+  string id = 1;
   string name = 2;
   string description = 3;
 }
+
 
 
 // Responses
@@ -46,7 +54,7 @@ message GrpcListCoursesResponse {
   int32 totalCount = 5;
 }
 
-message GrpcDeleteCourseResponse {
+message GrpcUpdatedCourseResponse {
   bool success = 1;
   string message = 2;
 }

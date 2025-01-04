@@ -2,9 +2,11 @@
 using System.Security.Claims;
 using System.Text.Json;
 using Aspire_App.Web.Exceptions;
+using Aspire_App.Web.Helpers;
 using Aspire_App.Web.Services.TokenServices;
 using Contracts.Auth.Responses;
 using Contracts.Users.Requests;
+using FastEndpoints;
 
 
 namespace Aspire_App.Web.Services.Auth;
@@ -122,21 +124,10 @@ public class AuthenticationService : IAuthenticationService
             return content;
         }
         
-        if(response.Content.Headers.ContentType?.MediaType == "application/problem+json")
-        {
-            // TODO fix this
-            var options = new JsonSerializerOptions
-            {
-                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-                PropertyNameCaseInsensitive = true
-            };
-            // var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(options);
-            // throw new ValidationException(problemDetails?.Errors.ToDictionary(e => e.Name, e => new [] {e.Reason}) ?? new Dictionary<string, string[]>());
-        }
-
+        await FrontendHelper.ProcessValidationDetails(response);
 
         var errorContent = await response.Content.ReadAsStringAsync();
-        throw new Exception($"Request failed with status code {response.StatusCode}: {errorContent}");
+        throw new ArgumentException($"Request failed with status code {response.StatusCode}: {errorContent}");
     }
 
     private async Task SetTokensAsync(LoginResponse content)

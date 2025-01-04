@@ -15,6 +15,8 @@ public interface ICoursesApiService
     Task EnrollToCourse(Guid courseId, CancellationToken cancellationToken = default);
     Task LeaveCourse(Guid courseId, CancellationToken cancellationToken = default);
     Task CreateCourse(CreateCourseRequest createCourseRequest, CancellationToken cancellationToken = default);
+    Task DeleteCourse(Guid id, CancellationToken cancellationToken = default);
+    Task UpdateCourse(UpdateCourseRequest updateCourseRequest, CancellationToken cancellationToken = default);
 
     Task LeaveCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest, CancellationToken cancellationToken = default);
 

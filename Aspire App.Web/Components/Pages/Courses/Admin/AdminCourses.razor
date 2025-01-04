@@ -39,35 +39,54 @@ else
                 <th>Name</th>
                 <th>Enrolled Students</th>
                 <th></th>
+                <th></th>
+                <th></th>
             </tr>
             </thead>
             <tbody>
             @foreach (var course in _courses.Items)
             {
-            <tr>
-                <td>@course.Name</td>
-                <td>@course.EnrollmentsCount</td>
-                <td>
-                    <NavLink href="@($"/admin/course/{course.Id}")" class="btn btn-primary">Enrolled Students</NavLink >
-                </td>
-            </tr>
+                <tr>
+                    <td>@course.Name</td>
+                    <td>@course.EnrollmentsCount</td>
+                    <td>
+                        <NavLink href="@($"/admin/course/enrollments/{course.Id}")" class="btn btn-primary">Enrolled
+                            Students
+                        </NavLink>
+                    </td>
+                    <td>
+                        <NavLink href="@($"/admin/course/edit/{course.Id}")" class="btn btn-primary">Edit
+                        </NavLink>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete
+                        </button>
+                    </td>
+                </tr>
             }
             </tbody>
         </table>
 
         @if (_courses.TotalPages > 1)
         {
-        <Pager records="_courses" ChangePage="GetStudents"/>
+            <Pager records="_courses" ChangePage="GetStudents"/>
         }
     </div>
-    
-    
+}
+
+@if (_showDeleteConfirmation)
+{
+    <Modal Title="Confirm Delete" OnConfirm="ConfirmDelete" OnCancel="CancelDelete">
+        <p>Do you really want to delete this course?</p>
+    </Modal>
 }
 
 
 @code {
     private PagedList<CourseListItemResponse>? _courses;
-    
+    private bool _showDeleteConfirmation;
+    private Guid _courseIdToDelete;
+
     protected override async Task OnInitializedAsync()
     {
         await GetStudents();
@@ -78,4 +97,23 @@ else
         _courses = null;
         _courses = await CoursesApiService.GetCoursesListAsync(page);
     }
+
+    private void ShowDeleteConfirmation(Guid courseId)
+    {
+        _courseIdToDelete = courseId;
+        _showDeleteConfirmation = true;
+    }
+
+    private async Task ConfirmDelete()
+    {
+        _showDeleteConfirmation = false;
+        await CoursesApiService.DeleteCourse(_courseIdToDelete);
+        await GetStudents();
+    }
+
+    private void CancelDelete()
+    {
+        _showDeleteConfirmation = false;
+    }
+
 }
