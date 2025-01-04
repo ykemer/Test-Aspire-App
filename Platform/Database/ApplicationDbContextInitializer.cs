@@ -30,16 +30,15 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
                 await _context.Database.EnsureCreatedAsync();
                 await _context.Database.MigrateAsync();
             }
-            catch
+            catch(Exception ex)
             {
                 _logger.LogError(
-                    "An error occurred while trying to migrate the database. This is expected when using project locally.");
+                    ex, "An error occurred while trying to migrate the database. This is expected when using project locally.");
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while initialising the database.");
-            throw;
         }
     }
 
@@ -52,7 +51,6 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while seeding the database.");
-            throw;
         }
     }
 
@@ -62,7 +60,7 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
         var administratorRole = new IdentityRole("Administrator");
         var userRole = new IdentityRole("User");
 
-        if (_roleManager.Roles.All(r => r.Name != administratorRole.Name))
+        if (await _roleManager.Roles.AllAsync(r => r.Name != administratorRole.Name))
         {
             await _roleManager.CreateAsync(administratorRole);
             await _roleManager.CreateAsync(userRole);
@@ -91,7 +89,7 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
             EmailConfirmed = true
         };
 
-        if (_userManager.Users.All(u => u.UserName != administrator.UserName))
+        if (await _userManager.Users.AllAsync(u => u.UserName != administrator.UserName))
         {
             await _userManager.CreateAsync(administrator, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!);
             await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name }!);
