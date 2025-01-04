@@ -1,5 +1,5 @@
 ﻿using Contracts.Common;
-using Service.Students.Entitites;
+using Service.Students.Entities;
 
 namespace Service.Students.Features.ListStudent;
 

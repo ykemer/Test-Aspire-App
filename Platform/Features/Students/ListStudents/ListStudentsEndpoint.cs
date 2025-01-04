@@ -3,7 +3,8 @@ using Contracts.Students.Requests;
 using Contracts.Students.Responses;
 using FastEndpoints;
 using Platform.Features.Enrollments.EnrollToCourse;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 using StudentsGRPCClient;
 
 namespace Platform.Features.Students.ListStudents;
@@ -28,20 +29,10 @@ public class ListStudentsEndpoint : Endpoint<ListStudentsRequest, ErrorOr<PagedL
     public override async Task<ErrorOr<PagedList<StudentResponse>>> ExecuteAsync(ListStudentsRequest query,
         CancellationToken ct)
     {
-        var studentRequest = _studentsGrpcService.ListStudentsAsync(new GrpcListStudentsRequest
-        {
-            Page = query.PageNumber,
-            PageSize = query.PageSize
-        });
+        var studentRequest = _studentsGrpcService.ListStudentsAsync(query.ToGrpcListStudentsRequest());
         var studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
         return studentResponse.Match<ErrorOr<PagedList<StudentResponse>>>(
-            data => new PagedList<StudentResponse>
-            {
-                Items = data.Items.Select(GrpcStudentToStudentResponseMapper.MapToStudentResponse).ToList(),
-                CurrentPage = data.CurrentPage,
-                PageSize = data.PageSize,
-                TotalCount = data.TotalCount
-            },
+            data => data.ToStudentListResponse(),
             error => error);
     }
 }

@@ -2,7 +2,8 @@
 using CoursesGRPCClient;
 using EnrollmentsGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 
 namespace Platform.Features.Enrollments.GetCourseEnrollments;
 
@@ -48,15 +49,7 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
         var enrollmentsResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
 
         return enrollmentsResult.Match<ErrorOr<List<EnrollmentResponse>>>(
-            data => data.Items.Select(i => new EnrollmentResponse
-            {
-                Id = i.Id,
-                CourseId = i.CourseId,
-                StudentId = i.StudentId,
-                EnrollmentDateTime = i.EnrollmentDateTime.ToDateTime(),
-                FirstName = i.StudentFirstName,
-                LastName = i.StudentLastName
-            }).ToList(),
+            data => data.ToEnrollmentResponseList(),
             error => error);
     }
 }

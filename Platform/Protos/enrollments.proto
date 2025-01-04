@@ -10,7 +10,7 @@ service GrpcEnrollmentsService {
 
   rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
   rpc GetCourseEnrollments (GrpcGetCourseEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
-  rpc GetEnrollmentsByCourses (GrpcGetEnrollmentsByCoursesRequest) returns (ListOfEnrollmentsByCoursesResponse);
+  rpc GetEnrollmentsByCourses (GrpcGetEnrollmentsByCoursesRequest) returns (GrpcListEnrollmentsResponse);
 
   rpc CountCourseEnrollments (GrpcCountStudentEnrollmentsRequest) returns (GrpcCountResponse);
   rpc CountStudentEnrollments (GrpcCountCourseEnrollmentsRequest) returns (GrpcCountResponse);
@@ -97,6 +97,3 @@ message GrpcUpdateEnrollmentResponse {
   string message = 2;
 }
 
-message ListOfEnrollmentsByCoursesResponse {
-  repeated GrpcEnrollmentResponse Items = 2;
-}

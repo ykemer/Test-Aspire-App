@@ -1,7 +1,8 @@
 ﻿using Contracts.Courses.Responses;
 using CoursesGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 
 namespace Platform.Features.Courses.GetCourse;
 
@@ -35,13 +36,7 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
 
         var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
         return result.Match<ErrorOr<CourseResponse>>(
-            data => new CourseResponse
-            {
-                Id = Guid.Parse(data.Id),
-                Name = data.Name,
-                Description = data.Description,
-                EnrollmentsCount = data.TotalStudents
-            },
+            data => data.ToCourseResponse(),
             error => error);
     }
 }

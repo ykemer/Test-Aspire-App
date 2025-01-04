@@ -1,10 +1,8 @@
 using EnrollmentsGRPC;
 using Grpc.Core;
 using Library.GRPC;
-using Service.Enrollments.Features.Enrollments.EnrollStudentToCourse;
-using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
-using Service.Enrollments.Features.Enrollments.ListEnrollmentsByCourses;
-using Service.Enrollments.Features.Enrollments.UnenrollStudentToCourse;
+using Service.Enrollments.Entities;
+using Service.Enrollments.Middleware;
 
 namespace Service.Enrollments.Features.Enrollments;
 
@@ -21,34 +19,28 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
 
     public override async Task<GrpcListEnrollmentsResponse> GetCourseEnrollments(GrpcGetCourseEnrollmentsRequest request, ServerCallContext context)
     {
-        var result = await _mediator.Send(new GetCourseEnrollmentsRequest(request.CourseId));
+        var result = await _mediator.Send(request.ToGetCourseEnrollmentsRequest());
         return result.Match(
-            enrollments => new GrpcListEnrollmentsResponse
-            {
-                Items = { enrollments.Select(GrpcDataToEnrollmentMapper.EnrollmentToGrpcEnrollmentResponseMap) }
-            },
+            enrollments => enrollments.ToGrpcListEnrollmentsResponse(),
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
 
-    public override async Task<ListOfEnrollmentsByCoursesResponse> GetEnrollmentsByCourses(
+    public override async Task<GrpcListEnrollmentsResponse> GetEnrollmentsByCourses(
         GrpcGetEnrollmentsByCoursesRequest request, ServerCallContext context)
     {
         var result =
-            await _mediator.Send(new ListOfEnrollmentsByCoursesQuery(request.CourseIds.ToList(), request.StudentId));
+            await _mediator.Send(request.ToListOfEnrollmentsByCoursesQuery());
         return result.Match(
-            enrollments => new ListOfEnrollmentsByCoursesResponse
-            {
-                Items = { enrollments.Select(GrpcDataToEnrollmentMapper.EnrollmentToGrpcEnrollmentResponseMap) }
-            },
+            enrollments => enrollments.ToGrpcListEnrollmentsResponse(),
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
 
 
     public override async Task<GrpcUpdateEnrollmentResponse> EnrollStudent(GrpcEnrollStudentRequest request, ServerCallContext context)
     {
-        var result = await _mediator.Send(new EnrollStudentToCourseCommand(request.CourseId, request.StudentId, request.StudentFirstName, request.StudentLastName));
+        var result = await _mediator.Send(request.ToEnrollStudentToCourseCommand());
         return result.Match(
-            created => new GrpcUpdateEnrollmentResponse
+            _ => new GrpcUpdateEnrollmentResponse
             {
                 Success = true,
                 Message = "Student enrolled successfully"
@@ -58,9 +50,9 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
 
     public override async Task<GrpcUpdateEnrollmentResponse> DeleteEnrollment(GrpcDeleteEnrollmentRequest request, ServerCallContext context)
     {
-        var result = await _mediator.Send(new UnenrollStudentFromCourseCommand(request.CourseId, request.StudentId));
+        var result = await _mediator.Send(request.ToGrpcDeleteEnrollmentRequest());
         return result.Match(
-            created => new GrpcUpdateEnrollmentResponse
+            _ => new GrpcUpdateEnrollmentResponse
             {
                 Success = true,
                 Message = "Student enrolled successfully"

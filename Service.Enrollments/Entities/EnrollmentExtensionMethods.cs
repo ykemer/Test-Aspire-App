@@ -1,12 +1,11 @@
 ﻿using EnrollmentsGRPC;
 using Google.Protobuf.WellKnownTypes;
-using Service.Enrollments.Entities;
 
-namespace Service.Enrollments.Features.Enrollments;
+namespace Service.Enrollments.Entities;
 
-public static class GrpcDataToEnrollmentMapper
+public static class EnrollmentExtensionMethods
 {
-    public static GrpcEnrollmentResponse EnrollmentToGrpcEnrollmentResponseMap(Enrollment enrollment)
+    public static GrpcEnrollmentResponse ToGrpcEnrollmentResponse(this Enrollment enrollment)
     {
         return new GrpcEnrollmentResponse
         {
@@ -16,6 +15,14 @@ public static class GrpcDataToEnrollmentMapper
             StudentLastName = enrollment.StudentLastName,
             StudentFirstName = enrollment.StudentFirstName,
             EnrollmentDateTime = DateTime.SpecifyKind(enrollment.EnrollmentDateTime, DateTimeKind.Utc).ToTimestamp()
+        };
+    }
+    
+    public static GrpcListEnrollmentsResponse ToGrpcListEnrollmentsResponse(this List<Enrollment> enrollments)
+    {
+        return new GrpcListEnrollmentsResponse
+        {
+            Items = { enrollments.Select(i => i.ToGrpcEnrollmentResponse()) }
         };
     }
 }

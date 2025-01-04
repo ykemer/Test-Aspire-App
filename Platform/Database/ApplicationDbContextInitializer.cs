@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Platform.Entities;
 using Platform.Features.Auth;
 
 namespace Platform.Database;

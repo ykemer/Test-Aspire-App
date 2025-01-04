@@ -1,7 +1,7 @@
 ﻿using Contracts.Students.Responses;
 using FastEndpoints;
-using Platform.Features.Enrollments.EnrollToCourse;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 using StudentsGRPCClient;
 
 namespace Platform.Features.Students.GetStudent;
@@ -33,7 +33,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<ErrorOr<StudentResponse
         });
         var studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
         return studentResponse.Match<ErrorOr<StudentResponse>>(
-            data => GrpcStudentToStudentResponseMapper.MapToStudentResponse(data),
+            data => data.ToStudentResponse(),
             error => error);
     }
 }

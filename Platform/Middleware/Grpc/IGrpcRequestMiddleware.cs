@@ -1,6 +1,6 @@
 ﻿using Grpc.Core;
 
-namespace Platform.Services.Middleware;
+namespace Platform.Middleware.Grpc;
 
 public interface IGrpcRequestMiddleware
 {

@@ -1,5 +1,6 @@
 ﻿using Platform.Features.Auth;
 using Microsoft.AspNetCore.Identity;
+using Platform.Entities;
 
 namespace Platform.Services.MailService;
 

@@ -3,6 +3,7 @@ using Contracts.Users.Requests;
 using FastEndpoints;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Platform.Entities;
 
 namespace Platform.Features.Auth.RefreshAccessToken;
 

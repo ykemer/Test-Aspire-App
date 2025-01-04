@@ -6,7 +6,8 @@ using Contracts.Courses.Responses;
 using CoursesGRPCClient;
 using EnrollmentsGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 
 
 namespace Platform.Features.Courses.ListCourse;
@@ -42,11 +43,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     {
         var userId = _userService.GetUserId(User);
 
-        var coursesRequest = _coursesGrpcService.ListCoursesAsync(new GrpcListCoursesRequest
-        {
-            Page = query.PageNumber,
-            PageSize = query.PageSize
-        }, cancellationToken: ct);
+        var coursesRequest =
+            _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(), cancellationToken: ct);
 
         var coursesResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
 
@@ -70,14 +68,7 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
         var enrollments = enrollmentsResult.Value;
 
 
-        var mappedList = courses.Items.Select(i => new CourseListItemResponse
-        {
-            Id = Guid.Parse(i.Id),
-            Name = i.Name,
-            Description = i.Description,
-            EnrollmentsCount = i.TotalStudents,
-            IsUserEnrolled = enrollments.Items.Any(x => x.CourseId == i.Id)
-        }).ToList();
+        var mappedList = courses.ToCourseListItemResponse(withEnrollments: enrollments);
 
         return PagedList<CourseListItemResponse>.Create(mappedList, query.PageNumber, query.PageSize);
     }

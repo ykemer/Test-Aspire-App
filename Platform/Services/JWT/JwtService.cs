@@ -5,6 +5,7 @@ using Platform.Features.Auth;
 using FastEndpoints.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
+using Platform.Entities;
 
 namespace Platform.Services.JWT;
 

@@ -2,7 +2,8 @@
 using Contracts.Courses.Responses;
 using CoursesGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 
 namespace Platform.Features.Courses.CreateCourse;
 
@@ -28,20 +29,11 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
     public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(CreateCourseRequest createCourseCommand,
         CancellationToken ct)
     {
-        var request = _coursesGrpcService.CreateCourseAsync(new GrpcCreateCourseRequest
-        {
-            Name = createCourseCommand.Name,
-            Description = createCourseCommand.Description
-        }, cancellationToken: ct);
+        var request = _coursesGrpcService.CreateCourseAsync(createCourseCommand.ToGrpcCreateCourseRequest(), cancellationToken: ct);
 
         var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
         return result.Match<ErrorOr<CourseResponse>>(
-            data => new CourseResponse
-            {
-                Id = Guid.Parse(data.Id),
-                Description = data.Description,
-                Name = data.Name,
-            },
+            data => data.ToCourseResponse(),
             error => error);
     }
 }

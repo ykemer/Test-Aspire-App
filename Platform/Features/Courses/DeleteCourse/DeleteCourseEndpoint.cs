@@ -1,7 +1,8 @@
 ﻿using Contracts.Courses.Requests;
 using CoursesGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
+using Platform.Middleware.Mappers;
 
 
 namespace Platform.Features.Courses.DeleteCourse;
@@ -26,10 +27,7 @@ public class DeleteCourseEndpoint : Endpoint<DeleteCourseRequest,
 
     public override async Task<ErrorOr<Deleted>> ExecuteAsync(DeleteCourseRequest deleteCourseCommand, CancellationToken ct)
     {
-        var request = _coursesGrpcService.DeleteCourseAsync(new GrpcDeleteCourseRequest
-        {
-            Id = deleteCourseCommand.Id.ToString()
-        }, cancellationToken: ct);
+        var request = _coursesGrpcService.DeleteCourseAsync(deleteCourseCommand.ToGrpcDeleteCourseRequest(), cancellationToken: ct);
 
         var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
         return output.Match<ErrorOr<Deleted>>(

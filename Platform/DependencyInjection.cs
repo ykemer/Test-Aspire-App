@@ -14,7 +14,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 using Platform.AsyncDataServices;
 using Platform.Database;
-using Platform.Services.Middleware;
+using Platform.Entities;
+using Platform.Middleware.Grpc;
 using StudentsGRPCClient;
 
 namespace Platform;

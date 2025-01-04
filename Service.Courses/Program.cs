@@ -24,7 +24,3 @@ if (app.Environment.IsDevelopment())
 }
 
 await app.RunAsync();
-
-// Messaging 
-// Dispatch: Course deleted
-// Receive: Enrollment deleted, Enrollment created, Student Deleted

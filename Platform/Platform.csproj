@@ -11,7 +11,6 @@
       <None Remove="Features\Auth\**" />
     </ItemGroup>
     <ItemGroup>
-      <Compile Include="Features\Auth\ApplicationUser.cs" />
       <Compile Include="Features\Auth\RefreshAccessToken\RefreshAccessTokenEndpoint.cs" />
       <Compile Include="Features\Auth\RefreshAccessToken\RefreshTokenRequestValidator.cs" />
       <Compile Include="Features\Auth\RefreshTokenRevoke\RefreshTokenRevokeEndpoint.cs" />
@@ -56,5 +55,8 @@
       <Protobuf Include="Protos\courses.proto" GrpcServices="Client" />
       <Protobuf Include="Protos\enrollments.proto" GrpcServices="Client"/> 
       <Protobuf Include="Protos\students.proto" GrpcServices="Client"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Services\Grpc\" />
     </ItemGroup>
 </Project>

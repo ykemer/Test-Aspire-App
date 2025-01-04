@@ -1,11 +1,12 @@
-﻿using Contracts.Users.Events;
-using Contracts.Users.Requests;
+﻿using Contracts.Users.Requests;
 using Platform.Services.JWT;
 using FastEndpoints;
 using Library.Auth;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Platform.AsyncDataServices;
+using Platform.Entities;
+using Platform.Middleware.Mappers;
 
 namespace Platform.Features.Auth.UserRegister;
 
@@ -31,25 +32,18 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
         AllowAnonymous();
     }
 
-    public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserRegisterRequest req, CancellationToken ct)
+    public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserRegisterRequest request, CancellationToken ct)
     {
-        var existingUser = await _userManager.FindByNameAsync(req.Email);
+        var existingUser = await _userManager.FindByNameAsync(request.Email);
         if (existingUser != null)
         {
-            _logger.LogWarning("User with {Email} already exists", req.Email);
+            _logger.LogWarning("User with {Email} already exists", request.Email);
             return Error.Conflict(description: "User already exists");
         }
 
 
         var refreshToken = Generators.GenerateToken();
-        var result = await _userManager.CreateAsync(new ApplicationUser
-        {
-            UserName = req.Email,
-            Email = req.Email,
-            FirstName = req.FirstName,
-            LastName = req.LastName,
-            DateOfBirth = req.DateOfBirth
-        }, req.Password);
+        var result = await _userManager.CreateAsync(request.ToApplicationUser(), request.Password);
 
 
         if (!result.Succeeded)
@@ -59,21 +53,11 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
             return Error.Failure(description: "Register failed");
         }
 
-        var user = await _userManager.FindByNameAsync(req.Email);
+        var user = await _userManager.FindByNameAsync(request.Email);
         await _userManager.AddToRolesAsync(user, ["User"]);
-
-
-        var studentCreateCommand = new UserCreatedEvent
-        {
-            Id = user.Id,
-            FirstName = user.FirstName,
-            LastName = user.LastName,
-            DateOfBirth = user.DateOfBirth,
-            Email = user.Email
-        };
-
-        _messageBusClient.PublishUserRegisteredMessage(studentCreateCommand);
-        _logger.LogInformation("Register succeeded");
+        
+        _messageBusClient.PublishUserRegisteredMessage(user.ToUserCreatedEvent());
+        _logger.LogInformation("User {UserName} registered", user.UserName);
         var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
         return new AccessTokenResponse

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using FastEndpoints;
 
-namespace Platform.Services.Middleware;
+namespace Platform.Middleware.Responses;
 
 
 public class ProblemDetailsMiddleware

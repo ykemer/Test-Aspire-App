@@ -1,8 +1,7 @@
 using Grpc.Core;
 using Library.GRPC;
-using Service.Students.Features.DeleteStudent;
-using Service.Students.Features.GetStudent;
-using Service.Students.Features.ListStudent;
+using Service.Students.Entities;
+using Service.Students.Middleware;
 using StudentsGRPC;
 
 namespace Service.Students.Features;
@@ -21,36 +20,25 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
     public override async Task<GrpcStudentResponse> GetStudentById(GrpcGetStudentByIdRequest request,
         ServerCallContext context)
     {
-        var studentResult = await _mediator.Send(new GetStudentQuery(request.Id));
+        var studentResult = await _mediator.Send(request.ToGetStudentQuery());
         return studentResult.Match(
-            GrpcToStudentMapper.StudentToGrpcStudentResponse,
+            data => data.ToGrpcStudentResponse(),
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
 
     public override Task<GrpcListStudentsResponse> ListStudents(GrpcListStudentsRequest request,
         ServerCallContext context)
     {
-        var studentsResult = _mediator.Send(new ListStudentsQuery
-        {
-            PageNumber = request.Page,
-            PageSize = request.PageSize
-        });
+        var studentsResult = _mediator.Send(request.ToListStudentsQuery());
 
         return studentsResult.Match(
-            data => new GrpcListStudentsResponse
-            {
-                Items = { data.Items.Select(GrpcToStudentMapper.StudentToGrpcStudentResponse) },
-                TotalCount = data.TotalCount,
-                PageSize = data.PageSize,
-                CurrentPage = data.CurrentPage,
-                TotalPages = data.TotalPages,
-            },
+            data =>data.ToGrpcListStudentsResponse(),
             error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
     }
 
     public override Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request, ServerCallContext context)
     {
-        var deleteStudentResult = _mediator.Send(new DeleteStudentCommand(request.Id));
+        var deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
         return deleteStudentResult.Match(
             _ => new GrpcUpdatedResponse
             {

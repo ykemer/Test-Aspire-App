@@ -4,7 +4,8 @@ using FastEndpoints.Swagger;
 using Grpc.Core;
 using Library.Infrastructure;
 using Platform.Database;
-using Platform.Services.Middleware;
+using Platform.Middleware;
+using Platform.Middleware.Responses;
 
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");

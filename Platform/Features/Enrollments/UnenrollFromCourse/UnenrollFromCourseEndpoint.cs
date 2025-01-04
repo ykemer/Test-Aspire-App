@@ -1,7 +1,7 @@
 ﻿using Contracts.Courses.Requests;
 using EnrollmentsGRPCClient;
 using FastEndpoints;
-using Platform.Services.Middleware;
+using Platform.Middleware.Grpc;
 using Platform.Services.User;
 using StudentsGRPCClient;
 

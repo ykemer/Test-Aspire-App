@@ -4,6 +4,7 @@ using FastEndpoints;
 using Library.Auth;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
+using Platform.Entities;
 
 namespace Platform.Features.Auth.UserLogin;
 

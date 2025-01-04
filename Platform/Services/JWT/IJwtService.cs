@@ -1,4 +1,5 @@
-﻿using Platform.Features.Auth;
+﻿using Platform.Entities;
+using Platform.Features.Auth;
 
 namespace Platform.Services.JWT;
 
