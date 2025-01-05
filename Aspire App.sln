@@ -2,33 +2,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.AppHost", "Aspire App.AppHost\Aspire App.AppHost.csproj", "{33AA2E84-93E6-41DA-8DE3-38AB99F636AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.AppHost", "src\Infrastructure\Aspire App.AppHost\Aspire App.AppHost.csproj", "{33AA2E84-93E6-41DA-8DE3-38AB99F636AA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.ServiceDefaults", "Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj", "{D59642A0-D9D3-4305-81C6-9719F880435A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.ServiceDefaults", "src\Infrastructure\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj", "{D59642A0-D9D3-4305-81C6-9719F880435A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform", "Platform\Platform.csproj", "{86F2773B-5539-4C7D-8C77-DC4335EFFDDF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Platform", "src\Services\Platform\Platform.csproj", "{86F2773B-5539-4C7D-8C77-DC4335EFFDDF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.Web", "Aspire App.Web\Aspire App.Web.csproj", "{F92FAF9D-057F-4BD7-AC2A-B23C3F52EA2E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aspire App.Web", "src\Frontend\Aspire App.Web\Aspire App.Web.csproj", "{F92FAF9D-057F-4BD7-AC2A-B23C3F52EA2E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "Library\Library.csproj", "{6C118239-4291-483C-A609-6AC2A9208E49}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Library", "src\Common\Library\Library.csproj", "{6C118239-4291-483C-A609-6AC2A9208E49}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "Contracts\Contracts.csproj", "{6745E549-E8B4-4D6E-BBC7-92C40AB0A2E5}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Backend", "Backend", "{C10C476E-F23A-4281-8444-341C3E836C85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Contracts", "src\Common\Contracts\Contracts.csproj", "{6745E549-E8B4-4D6E-BBC7-92C40AB0A2E5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frontend", "Frontend", "{25D0171F-2B70-4E07-98DC-D5041C5508BE}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{959CC1CA-7403-4AFE-B8E7-A3C1A3EE1A3C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Courses", "Service.Courses\Service.Courses.csproj", "{BB48FEAE-D700-464B-9050-7EFE12DBC4BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Courses", "src\Services\Service.Courses\Service.Courses.csproj", "{BB48FEAE-D700-464B-9050-7EFE12DBC4BB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Enrollments", "Service.Enrollments\Service.Enrollments.csproj", "{2ECFEE61-3002-42E8-A985-5C174CEC231B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Enrollments", "src\Services\Service.Enrollments\Service.Enrollments.csproj", "{2ECFEE61-3002-42E8-A985-5C174CEC231B}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{770CF3E4-6FE0-404F-A9CA-2AD30EA64559}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Students", "Service.Students\Service.Students.csproj", "{ADACD167-EFA9-4A77-A2B9-811DD66BE53E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Service.Students", "src\Services\Service.Students\Service.Students.csproj", "{ADACD167-EFA9-4A77-A2B9-811DD66BE53E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,7 +81,6 @@ Global
 		{F92FAF9D-057F-4BD7-AC2A-B23C3F52EA2E} = {25D0171F-2B70-4E07-98DC-D5041C5508BE}
 		{6745E549-E8B4-4D6E-BBC7-92C40AB0A2E5} = {959CC1CA-7403-4AFE-B8E7-A3C1A3EE1A3C}
 		{6C118239-4291-483C-A609-6AC2A9208E49} = {959CC1CA-7403-4AFE-B8E7-A3C1A3EE1A3C}
-		{0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0} = {C10C476E-F23A-4281-8444-341C3E836C85}
 		{BB48FEAE-D700-464B-9050-7EFE12DBC4BB} = {0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0}
 		{86F2773B-5539-4C7D-8C77-DC4335EFFDDF} = {0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0}
 		{2ECFEE61-3002-42E8-A985-5C174CEC231B} = {0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0}
