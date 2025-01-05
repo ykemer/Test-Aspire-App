@@ -9,16 +9,16 @@
     <UserSecretsId>e8a50bc9-8086-41d2-9717-5338391508b0</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Platform\Platform.csproj" />
-    <ProjectReference Include="..\Aspire App.Web\Aspire App.Web.csproj" />
-    <ProjectReference Include="..\Service.Enrollments\Service.Enrollments.csproj" />
-    <ProjectReference Include="..\Service.Courses\Service.Courses.csproj" />
-    <ProjectReference Include="..\Service.Students\Service.Students.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.0.0" />
     <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Frontend\Aspire App.Web\Aspire App.Web.csproj" />
+    <ProjectReference Include="..\..\Services\Platform\Platform.csproj" />
+    <ProjectReference Include="..\..\Services\Service.Courses\Service.Courses.csproj" />
+    <ProjectReference Include="..\..\Services\Service.Enrollments\Service.Enrollments.csproj" />
+    <ProjectReference Include="..\..\Services\Service.Students\Service.Students.csproj" />
   </ItemGroup>
 </Project>

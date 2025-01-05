@@ -43,7 +43,7 @@ public static class RequestsExtensionMethods
         {
             Page = request.PageNumber,
             PageSize = request.PageSize,
-            Query = request.Query
+            Query = request.Query ?? ""
         };
     }
    
