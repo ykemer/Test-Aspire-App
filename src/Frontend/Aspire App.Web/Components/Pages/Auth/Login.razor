@@ -1,5 +1,4 @@
 ﻿@page "/login"
-
 @using Aspire_App.Web.Exceptions
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Auth
@@ -12,99 +11,100 @@
 <h3>Login</h3>
 
 <fieldset disabled="@(_expiration is not null)">
-    <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="loginForm">
-        <DataAnnotationsValidator/>
-        <ValidationSummary/>
+  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="loginForm">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
 
-        <div class="form-group">
-            <label for="Email">Email:</label>
-            <InputText id="Email" class="form-control" @bind-Value="loginForm.Email"/>
-            <ValidationMessage For="@(() => loginForm.Email)" />
-        </div>
+    <div class="form-group">
+      <label for="Email">Email:</label>
+      <InputText id="Email" class="form-control" @bind-Value="loginForm.Email"/>
+      <ValidationMessage For="@(() => loginForm.Email)"/>
+    </div>
 
-        <div class="form-group">
-            <label for="Password">Password:</label>
-            <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password"/>
-            <ValidationMessage For="@(() => loginForm.Email)" />
-        </div>
-        <br/>
-        <button type="submit" class="btn btn-primary">Login</button>
-    </EditForm>
+    <div class="form-group">
+      <label for="Password">Password:</label>
+      <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password"/>
+      <ValidationMessage For="@(() => loginForm.Email)"/>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Login</button>
+  </EditForm>
 </fieldset>
 
 @if (_expiration is not null)
 {
-    <p>You are logged in until @_expiration?.ToLongTimeString()</p>
+  <p>You are logged in until @_expiration?.ToLongTimeString()</p>
 }
 
 @if (_errorMessage is not null)
 {
-    <p class="error">@_errorMessage</p>
+  <p class="error">@_errorMessage</p>
 }
 
 @code {
 
-    public UserLoginRequest loginForm { get; set; }
+  public UserLoginRequest loginForm { get; set; }
 
-    private DateTime? _expiration;
-    private string? _errorMessage;
-    
-    private EditContext _editContext;
-    private ValidationMessageStore _messageStore;
+  private DateTime? _expiration;
+  private string? _errorMessage;
 
-    protected override Task OnInitializedAsync()
+  private EditContext _editContext;
+  private ValidationMessageStore _messageStore;
+
+  protected override Task OnInitializedAsync()
+  {
+    loginForm = new UserLoginRequest();
+    _editContext = new EditContext(loginForm);
+    _messageStore = new ValidationMessageStore(_editContext);
+    _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+    return base.OnInitializedAsync();
+  }
+
+  private async Task SubmitAsync()
+  {
+    try
     {
-        loginForm = new UserLoginRequest();
-        _editContext = new EditContext(loginForm);
-        _messageStore = new ValidationMessageStore(_editContext);
-        _editContext.OnFieldChanged += EditContext_OnFieldChanged;
-        return base.OnInitializedAsync();
+      _expiration = await AuthenticationService.LoginAsync(loginForm);
+      _errorMessage = null;
+      NavigationManager.NavigateTo("/");
+    }
+    catch (ValidationException ex)
+    {
+      _messageStore.Clear();
+
+      // Add server-side validation errors to the ValidationMessageStore
+      foreach (var error in ex.Errors)
+      {
+        var fieldIdentifier = new FieldIdentifier(loginForm, FrontendHelper.ToPascalCase(error.Key));
+        _messageStore.Add(fieldIdentifier, error.Value);
+      }
+
+      // Notify the EditContext that the validation state has changed
+      _editContext.NotifyValidationStateChanged();
+    }
+    catch (Exception ex)
+    {
+      _expiration = null;
+      _errorMessage = ex.Message;
+    }
+  }
+
+  private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    // Clear the validation messages for the field that changed
+    _messageStore.Clear(e.FieldIdentifier);
+    // Optionally notify that validation state has changed
+    _editContext.NotifyValidationStateChanged();
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      StateHasChanged();
     }
 
-    private async Task SubmitAsync()
-    {
-        try
-        {
-            _expiration = await AuthenticationService.LoginAsync(loginForm);
-            _errorMessage = null;
-            NavigationManager.NavigateTo("/");
-        } catch (ValidationException ex)
-        {
-            _messageStore.Clear();
-
-            // Add server-side validation errors to the ValidationMessageStore
-            foreach (var error in ex.Errors)
-            {
-                var fieldIdentifier = new FieldIdentifier(loginForm, FrontendHelper.ToPascalCase(error.Key));
-                _messageStore.Add(fieldIdentifier, error.Value);
-            }
-
-            // Notify the EditContext that the validation state has changed
-            _editContext.NotifyValidationStateChanged();
-        }
-        catch (Exception ex)
-        {
-            _expiration = null;
-            _errorMessage = ex.Message;
-        }
-    }
-    
-    private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
-    {
-        // Clear the validation messages for the field that changed
-        _messageStore.Clear(e.FieldIdentifier);
-        // Optionally notify that validation state has changed
-        _editContext.NotifyValidationStateChanged();
-    }
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            StateHasChanged();
-        }
-
-        return Task.CompletedTask;
-    }
+    return Task.CompletedTask;
+  }
 
 }

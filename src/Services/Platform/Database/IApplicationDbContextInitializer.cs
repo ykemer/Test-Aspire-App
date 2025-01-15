@@ -2,7 +2,7 @@
 
 public interface IApplicationDbContextInitializer
 {
-    Task InitialiseAsync();
-    Task SeedAsync();
-    Task TrySeedAsync();
+  Task InitialiseAsync();
+  Task SeedAsync();
+  Task TrySeedAsync();
 }

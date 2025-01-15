@@ -2,9 +2,9 @@
 
 public enum AsyncEventType
 {
-    CourseDeleted,
-    StudentEnrolled,
-    StudentUnenrolled,
-    StudentDeleted,
-    UseCreated,
+  CourseDeleted,
+  StudentEnrolled,
+  StudentUnenrolled,
+  StudentDeleted,
+  UseCreated
 }

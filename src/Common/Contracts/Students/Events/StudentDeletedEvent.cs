@@ -2,7 +2,7 @@
 
 namespace Contracts.Students.Events;
 
-public class StudentDeletedEvent: AsyncMessage
+public class StudentDeletedEvent : AsyncMessage
 {
-    public string StudentId { get; set; }
+  public string StudentId { get; set; }
 }

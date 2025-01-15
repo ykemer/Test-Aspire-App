@@ -1,14 +1,13 @@
 ﻿@page "/admin/courses"
 @using Aspire_App.Web.Components.Shared
-
 @using Aspire_App.Web.Services.Courses
 @using Contracts.Common
-@using global::Contracts.Courses.Responses
+@using Contracts.Courses.Responses
 @attribute [Authorize]
 
 @rendermode InteractiveServer
 
-@attribute [StreamRendering()]
+@attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 
 @inject ICoursesApiService CoursesApiService
@@ -19,101 +18,101 @@
 
 @if (_courses == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+  <p>
+    <em>Loading...</em>
+  </p>
 }
 else if (_courses.Items.Count == 0)
 {
-    <p>
-        <em>No courses found.</em>
-    </p>
+  <p>
+    <em>No courses found.</em>
+  </p>
 }
 else
 {
-    <div>
-        <NavLink href="/admin/courses/create" class="btn btn-primary ml-auto">Create Course</NavLink>
-        <table class="table">
-            <thead>
-            <tr>
-                <th>Name</th>
-                <th>Enrolled Students</th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-            </thead>
-            <tbody>
-            @foreach (var course in _courses.Items)
-            {
-                <tr>
-                    <td>@course.Name</td>
-                    <td>@course.EnrollmentsCount</td>
-                    <td>
-                        <NavLink href="@($"/admin/course/enrollments/{course.Id}")" class="btn btn-primary">Enrolled
-                            Students
-                        </NavLink>
-                    </td>
-                    <td>
-                        <NavLink href="@($"/admin/course/edit/{course.Id}")" class="btn btn-primary">Edit
-                        </NavLink>
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete
-                        </button>
-                    </td>
-                </tr>
-            }
-            </tbody>
-        </table>
+  <div>
+    <NavLink href="/admin/courses/create" class="btn btn-primary ml-auto">Create Course</NavLink>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Name</th>
+        <th>Enrolled Students</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      @foreach (var course in _courses.Items)
+      {
+        <tr>
+          <td>@course.Name</td>
+          <td>@course.EnrollmentsCount</td>
+          <td>
+            <NavLink href="@($"/admin/course/enrollments/{course.Id}")" class="btn btn-primary">Enrolled
+              Students
+            </NavLink>
+          </td>
+          <td>
+            <NavLink href="@($"/admin/course/edit/{course.Id}")" class="btn btn-primary">Edit
+            </NavLink>
+          </td>
+          <td>
+            <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete
+            </button>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
 
-        @if (_courses.TotalPages > 1)
-        {
-            <Pager records="_courses" ChangePage="GetStudents"/>
-        }
-    </div>
+    @if (_courses.TotalPages > 1)
+    {
+      <Pager records="_courses" ChangePage="GetStudents"/>
+    }
+  </div>
 }
 
 @if (_showDeleteConfirmation)
 {
-    <Modal Title="Confirm Delete" OnConfirm="ConfirmDelete" OnCancel="CancelDelete">
-        <p>Do you really want to delete this course?</p>
-    </Modal>
+  <Modal Title="Confirm Delete" OnConfirm="ConfirmDelete" OnCancel="CancelDelete">
+    <p>Do you really want to delete this course?</p>
+  </Modal>
 }
 
 
 @code {
-    private PagedList<CourseListItemResponse>? _courses;
-    private bool _showDeleteConfirmation;
-    private Guid _courseIdToDelete;
+  private PagedList<CourseListItemResponse>? _courses;
+  private bool _showDeleteConfirmation;
+  private Guid _courseIdToDelete;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetStudents();
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await GetStudents();
+  }
 
-    protected async Task GetStudents(int page = 1)
-    {
-        _courses = null;
-        _courses = await CoursesApiService.GetCoursesListAsync(page);
-    }
+  protected async Task GetStudents(int page = 1)
+  {
+    _courses = null;
+    _courses = await CoursesApiService.GetCoursesListAsync(page);
+  }
 
-    private void ShowDeleteConfirmation(Guid courseId)
-    {
-        _courseIdToDelete = courseId;
-        _showDeleteConfirmation = true;
-    }
+  private void ShowDeleteConfirmation(Guid courseId)
+  {
+    _courseIdToDelete = courseId;
+    _showDeleteConfirmation = true;
+  }
 
-    private async Task ConfirmDelete()
-    {
-        _showDeleteConfirmation = false;
-        await CoursesApiService.DeleteCourse(_courseIdToDelete);
-        await GetStudents();
-    }
+  private async Task ConfirmDelete()
+  {
+    _showDeleteConfirmation = false;
+    await CoursesApiService.DeleteCourse(_courseIdToDelete);
+    await GetStudents();
+  }
 
-    private void CancelDelete()
-    {
-        _showDeleteConfirmation = false;
-    }
+  private void CancelDelete()
+  {
+    _showDeleteConfirmation = false;
+  }
 
 }

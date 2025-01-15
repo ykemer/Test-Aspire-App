@@ -2,12 +2,12 @@
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Services.Courses
 @using Contracts.Common
-@using global::Contracts.Courses.Responses
+@using Contracts.Courses.Responses
 @attribute [Authorize]
 
 @rendermode InteractiveServer
 
-@attribute [StreamRendering()]
+@attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 
 @inject ICoursesApiService CoursesApiService
@@ -18,80 +18,80 @@
 
 @if (_courses == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+  <p>
+    <em>Loading...</em>
+  </p>
 }
 else if (_courses.Items.Count == 0)
 {
-    <p>
-        <em>No courses found.</em>
-    </p>
+  <p>
+    <em>No courses found.</em>
+  </p>
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var course in _courses.Items)
-        {
-            <tr>
-                <td>@course.Name</td>
-                <td>@course.Description</td>
-                <td>
-                    @if (course.IsUserEnrolled)
-                    {
-                        <button class="btn btn-danger" @onclick="() => LeaveCourse(course.Id)">Leave</button>
-                    }
-                    else
-                    {
-                        <button class="btn btn-primary" @onclick="() => EnrollCourse(course.Id)">Enroll</button>
-                    }
-                </td>
-            </tr>
-        }
-        </tbody>
-    </table>
-
-    @if (_courses.TotalPages > 1)
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var course in _courses.Items)
     {
-        <Pager records="_courses" ChangePage="GetStudents"/>
+      <tr>
+        <td>@course.Name</td>
+        <td>@course.Description</td>
+        <td>
+          @if (course.IsUserEnrolled)
+          {
+            <button class="btn btn-danger" @onclick="() => LeaveCourse(course.Id)">Leave</button>
+          }
+          else
+          {
+            <button class="btn btn-primary" @onclick="() => EnrollCourse(course.Id)">Enroll</button>
+          }
+        </td>
+      </tr>
     }
+    </tbody>
+  </table>
+
+  @if (_courses.TotalPages > 1)
+  {
+    <Pager records="_courses" ChangePage="GetStudents"/>
+  }
 }
 
 
 @code {
-    private PagedList<CourseListItemResponse>? _courses;
-    private int Page { get; set; }
+  private PagedList<CourseListItemResponse>? _courses;
+  private int Page { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetStudents();
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await GetStudents();
+  }
 
-    protected async Task GetStudents(int page = 1)
-    {
-        Page = page;
-        _courses = null;
-        _courses = await CoursesApiService.GetCoursesListAsync(page);
-    }
+  protected async Task GetStudents(int page = 1)
+  {
+    Page = page;
+    _courses = null;
+    _courses = await CoursesApiService.GetCoursesListAsync(page);
+  }
 
-    private async Task EnrollCourse(Guid courseId)
-    {
-        await CoursesApiService.EnrollToCourse(courseId);
-        await GetStudents(Page);
-    }
+  private async Task EnrollCourse(Guid courseId)
+  {
+    await CoursesApiService.EnrollToCourse(courseId);
+    await GetStudents(Page);
+  }
 
-    private async Task LeaveCourse(Guid courseId)
-    {
-        await CoursesApiService.LeaveCourse(courseId);
-        await GetStudents(Page);
-    }
+  private async Task LeaveCourse(Guid courseId)
+  {
+    await CoursesApiService.LeaveCourse(courseId);
+    await GetStudents(Page);
+  }
 
 }

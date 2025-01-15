@@ -2,6 +2,6 @@
 
 public interface ICookiesService
 {
-    string GenerateUserIdCookie();
-    string GetUserId();
+  string GenerateUserIdCookie();
+  string GetUserId();
 }

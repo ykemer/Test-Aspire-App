@@ -2,4 +2,4 @@
 
 namespace Contracts.Courses.Requests;
 
-public class ListCoursesRequest: PagedQuery;
+public class ListCoursesRequest : PagedQuery;

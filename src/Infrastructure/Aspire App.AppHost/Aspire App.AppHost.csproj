@@ -1,24 +1,22 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0" />
+  <Sdk Name="Aspire.AppHost.Sdk" Version="9.0.0"/>
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
     <IsAspireHost>true</IsAspireHost>
     <UserSecretsId>e8a50bc9-8086-41d2-9717-5338391508b0</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0" />
-    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.0.0" />
-    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.0.0" />
-    <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0" />
+    <PackageReference Include="Aspire.Hosting.AppHost" Version="9.0.0"/>
+    <PackageReference Include="Aspire.Hosting.PostgreSQL" Version="9.0.0"/>
+    <PackageReference Include="Aspire.Hosting.RabbitMQ" Version="9.0.0"/>
+    <PackageReference Include="Aspire.Hosting.Redis" Version="9.0.0"/>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Frontend\Aspire App.Web\Aspire App.Web.csproj" />
-    <ProjectReference Include="..\..\Services\Platform\Platform.csproj" />
-    <ProjectReference Include="..\..\Services\Service.Courses\Service.Courses.csproj" />
-    <ProjectReference Include="..\..\Services\Service.Enrollments\Service.Enrollments.csproj" />
-    <ProjectReference Include="..\..\Services\Service.Students\Service.Students.csproj" />
+    <ProjectReference Include="..\..\Frontend\Aspire App.Web\Aspire App.Web.csproj"/>
+    <ProjectReference Include="..\..\Services\Platform\Platform.csproj"/>
+    <ProjectReference Include="..\..\Services\Service.Courses\Service.Courses.csproj"/>
+    <ProjectReference Include="..\..\Services\Service.Enrollments\Service.Enrollments.csproj"/>
+    <ProjectReference Include="..\..\Services\Service.Students\Service.Students.csproj"/>
   </ItemGroup>
+
 </Project>

@@ -1,8 +1,7 @@
 ﻿@page "/register"
-
-@using Aspire_App.Web.Services.Auth
 @using Aspire_App.Web.Exceptions
 @using Aspire_App.Web.Helpers
+@using Aspire_App.Web.Services.Auth
 @using Contracts.Users.Requests
 
 @rendermode InteractiveServer
@@ -13,121 +12,123 @@
 <h3>Registration</h3>
 
 <fieldset>
-    <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="registerForm">
-        <DataAnnotationsValidator/>
-        <ValidationSummary/>
+  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="registerForm">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
 
-        <div class="form-group">
-            <label for="Firstname">FirstName:</label>
-            <InputText id="Firstname" class="form-control" @bind-Value="registerForm.FirstName"/>
-            <ValidationMessage For="@(() => registerForm.FirstName)" />
-           
-        </div>
-        <div class="form-group">
-            <label for="LastName">LastName:</label>
-            <InputText id="LastName" class="form-control" @bind-Value="registerForm.LastName"/>
-            <ValidationMessage For="@(() => registerForm.LastName)" />
-        </div>
-        <div class="form-group">
-            <label for="Email">Email:</label>
-            <InputText id="Email" class="form-control" @bind-Value="registerForm.Email"/>
-            <ValidationMessage For="@(() => registerForm.Email)" />
-        </div>
-        <div class="form-group">
-            <label for="Password">Password:</label>
-            <InputText id="Password" type="password" class="form-control" @bind-Value="registerForm.Password"/>
-            <ValidationMessage For="@(() => registerForm.Password)" />
-        </div>
-        <div class="form-group">
-            <label for="RepeatPassword">RepeatPassword:</label>
-            <InputText id="RepeatPassword" type="password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
-            <ValidationMessage For="@(() => registerForm.RepeatPassword)" />
-        </div>
-        <div class="form-group">
-            <label for="DateOfBirth">DateOfBirth:</label>
-            <InputDate id="DateOfBirth" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
-            <ValidationMessage For="@(() => registerForm.DateOfBirth)" />
-        </div>
-        <br/>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </EditForm>
+    <div class="form-group">
+      <label for="Firstname">FirstName:</label>
+      <InputText id="Firstname" class="form-control" @bind-Value="registerForm.FirstName"/>
+      <ValidationMessage For="@(() => registerForm.FirstName)"/>
+
+    </div>
+    <div class="form-group">
+      <label for="LastName">LastName:</label>
+      <InputText id="LastName" class="form-control" @bind-Value="registerForm.LastName"/>
+      <ValidationMessage For="@(() => registerForm.LastName)"/>
+    </div>
+    <div class="form-group">
+      <label for="Email">Email:</label>
+      <InputText id="Email" class="form-control" @bind-Value="registerForm.Email"/>
+      <ValidationMessage For="@(() => registerForm.Email)"/>
+    </div>
+    <div class="form-group">
+      <label for="Password">Password:</label>
+      <InputText id="Password" type="password" class="form-control" @bind-Value="registerForm.Password"/>
+      <ValidationMessage For="@(() => registerForm.Password)"/>
+    </div>
+    <div class="form-group">
+      <label for="RepeatPassword">RepeatPassword:</label>
+      <InputText id="RepeatPassword" type="password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
+      <ValidationMessage For="@(() => registerForm.RepeatPassword)"/>
+    </div>
+    <div class="form-group">
+      <label for="DateOfBirth">DateOfBirth:</label>
+      <InputDate id="DateOfBirth" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
+      <ValidationMessage For="@(() => registerForm.DateOfBirth)"/>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Register</button>
+  </EditForm>
 </fieldset>
 
 
 @if (_errorMessage is not null)
 {
-    <p class="error">@_errorMessage</p>
+  <p class="error">@_errorMessage</p>
 }
 
 @if (_successMessage is not null)
 {
-    <p class="error">@_successMessage</p>
+  <p class="error">@_successMessage</p>
 }
 
 
 @code {
-    //[SupplyParameterFromForm] 
-    public UserRegisterRequest registerForm { get; set; }
-    private EditContext _editContext;
-    private ValidationMessageStore _messageStore;
 
-    private string? _errorMessage;
-    private string? _successMessage;
- 
-   
-    protected override void OnInitialized()
+  //[SupplyParameterFromForm] 
+  public UserRegisterRequest registerForm { get; set; }
+  private EditContext _editContext;
+  private ValidationMessageStore _messageStore;
+
+  private string? _errorMessage;
+  private string? _successMessage;
+
+
+  protected override void OnInitialized()
+  {
+    registerForm = new UserRegisterRequest();
+    _editContext = new EditContext(registerForm);
+    _messageStore = new ValidationMessageStore(_editContext);
+    _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+  }
+
+  private async Task SubmitAsync()
+  {
+    try
     {
-        registerForm = new UserRegisterRequest();
-        _editContext = new EditContext(registerForm);
-        _messageStore = new ValidationMessageStore(_editContext);
-        _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+      await AuthenticationService.RegisterAsync(registerForm);
+      _successMessage = "Registration successful";
+      registerForm = new UserRegisterRequest();
+      _errorMessage = null;
+      NavigationManager.NavigateTo("/");
+    }
+    catch (ValidationException ex)
+    {
+      _messageStore.Clear();
+
+      // Add server-side validation errors to the ValidationMessageStore
+      foreach (var error in ex.Errors)
+      {
+        var fieldIdentifier = new FieldIdentifier(registerForm, FrontendHelper.ToPascalCase(error.Key));
+        _messageStore.Add(fieldIdentifier, error.Value);
+      }
+
+      // Notify the EditContext that the validation state has changed
+      _editContext.NotifyValidationStateChanged();
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = ex.Message;
+    }
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      StateHasChanged();
     }
 
-    private async Task SubmitAsync()
-    {
-        try
-        {
-            await AuthenticationService.RegisterAsync(registerForm);
-            _successMessage = "Registration successful";
-            registerForm = new UserRegisterRequest();
-            _errorMessage = null;
-            NavigationManager.NavigateTo("/");
-        }
-        catch (ValidationException ex)
-        {
-            _messageStore.Clear();
+    return Task.CompletedTask;
+  }
 
-            // Add server-side validation errors to the ValidationMessageStore
-            foreach (var error in ex.Errors)
-            {
-                var fieldIdentifier = new FieldIdentifier(registerForm, FrontendHelper.ToPascalCase(error.Key));
-                _messageStore.Add(fieldIdentifier, error.Value);
-            }
+  private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    // Clear the validation messages for the field that changed
+    _messageStore.Clear(e.FieldIdentifier);
+    // Optionally notify that validation state has changed
+    _editContext.NotifyValidationStateChanged();
+  }
 
-            // Notify the EditContext that the validation state has changed
-            _editContext.NotifyValidationStateChanged();
-        }
-        catch (Exception ex)
-        {
-            _errorMessage = ex.Message;
-        }
-    }
-
-    protected override Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            StateHasChanged();
-        }
-
-        return Task.CompletedTask;
-    }
-
-    private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
-    {
-        // Clear the validation messages for the field that changed
-        _messageStore.Clear(e.FieldIdentifier);
-        // Optionally notify that validation state has changed
-         _editContext.NotifyValidationStateChanged();
-    }
 }

@@ -6,19 +6,19 @@
 @inject NavigationManager NavigationManager;
 
 <div>
-    <h3>Logging out...</h3>
+  <h3>Logging out...</h3>
 </div>
 
 @code {
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
     {
-        if (firstRender)
-        {
-            StateHasChanged();
-            await AuthenticationService.LogoutAsync();
-            NavigationManager.NavigateTo("/");
-        }
+      StateHasChanged();
+      await AuthenticationService.LogoutAsync();
+      NavigationManager.NavigateTo("/");
     }
+  }
 
 }

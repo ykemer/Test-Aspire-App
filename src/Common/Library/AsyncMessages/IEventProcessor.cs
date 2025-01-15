@@ -2,5 +2,5 @@
 
 public interface IEventProcessor
 {
-    Task ProcessEvent(string message);
+  Task ProcessEvent(string message);
 }

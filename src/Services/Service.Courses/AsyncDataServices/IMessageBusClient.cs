@@ -4,5 +4,5 @@ namespace Service.Courses.AsyncDataServices;
 
 public interface IMessageBusClient
 {
-    void PublishCourseDeletedMessage(CourseDeletedEvent courseDeletedEvent);
+  void PublishCourseDeletedMessage(CourseDeletedEvent courseDeletedEvent);
 }

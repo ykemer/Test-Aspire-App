@@ -2,22 +2,22 @@
 
 public class LoginResponse
 {
-    private int _expiresIn;
+  private int _expiresIn;
 
-    public required string TokenType { get; set; }
-    public required string AccessToken { get; set; }
+  public required string TokenType { get; set; }
+  public required string AccessToken { get; set; }
 
-    public int ExpiresIn
+  public int ExpiresIn
+  {
+    get => _expiresIn;
+    set
     {
-        get => _expiresIn;
-        set
-        {
-            _expiresIn = value;
-            ExpiresAt = DateTime.UtcNow.AddSeconds(_expiresIn);
-        }
+      _expiresIn = value;
+      ExpiresAt = DateTime.UtcNow.AddSeconds(_expiresIn);
     }
+  }
 
-    public required string RefreshToken { get; set; }
+  public required string RefreshToken { get; set; }
 
-    public DateTime ExpiresAt { get; private set; }
+  public DateTime ExpiresAt { get; private set; }
 }

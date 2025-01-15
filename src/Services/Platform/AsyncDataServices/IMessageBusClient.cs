@@ -4,5 +4,5 @@ namespace Platform.AsyncDataServices;
 
 public interface IMessageBusClient
 {
-    void PublishUserRegisteredMessage(UserCreatedEvent userRegisteredMessage);
+  void PublishUserRegisteredMessage(UserCreatedEvent userRegisteredMessage);
 }

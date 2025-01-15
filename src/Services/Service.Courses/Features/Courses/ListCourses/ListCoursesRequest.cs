@@ -1,5 +1,5 @@
-﻿
-using Contracts.Common;
+﻿using Contracts.Common;
+
 using Service.Courses.Entities;
 
 namespace Service.Courses.Features.Courses.ListCourses;

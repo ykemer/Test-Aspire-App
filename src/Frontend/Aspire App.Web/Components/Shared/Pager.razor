@@ -2,40 +2,40 @@
 @typeparam TItem
 
 <div class="paginator">
-    <ul class="pagination">
-        @if (records.CurrentPage > 1)
-        {
-            <li class="page-item">
-                <button class="page-link" @onclick="() => GetPage(records.CurrentPage - 1)">Previous</button>
-            </li>
-        }
+  <ul class="pagination">
+    @if (records.CurrentPage > 1)
+    {
+      <li class="page-item">
+        <button class="page-link" @onclick="() => GetPage(records.CurrentPage - 1)">Previous</button>
+      </li>
+    }
 
-        @for (var i = Math.Max(1, records.CurrentPage - 9); i <= Math.Min(records.TotalPages, records.CurrentPage + 9); i++)
-        {
-            var pageNumber = i;
-            <li class="page-item @(pageNumber == records.CurrentPage ? "active" : "")">
-                <button class="page-link" @onclick="() => GetPage(pageNumber)">@pageNumber</button>
-            </li>
-        }
+    @for (var i = Math.Max(1, records.CurrentPage - 9); i <= Math.Min(records.TotalPages, records.CurrentPage + 9); i++)
+    {
+      var pageNumber = i;
+      <li class="page-item @(pageNumber == records.CurrentPage ? "active" : "")">
+        <button class="page-link" @onclick="() => GetPage(pageNumber)">@pageNumber</button>
+      </li>
+    }
 
-        @if (records.CurrentPage < records.TotalPages)
-        {
-            <li class="page-item">
-                <button class="page-link" @onclick="() => GetPage(records.CurrentPage + 1)">Next</button>
-            </li>
-        }
-    </ul>
+    @if (records.CurrentPage < records.TotalPages)
+    {
+      <li class="page-item">
+        <button class="page-link" @onclick="() => GetPage(records.CurrentPage + 1)">Next</button>
+      </li>
+    }
+  </ul>
 </div>
 
 
 @code
 {
-    [Parameter] public PagedList<TItem> records { get; set; }
+  [Parameter] public PagedList<TItem> records { get; set; }
 
-    [Parameter] public EventCallback<int> ChangePage { get; set; }
+  [Parameter] public EventCallback<int> ChangePage { get; set; }
 
-    private async Task GetPage(int pageNumber)
-    {
-        await ChangePage.InvokeAsync(pageNumber);
-    }
+  private async Task GetPage(int pageNumber)
+  {
+    await ChangePage.InvokeAsync(pageNumber);
+  }
 }

@@ -2,92 +2,92 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
 <div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">Aspire App</a>
-    </div>
+  <div class="container-fluid">
+    <a class="navbar-brand" href="">Aspire App</a>
+  </div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler"/>
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+  <nav class="flex-column">
+    <div class="nav-item px-3">
+      <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+        <span class="bi bi-house-door-fill" aria-hidden="true"></span> Home
+      </NavLink>
+    </div>
+
+    <div class="nav-item px-3">
+      <NavLink class="nav-link" href="counter">
+        <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+      </NavLink>
+    </div>
+
+    <!-- Conditionally render the Students link -->
+    <AuthorizeView>
+      <Authorized>
+        @if (IsAdministrator)
+        {
+          <div class="nav-item px-3">
+            <NavLink class="nav-link" href="admin/students">
+              <span class="bi bi-list-nested" aria-hidden="true"></span> Students
             </NavLink>
-        </div>
-
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill" aria-hidden="true"></span> Counter
+          </div>
+          <div class="nav-item px-3">
+            <NavLink class="nav-link" href="/admin/courses">
+              <span class="bi bi-list-nested" aria-hidden="true"></span> Courses
             </NavLink>
+          </div>
+        }
+
+        @if (IsUser)
+        {
+          <div class="nav-item px-3">
+            <NavLink class="nav-link" href="courses">
+              <span class="bi bi-list-nested" aria-hidden="true"></span> Courses
+            </NavLink>
+          </div>
+        }
+      </Authorized>
+      <NotAuthorized>
+        <div class="nav-item px-3">
+          <NavLink class="nav-link" href="register">
+            <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Registration
+          </NavLink>
         </div>
-
-        <!-- Conditionally render the Students link -->
-        <AuthorizeView>
-            <Authorized>
-                @if (IsAdministrator)
-                {
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="admin/students">
-                            <span class="bi bi-list-nested" aria-hidden="true"></span> Students
-                        </NavLink>
-                    </div>
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="/admin/courses">
-                            <span class="bi bi-list-nested" aria-hidden="true"></span> Courses
-                        </NavLink>
-                    </div>
-                }
-
-                @if (IsUser)
-                {
-                    <div class="nav-item px-3">
-                        <NavLink class="nav-link" href="courses">
-                            <span class="bi bi-list-nested" aria-hidden="true"></span> Courses
-                        </NavLink>
-                    </div>
-                }
-            </Authorized>
-            <NotAuthorized>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="register">
-                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Registration
-                    </NavLink>
-                </div>
-                <div class="nav-item px-3">
-                    <NavLink class="nav-link" href="login">
-                        <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
-                    </NavLink>
-                </div>
-            </NotAuthorized>
-        </AuthorizeView>
-    </nav>
+        <div class="nav-item px-3">
+          <NavLink class="nav-link" href="login">
+            <span class="bi bi-box-arrow-in-right" aria-hidden="true"></span> Login
+          </NavLink>
+        </div>
+      </NotAuthorized>
+    </AuthorizeView>
+  </nav>
 </div>
 
 @code{
 
 
-    [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
-    [Parameter] public RouteData RouteData { get; set; }
+  [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
+  [Parameter] public RouteData RouteData { get; set; }
 
-    private bool pageRequiresAuthorization => RouteData.PageType.GetCustomAttributes(typeof(AuthorizeAttribute), true).Any();
+  private bool pageRequiresAuthorization => RouteData.PageType.GetCustomAttributes(typeof(AuthorizeAttribute), true).Any();
 
-    private bool IsAdministrator { get; set; }
-    private bool IsUser { get; set; }
+  private bool IsAdministrator { get; set; }
+  private bool IsUser { get; set; }
 
-    protected override async Task OnInitializedAsync()
-    {
-        IsAdministrator = await IsUserInRole("Administrator");
-        IsUser = await IsUserInRole("User");
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    IsAdministrator = await IsUserInRole("Administrator");
+    IsUser = await IsUserInRole("User");
+  }
 
-    private async Task<bool> IsUserInRole(string role)
-    {
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
+  private async Task<bool> IsUserInRole(string role)
+  {
+    var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    var user = authState.User;
 
-        return user.IsInRole(role);
-    }
+    return user.IsInRole(role);
+  }
 
 }

@@ -1,5 +1,4 @@
-﻿using MediatR;
-using Service.Courses.Entities;
+﻿using Service.Courses.Entities;
 
 namespace Service.Courses.Features.Courses.CreateCourse;
 

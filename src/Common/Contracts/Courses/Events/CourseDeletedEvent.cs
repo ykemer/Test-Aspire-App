@@ -2,7 +2,7 @@
 
 namespace Contracts.Courses.Events;
 
-public class CourseDeletedEvent: AsyncMessage
+public class CourseDeletedEvent : AsyncMessage
 {
-    public string CourseId { get; set; }
+  public string CourseId { get; set; }
 }

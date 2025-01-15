@@ -1,59 +1,58 @@
 using Projects;
 
-var builder = DistributedApplication.CreateBuilder(args);
-var cache = builder.AddRedis("cache");
+IDistributedApplicationBuilder? builder = DistributedApplication.CreateBuilder(args);
+IResourceBuilder<RedisResource>? cache = builder.AddRedis("cache");
 
-var postgres = builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\PG",isReadOnly: false).WithPgWeb();
+IResourceBuilder<PostgresServerResource>? postgres =
+  builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\PG").WithPgWeb();
 // To avoid resource consumption, we add databases to a single postgres instance
-var mainDb = postgres.AddDatabase("mainDb");
-var coursesDb = postgres.AddDatabase("coursesDb");
-var enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
-var studentsDb = postgres.AddDatabase("studentsDb");
+IResourceBuilder<PostgresDatabaseResource>? mainDb = postgres.AddDatabase("mainDb");
+IResourceBuilder<PostgresDatabaseResource>? coursesDb = postgres.AddDatabase("coursesDb");
+IResourceBuilder<PostgresDatabaseResource>? enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
+IResourceBuilder<PostgresDatabaseResource>? studentsDb = postgres.AddDatabase("studentsDb");
 
 
-var rabbitmq = builder
-    .AddRabbitMQ("messaging")
-    .WithDataBindMount(source:@"C:\Volumes\RabbitMQ", isReadOnly: false)
-    .WithManagementPlugin();
+IResourceBuilder<RabbitMQServerResource>? rabbitmq = builder
+  .AddRabbitMQ("messaging")
+  .WithDataBindMount(@"C:\Volumes\RabbitMQ")
+  .WithManagementPlugin();
 
-var coursesService = builder
-    .AddProject<Service_Courses>("coursesService")
-    .WithReference(coursesDb)
-    .WaitFor(coursesDb)
-    .WithReference(rabbitmq)
-    .WaitFor(rabbitmq);
+IResourceBuilder<ProjectResource>? coursesService = builder
+  .AddProject<Service_Courses>("coursesService")
+  .WithReference(coursesDb)
+  .WaitFor(coursesDb)
+  .WithReference(rabbitmq)
+  .WaitFor(rabbitmq);
 
-var enrollmentsService = builder
-    .AddProject<Service_Enrollments>("enrollmentsService")
-    .WithReference(enrollmentsDb)
-    .WaitFor(enrollmentsDb)
-    .WithReference(rabbitmq)
-    .WaitFor(rabbitmq);
+IResourceBuilder<ProjectResource>? enrollmentsService = builder
+  .AddProject<Service_Enrollments>("enrollmentsService")
+  .WithReference(enrollmentsDb)
+  .WaitFor(enrollmentsDb)
+  .WithReference(rabbitmq)
+  .WaitFor(rabbitmq);
 
-var studentsService = builder
-    .AddProject<Service_Students>("studentsService")
-    .WithReference(studentsDb)
-    .WaitFor(studentsDb)
-    .WithReference(rabbitmq)
-    .WaitFor(rabbitmq);
+IResourceBuilder<ProjectResource>? studentsService = builder
+  .AddProject<Service_Students>("studentsService")
+  .WithReference(studentsDb)
+  .WaitFor(studentsDb)
+  .WithReference(rabbitmq)
+  .WaitFor(rabbitmq);
 
-var platformService = builder
-    .AddProject<Platform>("platformService")
-    .WithReference(mainDb)
-    .WaitFor(mainDb)
-    .WithReference(rabbitmq)
-    .WaitFor(rabbitmq)
-    .WithReference(coursesService)
-    .WithReference(enrollmentsService)
-    .WithReference(studentsService);
+IResourceBuilder<ProjectResource>? platformService = builder
+  .AddProject<Platform>("platformService")
+  .WithReference(mainDb)
+  .WaitFor(mainDb)
+  .WithReference(rabbitmq)
+  .WaitFor(rabbitmq)
+  .WithReference(coursesService)
+  .WithReference(enrollmentsService)
+  .WithReference(studentsService);
 
 builder.AddProject<Aspire_App_Web>("webfrontend")
-    .WithExternalHttpEndpoints()
-    .WithReference(cache)
-    .WithReference(platformService);
-
-
-
+  .WithExternalHttpEndpoints()
+  .WithReference(cache)
+  .WithReference(platformService)
+  .WaitFor(platformService);
 
 
 await builder.Build().RunAsync();

@@ -2,12 +2,12 @@
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Services.Students
 @using Contracts.Common
-@using global::Contracts.Students.Responses
+@using Contracts.Students.Responses
 @attribute [Authorize]
 
 @rendermode InteractiveServer
 
-@attribute [StreamRendering()]
+@attribute [StreamRendering]
 @attribute [OutputCache(Duration = 5)]
 
 @inject IStudentApiService StudentsApi
@@ -19,55 +19,55 @@
 
 @if (_students == null)
 {
-    <p>
-        <em>Loading...</em>
-    </p>
+  <p>
+    <em>Loading...</em>
+  </p>
 }
 else if (_students.Items.Count == 0)
 {
-    <p>
-        <em>No students found.</em>
-    </p>
+  <p>
+    <em>No students found.</em>
+  </p>
 }
 else
 {
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Date of Birth</th>
-        </tr>
-        </thead>
-        <tbody>
-        @foreach (var student in _students.Items)
-        {
-            <tr>
-                <td>@student.LastName @student.FirstName</td>
-                <td>@(student.DateOfBirth.ToString("dd-MM-yyyy"))</td>
-            </tr>
-        }
-        </tbody>
-    </table>
-
-    @if (_students.TotalPages > 1)
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Date of Birth</th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var student in _students.Items)
     {
-        <Pager records="_students" ChangePage="GetStudents"/>
+      <tr>
+        <td>@student.LastName @student.FirstName</td>
+        <td>@(student.DateOfBirth.ToString("dd-MM-yyyy"))</td>
+      </tr>
     }
+    </tbody>
+  </table>
+
+  @if (_students.TotalPages > 1)
+  {
+    <Pager records="_students" ChangePage="GetStudents"/>
+  }
 }
 
 
 @code {
-    private PagedList<StudentResponse>? _students;
+  private PagedList<StudentResponse>? _students;
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetStudents();
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    await GetStudents();
+  }
 
-    protected async Task GetStudents(int page = 1)
-    {
-        _students = null;
-        _students = await StudentsApi.GetStudentsListAsync(page);
-    }
+  protected async Task GetStudents(int page = 1)
+  {
+    _students = null;
+    _students = await StudentsApi.GetStudentsListAsync(page);
+  }
 
 }
