@@ -1,18 +1,18 @@
 using Projects;
 
-IDistributedApplicationBuilder? builder = DistributedApplication.CreateBuilder(args);
-IResourceBuilder<RedisResource>? cache = builder.AddRedis("cache");
+var builder = DistributedApplication.CreateBuilder(args);
+var cache = builder.AddRedis("cache");
 
-IResourceBuilder<PostgresServerResource>? postgres =
+var postgres =
   builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\PG").WithPgWeb();
 // To avoid resource consumption, we add databases to a single postgres instance
-IResourceBuilder<PostgresDatabaseResource>? mainDb = postgres.AddDatabase("mainDb");
-IResourceBuilder<PostgresDatabaseResource>? coursesDb = postgres.AddDatabase("coursesDb");
-IResourceBuilder<PostgresDatabaseResource>? enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
-IResourceBuilder<PostgresDatabaseResource>? studentsDb = postgres.AddDatabase("studentsDb");
+var mainDb = postgres.AddDatabase("mainDb");
+var coursesDb = postgres.AddDatabase("coursesDb");
+var enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
+var studentsDb = postgres.AddDatabase("studentsDb");
 
 
-IResourceBuilder<RabbitMQServerResource>? rabbitmq = builder
+var rabbitmq = builder
   .AddRabbitMQ("messaging")
   .WithDataBindMount(@"C:\Volumes\RabbitMQ")
   .WithManagementPlugin();

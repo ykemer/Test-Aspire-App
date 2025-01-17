@@ -33,11 +33,11 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
   public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(
     CancellationToken ct)
   {
-    Guid id = Route<Guid>("CourseId");
-    AsyncUnaryCall<GrpcCourseResponse>? request =
+    var id = Route<Guid>("CourseId");
+    var request =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = id.ToString() }, cancellationToken: ct);
 
-    ErrorOr<GrpcCourseResponse> result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     return result.Match<ErrorOr<CourseResponse>>(
       data => data.ToCourseResponse(),
       error => error);

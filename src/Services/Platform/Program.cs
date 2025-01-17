@@ -7,11 +7,11 @@ using Platform;
 using Platform.Database;
 using Platform.Middleware.Responses;
 
-string? root = Directory.GetCurrentDirectory();
-string? dotenv = Path.Combine(root, ".env");
+var root = Directory.GetCurrentDirectory();
+var dotenv = Path.Combine(root, ".env");
 DotEnv.Load(dotenv);
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration.AddEnvironmentVariables();
 // Add PostgresSQL database.
@@ -25,7 +25,7 @@ builder.AddRedisDistributedCache("cache");
 // Add services to the container.
 builder.Services.AddApiServices();
 
-WebApplication? app = builder.Build();
+var app = builder.Build();
 
 app.UseAuthentication()
   .UseAuthorization();
@@ -59,9 +59,9 @@ app.UseDefaultExceptionHandler()
 if (app.Environment.IsDevelopment())
 {
   app.UseDeveloperExceptionPage();
-  using (IServiceScope? scope = app.Services.CreateScope())
+  using (var scope = app.Services.CreateScope())
   {
-    ApplicationDbContextInitializer? initializer =
+    var initializer =
       scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
     await initializer.InitialiseAsync();
     await initializer.SeedAsync();

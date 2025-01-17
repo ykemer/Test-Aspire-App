@@ -57,8 +57,8 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
   public async Task TrySeedAsync()
   {
     // Default roles
-    IdentityRole? administratorRole = new("Administrator");
-    IdentityRole? userRole = new("User");
+    var administratorRole = new IdentityRole("Administrator");
+    var userRole = new IdentityRole("User");
 
     if (await _roleManager.Roles.AllAsync(r => r.Name != administratorRole.Name))
     {
@@ -68,7 +68,7 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
 
 
     // Default users
-    ApplicationUser? administrator = new()
+    var administrator = new ApplicationUser()
     {
       UserName = "admin@localhost",
       Email = "admin@localhost",
@@ -78,7 +78,7 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
       EmailConfirmed = true
     };
 
-    ApplicationUser? student = new()
+    var student = new ApplicationUser()
     {
       Id = "363fa2a4-70a8-4391-bc54-a8b5267fb68a",
       UserName = "student@localhost",

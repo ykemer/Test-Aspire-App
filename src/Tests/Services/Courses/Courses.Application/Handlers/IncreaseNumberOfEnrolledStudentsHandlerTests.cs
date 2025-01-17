@@ -42,7 +42,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     IncreaseNumberOfEnrolledStudentsCommand? command = new("bad-id");
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -54,7 +54,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
   public async Task Handle_ShouldIncreaseEnrollmentsCount_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(course => course.EnrollmentsCount, 5)
       .Build();
@@ -64,7 +64,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     IncreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

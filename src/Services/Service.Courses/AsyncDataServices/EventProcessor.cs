@@ -19,7 +19,7 @@ public class EventProcessor : IEventProcessor
 
   public async Task ProcessEvent(string message)
   {
-    AsyncEventType eventType = AsyncMessageHelper.DetermineEvent(message);
+    var eventType = AsyncMessageHelper.DetermineEvent(message);
     switch (eventType)
     {
       case AsyncEventType.StudentEnrolled:
@@ -34,18 +34,18 @@ public class EventProcessor : IEventProcessor
 
   private async Task IncreaseCourseEnrolledStudents(string publishedMessage)
   {
-    StudentEnrolledEvent? studentEnrolledEvent = JsonSerializer.Deserialize<StudentEnrolledEvent>(publishedMessage);
-    using IServiceScope? scope = _scopeFactory.CreateScope();
-    IMediator? mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    var studentEnrolledEvent = JsonSerializer.Deserialize<StudentEnrolledEvent>(publishedMessage);
+    using var scope = _scopeFactory.CreateScope();
+    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
     await mediator.Send(new IncreaseNumberOfEnrolledStudentsCommand(studentEnrolledEvent.CourseId));
   }
 
   private async Task DecreaseCourseEnrolledStudents(string publishedMessage)
   {
-    StudentUnenrolledEvent? studentUnenrolledEvent =
+    var studentUnenrolledEvent =
       JsonSerializer.Deserialize<StudentUnenrolledEvent>(publishedMessage);
-    using IServiceScope? scope = _scopeFactory.CreateScope();
-    IMediator? mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    using var scope = _scopeFactory.CreateScope();
+    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
     await mediator.Send(new DecreaseNumberOfEnrolledStudentsCommand(studentUnenrolledEvent.CourseId));
   }
 }

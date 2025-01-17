@@ -19,7 +19,7 @@ public class
   public async Task<ErrorOr<Updated>> Handle(DecreaseNumberOfEnrolledStudentsCommand request,
     CancellationToken cancellationToken)
   {
-    Course? existingCourse = await _dbContext.Courses
+    var existingCourse = await _dbContext.Courses
       .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
 
     if (existingCourse == null)

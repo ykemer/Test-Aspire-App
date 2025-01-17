@@ -38,7 +38,7 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
   public override async Task<ErrorOr<List<EnrollmentResponse>>> ExecuteAsync(
     CancellationToken ct)
   {
-    Guid id = Route<Guid>("CourseId");
+    var id = Route<Guid>("CourseId");
     AsyncUnaryCall<GrpcCourseResponse>? coursesRequest =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = id.ToString() }, cancellationToken: ct);
 
@@ -48,7 +48,7 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
       return coursesResult.FirstError;
     }
 
-    GrpcCourseResponse? course = coursesResult.Value;
+    var course = coursesResult.Value;
     AsyncUnaryCall<GrpcListEnrollmentsResponse>? enrollmentsRequest =
       _enrollmentsGrpcService.GetCourseEnrollmentsAsync(new GrpcGetCourseEnrollmentsRequest { CourseId = course.Id });
     ErrorOr<GrpcListEnrollmentsResponse> enrollmentsResult =

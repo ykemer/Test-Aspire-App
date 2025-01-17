@@ -15,7 +15,7 @@ public class CreateCourseHandler : IRequestHandler<CreateCourseCommand, ErrorOr<
 
   public async Task<ErrorOr<Course>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
   {
-    Course? existingCourse =
+    var existingCourse =
       await _dbContext.Courses.FirstOrDefaultAsync(course => course.Name.ToLower() == request.Name.ToLower(),
         cancellationToken);
     if (existingCourse != null)

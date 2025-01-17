@@ -26,14 +26,14 @@ public class PagedList<T>
 
   public static PagedList<T> Create(IQueryable<T> source, int pageNumber, int pageSize)
   {
-    int count = source.Count();
+    var count = source.Count();
     List<T>? items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
     return new PagedList<T>(items, count, pageNumber, pageSize);
   }
 
   public static PagedList<T> Create(IList<T> source, int pageNumber, int pageSize)
   {
-    int count = source.Count();
+    var count = source.Count();
     List<T>? items = source.Skip((pageNumber - 1) * pageSize).Take(pageSize).ToList();
     return new PagedList<T>(items, count, pageNumber, pageSize);
   }

@@ -48,7 +48,7 @@ public class ListCoursesHandlerTests
     ListCoursesRequest? request = new() { PageNumber = 1, PageSize = 2 };
 
     // Act
-    ErrorOr<PagedList<Course>> result = await _handler.Handle(request, CancellationToken.None);
+    var result = await _handler.Handle(request, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -66,7 +66,7 @@ public class ListCoursesHandlerTests
     ListCoursesRequest? request = new() { PageNumber = 2, PageSize = 2 };
 
     // Act
-    ErrorOr<PagedList<Course>> result = await _handler.Handle(request, CancellationToken.None);
+    var result = await _handler.Handle(request, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -88,7 +88,7 @@ public class ListCoursesHandlerTests
     ListCoursesRequest? request = new() { Query = "Special", PageNumber = 1, PageSize = 2 };
 
     // Act
-    ErrorOr<PagedList<Course>> result = await _handler.Handle(request, CancellationToken.None);
+    var result = await _handler.Handle(request, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

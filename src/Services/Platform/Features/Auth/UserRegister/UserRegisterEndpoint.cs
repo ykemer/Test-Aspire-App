@@ -39,7 +39,7 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserRegisterRequest request,
     CancellationToken ct)
   {
-    ApplicationUser? existingUser = await _userManager.FindByNameAsync(request.Email);
+    var existingUser = await _userManager.FindByNameAsync(request.Email);
     if (existingUser != null)
     {
       _logger.LogWarning("User with {Email} already exists", request.Email);
@@ -47,13 +47,13 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
     }
 
 
-    string? refreshToken = Generators.GenerateToken();
-    IdentityResult? result = await _userManager.CreateAsync(request.ToApplicationUser(), request.Password);
+    var refreshToken = Generators.GenerateToken();
+    var result = await _userManager.CreateAsync(request.ToApplicationUser(), request.Password);
 
 
     if (!result.Succeeded)
     {
-      foreach (IdentityError? error in result.Errors)
+      foreach (var error in result.Errors)
       {
         _logger.LogWarning("Register failed: {Code} - {Description}", error.Code, error.Description);
       }
@@ -61,12 +61,12 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
       return Error.Failure(description: "Register failed");
     }
 
-    ApplicationUser? user = await _userManager.FindByNameAsync(request.Email);
+    var user = await _userManager.FindByNameAsync(request.Email);
     await _userManager.AddToRolesAsync(user, ["User"]);
 
     _messageBusClient.PublishUserRegisteredMessage(user.ToUserCreatedEvent());
     _logger.LogInformation("User {UserName} registered", user.UserName);
-    JwtTokenServiceResponse? jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
+    var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
     return new AccessTokenResponse
     {

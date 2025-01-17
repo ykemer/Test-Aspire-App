@@ -21,7 +21,7 @@ public class DeleteStudentHandler : IRequestHandler<DeleteStudentCommand, ErrorO
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteStudentCommand request, CancellationToken cancellationToken)
   {
-    Student? student = await _dbContext.Students.FirstOrDefaultAsync(i => i.Id == request.StudentId, cancellationToken);
+    var student = await _dbContext.Students.FirstOrDefaultAsync(i => i.Id == request.StudentId, cancellationToken);
     if (student == null)
     {
       _logger.LogWarning("Student {StudentId} not found", request.StudentId);

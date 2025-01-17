@@ -20,19 +20,19 @@
     <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.0.0"/>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0"/>
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
-    <PackageReference Include="FastEndpoints" Version="5.33.0" />
-    <PackageReference Include="FastEndpoints.Security" Version="5.33.0" />
-    <PackageReference Include="FastEndpoints.Swagger" Version="5.33.0" />
-    <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+    <PackageReference Include="FastEndpoints" Version="5.33.0"/>
+    <PackageReference Include="FastEndpoints.Security" Version="5.33.0"/>
+    <PackageReference Include="FastEndpoints.Swagger" Version="5.33.0"/>
+    <PackageReference Include="Google.Protobuf" Version="3.29.3"/>
     <PackageReference Include="Grpc.Net.Client" Version="2.67.0"/>
     <PackageReference Include="Grpc.Net.ClientFactory" Version="2.67.0"/>
     <PackageReference Include="Grpc.Tools" Version="2.69.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.1"/>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -51,8 +51,5 @@
     <Protobuf Include="Protos\courses.proto" GrpcServices="Client"/>
     <Protobuf Include="Protos\enrollments.proto" GrpcServices="Client"/>
     <Protobuf Include="Protos\students.proto" GrpcServices="Client"/>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Services\Grpc\"/>
   </ItemGroup>
 </Project>

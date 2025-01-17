@@ -47,13 +47,13 @@ public class CoursesServiceTests
   public async Task CreateCourse_Success_ReturnsCourseResponse()
   {
     // Arrange
-    GrpcCreateCourseRequest? request = Builder<GrpcCreateCourseRequest>
+    var request = Builder<GrpcCreateCourseRequest>
       .CreateNew()
       .With(x => x.Name = "Test Course")
       .With(x => x.Description = "Test Description")
       .Build();
 
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(x => x.Name, request.Name)
       .With(x => x.Description, request.Description)
@@ -64,7 +64,7 @@ public class CoursesServiceTests
       .ReturnsAsync(course);
 
     // Act
-    GrpcCourseResponse? response = await _coursesService.CreateCourse(request, _context);
+    var response = await _coursesService.CreateCourse(request, _context);
 
     // Assert
     Assert.Multiple(() =>
@@ -80,7 +80,7 @@ public class CoursesServiceTests
   public void CreateCourse_Error_ThrowsRpcException()
   {
     // Arrange
-    GrpcCreateCourseRequest? request = Builder<GrpcCreateCourseRequest>
+    var request = Builder<GrpcCreateCourseRequest>
       .CreateNew()
       .With(x => x.Name, "Test Course")
       .Build();
@@ -90,7 +90,7 @@ public class CoursesServiceTests
       .ReturnsAsync(_testError);
 
     // Act & Assert
-    RpcException? ex = Assert.ThrowsAsync<RpcException>(async () =>
+    var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.CreateCourse(request, _context));
 
     Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
@@ -100,7 +100,7 @@ public class CoursesServiceTests
   public async Task UpdateCourse_Success_ReturnsSuccessResponse()
   {
     // Arrange
-    GrpcUpdateCourseRequest? request = Builder<GrpcUpdateCourseRequest>
+    var request = Builder<GrpcUpdateCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .With(x => x.Name = "Updated Course")
@@ -111,7 +111,7 @@ public class CoursesServiceTests
       .ReturnsAsync(Result.Updated);
 
     // Act
-    GrpcUpdatedCourseResponse? response = await _coursesService.UpdateCourse(request, _context);
+    var response = await _coursesService.UpdateCourse(request, _context);
 
     // Assert
     Assert.Multiple(() =>
@@ -125,7 +125,7 @@ public class CoursesServiceTests
   public void UpdateCourse_Error_ThrowsRpcException()
   {
     // Arrange
-    GrpcUpdateCourseRequest? request = Builder<GrpcUpdateCourseRequest>
+    var request = Builder<GrpcUpdateCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
@@ -135,7 +135,7 @@ public class CoursesServiceTests
       .ReturnsAsync(_testError);
 
     // Act & Assert
-    RpcException? ex = Assert.ThrowsAsync<RpcException>(async () =>
+    var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.UpdateCourse(request, _context));
 
     Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
@@ -146,7 +146,7 @@ public class CoursesServiceTests
   public async Task DeleteCourse_Success_ReturnsSuccessResponse()
   {
     // Arrange
-    GrpcDeleteCourseRequest? request = Builder<GrpcDeleteCourseRequest>
+    var request = Builder<GrpcDeleteCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
@@ -156,7 +156,7 @@ public class CoursesServiceTests
       .ReturnsAsync(Result.Deleted);
 
     // Act
-    GrpcUpdatedCourseResponse? response = await _coursesService.DeleteCourse(request, _context);
+    var response = await _coursesService.DeleteCourse(request, _context);
 
     // Assert
     Assert.Multiple(() =>
@@ -170,7 +170,7 @@ public class CoursesServiceTests
   public void DeleteCourse_Error_ThrowsRpcException()
   {
     // Arrange
-    GrpcDeleteCourseRequest? request = Builder<GrpcDeleteCourseRequest>
+    var request = Builder<GrpcDeleteCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
@@ -180,7 +180,7 @@ public class CoursesServiceTests
       .ReturnsAsync(_testError);
 
     // Act & Assert
-    RpcException? ex = Assert.ThrowsAsync<RpcException>(async () =>
+    var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.DeleteCourse(request, _context));
 
     Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
@@ -190,12 +190,12 @@ public class CoursesServiceTests
   public async Task GetCourse_Success_ReturnsCourseResponse()
   {
     // Arrange
-    GrpcGetCourseRequest? request = Builder<GrpcGetCourseRequest>
+    var request = Builder<GrpcGetCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
 
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
@@ -205,7 +205,7 @@ public class CoursesServiceTests
       .ReturnsAsync(course);
 
     // Act
-    GrpcCourseResponse? response = await _coursesService.GetCourse(request, _context);
+    var response = await _coursesService.GetCourse(request, _context);
 
     // Assert
     Assert.Multiple(() =>
@@ -221,7 +221,7 @@ public class CoursesServiceTests
   public void GetCourse_Error_ThrowsRpcException()
   {
     // Arrange
-    GrpcGetCourseRequest? request = Builder<GrpcGetCourseRequest>
+    var request = Builder<GrpcGetCourseRequest>
       .CreateNew()
       .With(x => x.Id, "course-id")
       .Build();
@@ -231,7 +231,7 @@ public class CoursesServiceTests
       .ReturnsAsync(_testError);
 
     // Act & Assert
-    RpcException? ex = Assert.ThrowsAsync<RpcException>(async () =>
+    var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.GetCourse(request, _context));
 
     Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
@@ -253,7 +253,7 @@ public class CoursesServiceTests
       .ReturnsAsync(PagedList<Course>.Create(courses, 1, 10));
 
     // Act
-    GrpcListCoursesResponse? response = await _coursesService.ListCourses(request, _context);
+    var response = await _coursesService.ListCourses(request, _context);
 
     // Assert
     Assert.Multiple(() =>
@@ -276,7 +276,7 @@ public class CoursesServiceTests
       .ReturnsAsync(_testError);
 
     // Act & Assert
-    RpcException? ex = Assert.ThrowsAsync<RpcException>(async () =>
+    var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.ListCourses(request, _context));
 
     Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));

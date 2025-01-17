@@ -26,7 +26,7 @@ public static class FrontendHelper
       {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase, PropertyNameCaseInsensitive = true
       };
-      ProblemDetails? problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(options);
+      var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(options);
       throw new ValidationException(problemDetails?.Errors.ToDictionary(e => e.Name, e => new[] { e.Reason }) ??
                                     new Dictionary<string, string[]>());
     }

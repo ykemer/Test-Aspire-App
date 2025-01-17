@@ -15,7 +15,7 @@ public class CreateStudentHandler : IRequestHandler<CreateStudentCommand, ErrorO
 
   public async Task<ErrorOr<Created>> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
   {
-    Student? existingStudent =
+    var existingStudent =
       await _dbContext.Students.FirstOrDefaultAsync(s => s.Email == request.Email, cancellationToken);
     if (existingStudent != null)
     {

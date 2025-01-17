@@ -43,7 +43,7 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
 
   public override Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request, ServerCallContext context)
   {
-    Task<ErrorOr<Deleted>>? deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
+    var deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
     return deleteStudentResult.Match(
       _ => new GrpcUpdatedResponse { Updated = true, Message = "Student deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

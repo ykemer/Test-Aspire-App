@@ -18,7 +18,7 @@ public class
   public async Task<ErrorOr<Updated>> Handle(UpdateStudentEnrollmentsCountCommand request,
     CancellationToken cancellationToken)
   {
-    Student? student = _dbContext.Students.Find(request.StudentId);
+    var student = _dbContext.Students.Find(request.StudentId);
     if (student == null)
     {
       _logger.LogError("Student {StudentId} not found", request.StudentId);

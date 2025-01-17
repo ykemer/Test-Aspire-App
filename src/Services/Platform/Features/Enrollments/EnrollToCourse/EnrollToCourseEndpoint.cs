@@ -46,14 +46,14 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
-    Guid userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
+    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
       return Error.Failure(description: "User not found");
     }
 
 
-    AsyncUnaryCall<GrpcStudentResponse>? studentRequest =
+    var studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
     ErrorOr<GrpcStudentResponse>
       studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
@@ -62,7 +62,7 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
       return studentResponse.Errors[0];
     }
 
-    GrpcStudentResponse? student = studentResponse.Value;
+    var student = studentResponse.Value;
 
     AsyncUnaryCall<GrpcCourseResponse>? courseRequest =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = request.CourseId.ToString() });

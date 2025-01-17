@@ -40,7 +40,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> UpdateCourse(GrpcUpdateCourseRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Updated> result = await _mediator.Send(request.ToUpdateCourseCommand());
+    var result = await _mediator.Send(request.ToUpdateCourseCommand());
 
     return result.Match(
       _ => new GrpcUpdatedCourseResponse { Message = "Course updated successfully", Success = true },
@@ -50,7 +50,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> DeleteCourse(GrpcDeleteCourseRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Deleted> output = await _mediator.Send(request.ToDeleteCourseCommand());
+    var output = await _mediator.Send(request.ToDeleteCourseCommand());
     return output.Match(
       _ => new GrpcUpdatedCourseResponse { Success = true, Message = "Course deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

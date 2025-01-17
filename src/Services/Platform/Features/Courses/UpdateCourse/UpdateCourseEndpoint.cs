@@ -33,7 +33,7 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest updateCourseCommand,
     CancellationToken ct)
   {
-    AsyncUnaryCall<GrpcUpdatedCourseResponse>? request =
+    var request =
       _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(), cancellationToken: ct);
 
     ErrorOr<GrpcUpdatedCourseResponse> output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);

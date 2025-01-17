@@ -1,14 +1,14 @@
 using Service.Students;
 using Service.Students.Features;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.AddNpgsqlDbContext<ApplicationDbContext>("studentsDb");
 builder.AddRedisDistributedCache("cache");
 builder.Services.AddGrpc();
 builder.Services.AddServices();
-WebApplication? app = builder.Build();
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.MapGrpcService<StudentsService>();
@@ -19,8 +19,8 @@ app.MapGet("/",
 if (app.Environment.IsDevelopment())
 {
   app.UseDeveloperExceptionPage();
-  using IServiceScope? scope = app.Services.CreateScope();
-  ApplicationDbContextInitializer? initializer =
+  using var scope = app.Services.CreateScope();
+  var initializer =
     scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
   await initializer.InitialiseAsync();
   await initializer.SeedAsync();

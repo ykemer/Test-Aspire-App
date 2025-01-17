@@ -47,12 +47,12 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   public override async Task<ErrorOr<PagedList<CourseListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
-    Guid userId = _userService.GetUserId(User);
+    var userId = _userService.GetUserId(User);
 
-    AsyncUnaryCall<GrpcListCoursesResponse>? coursesRequest =
+    var coursesRequest =
       _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(), cancellationToken: ct);
 
-    ErrorOr<GrpcListCoursesResponse> coursesResult =
+    var coursesResult =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
 
     if (coursesResult.IsError)
@@ -60,26 +60,22 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
       return coursesResult.FirstError;
     }
 
-    GrpcListCoursesResponse? courses = coursesResult.Value;
-    List<string>? fetchedCourseIds = courses.Items.Select(i => i.Id).ToList();
-    AsyncUnaryCall<GrpcListEnrollmentsResponse>? enrollmentsRequest =
+    var courses = coursesResult.Value;
+    var fetchedCourseIds = courses.Items.Select(i => i.Id).ToList();
+    var enrollmentsRequest =
       _enrollmentsGrpcService.GetEnrollmentsByCoursesAsync(
         new GrpcGetEnrollmentsByCoursesRequest { CourseIds = { fetchedCourseIds }, StudentId = userId.ToString() },
         cancellationToken: ct);
 
-    ErrorOr<GrpcListEnrollmentsResponse> enrollmentsResult =
-      await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
+    var enrollmentsResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
     if (enrollmentsResult.IsError)
     {
       return enrollmentsResult.FirstError;
     }
 
 
-    GrpcListEnrollmentsResponse? enrollments = enrollmentsResult.Value;
-
-
-    List<CourseListItemResponse>? mappedList = courses.ToCourseListItemResponse(enrollments);
-
+    var enrollments = enrollmentsResult.Value;
+    var mappedList = courses.ToCourseListItemResponse(enrollments);
     return PagedList<CourseListItemResponse>.Create(mappedList, query.PageNumber, query.PageSize);
   }
 }

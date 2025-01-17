@@ -20,7 +20,7 @@ public class AsyncMessenger<T> where T : class
     _logger = logger;
     _configuration = configuration;
 
-    string? connectionString = _configuration.GetConnectionString("messaging");
+    var connectionString = _configuration.GetConnectionString("messaging");
 
     ConnectionFactory? factory = new() { Uri = new Uri(connectionString) };
 
@@ -41,7 +41,7 @@ public class AsyncMessenger<T> where T : class
 
   protected void SendMessage(string message)
   {
-    byte[]? body = Encoding.UTF8.GetBytes(message);
+    var body = Encoding.UTF8.GetBytes(message);
     channel.BasicPublish("trigger",
       "",
       null,

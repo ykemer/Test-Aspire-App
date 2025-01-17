@@ -15,7 +15,7 @@ public class GetStudentHandler : IRequestHandler<GetStudentQuery, ErrorOr<Studen
 
   public async Task<ErrorOr<Student>> Handle(GetStudentQuery request, CancellationToken cancellationToken)
   {
-    Student? student = await _dbContext.Students.FindAsync(request.StudentId, cancellationToken);
+    var student = await _dbContext.Students.FindAsync(request.StudentId, cancellationToken);
     if (student != null)
     {
       return student;

@@ -15,7 +15,7 @@ public class UpdateCourseHandler : IRequestHandler<UpdateCourseCommand, ErrorOr<
 
   public async Task<ErrorOr<Updated>> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
   {
-    Course? existingCourse = await _dbContext.Courses.FindAsync(request.Id, cancellationToken);
+    var existingCourse = await _dbContext.Courses.FindAsync(request.Id, cancellationToken);
     if (existingCourse is null)
     {
       _logger.LogError("Can not update course with id {CourseId} not found", request.Id);

@@ -31,7 +31,7 @@ public class GetStudentEndpoint : EndpointWithoutRequest<ErrorOr<StudentResponse
 
   public override async Task<ErrorOr<StudentResponse>> ExecuteAsync(CancellationToken ct)
   {
-    Guid id = Route<Guid>("StudentId");
+    var id = Route<Guid>("StudentId");
 
     AsyncUnaryCall<GrpcStudentResponse>? studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = id.ToString() });

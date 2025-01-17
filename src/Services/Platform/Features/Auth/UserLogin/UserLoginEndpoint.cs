@@ -31,20 +31,23 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
 
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserLoginRequest req, CancellationToken ct)
   {
-    SignInResult? result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, false);
+    var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, false);
     if (!result.Succeeded)
     {
       return Error.Unauthorized(description: "Invalid email or password");
     }
 
-    ApplicationUser? user = await _signInManager.UserManager.FindByEmailAsync(req.Email);
+    var user = await _signInManager.UserManager.FindByEmailAsync(req.Email);
 
 
-    JwtTokenServiceResponse? jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
+    var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
     user.RefreshToken = Generators.GenerateToken();
     user.RefreshTokenExpiry = DateTime.Now.AddMonths(1);
     await _signInManager.UserManager.UpdateAsync(user);
+
+    var token = await _jwtService.GenerateToken(user);
+    Console.WriteLine(token);
 
     return new AccessTokenResponse
     {

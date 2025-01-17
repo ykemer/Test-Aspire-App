@@ -50,18 +50,15 @@ public static class DependencyInjection
         {
           o.TokenValidationParameters = new TokenValidationParameters
           {
-            ValidateAudience = false,
-            ValidateIssuer = false,
-            ValidateLifetime = true,
-            ValidateIssuerSigningKey = true,
             IssuerSigningKey =
               new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SIGN_KEY")!))
+                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SIGN_KEY") ?? string.Empty)),
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
+            ValidAudience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE")
           };
         });
 
-    services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-      .AddBearerToken(IdentityConstants.BearerScheme);
     services.AddScoped<ApplicationDbContextInitializer>();
     services.AddScoped<IJwtService, JwtService>();
     services.AddScoped<IUserService, UserService>();

@@ -42,7 +42,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     DecreaseNumberOfEnrolledStudentsCommand? command = new("bad-id");
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -54,7 +54,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
   public async Task Handle_ShouldReturnConflict_WhenNoEnrolledStudents()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(course => course.Id, "course-id")
       .With(course => course.EnrollmentsCount, 0)
@@ -65,7 +65,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     DecreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -77,7 +77,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
   public async Task Handle_ShouldDecreaseEnrollmentsCount_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(course => course.EnrollmentsCount, 5)
       .Build();
@@ -87,7 +87,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     DecreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

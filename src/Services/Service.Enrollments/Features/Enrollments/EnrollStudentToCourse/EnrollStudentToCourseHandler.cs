@@ -21,7 +21,7 @@ public class EnrollStudentToCourseHandler : IRequestHandler<EnrollStudentToCours
 
   public async Task<ErrorOr<Created>> Handle(EnrollStudentToCourseCommand command, CancellationToken cancellationToken)
   {
-    Enrollment? existingEnrollment = await _dbContext.Enrollments
+    var existingEnrollment = await _dbContext.Enrollments
       .FirstOrDefaultAsync(e => e.CourseId == command.CourseId && e.StudentId == command.StudentId, cancellationToken);
     if (existingEnrollment != null)
     {

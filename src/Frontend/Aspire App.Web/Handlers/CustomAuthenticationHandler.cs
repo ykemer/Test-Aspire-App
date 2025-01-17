@@ -21,7 +21,7 @@ public class CustomAuthenticationHandler : AuthenticationHandler<AuthenticationS
 
   protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
   {
-    AuthenticationState? authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
+    var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
     if (authState.User.Identity?.IsAuthenticated ?? false)
     {
       AuthenticationTicket? ticket = new(authState.User, Scheme.Name);

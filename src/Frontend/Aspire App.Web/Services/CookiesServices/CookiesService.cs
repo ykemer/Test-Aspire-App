@@ -9,7 +9,7 @@ public class CookiesService : ICookiesService
 
   public string GenerateUserIdCookie()
   {
-    string? userId = Guid.NewGuid().ToString();
+    var userId = Guid.NewGuid().ToString();
 
     // Set the cookie options
     CookieOptions? cookieOptions = new()
@@ -27,7 +27,7 @@ public class CookiesService : ICookiesService
 
   public string GetUserId()
   {
-    string? userId = _httpContextAccessor.HttpContext?.Request.Cookies[UserIdCookieName];
+    var userId = _httpContextAccessor.HttpContext?.Request.Cookies[UserIdCookieName];
     if (string.IsNullOrEmpty(userId))
     {
       userId = GenerateUserIdCookie();

@@ -38,7 +38,7 @@ public class GetCourseHandlerTests
   public async Task Handle_ShouldReturnCourse_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Test Course")
       .Build();
@@ -48,7 +48,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new(course.Id);
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _handler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -63,7 +63,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new("bad-id");
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _handler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

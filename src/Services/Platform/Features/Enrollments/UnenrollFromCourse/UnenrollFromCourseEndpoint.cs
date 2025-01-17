@@ -41,7 +41,7 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
-    Guid userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
+    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
       return Error.Failure(description: "User not found");

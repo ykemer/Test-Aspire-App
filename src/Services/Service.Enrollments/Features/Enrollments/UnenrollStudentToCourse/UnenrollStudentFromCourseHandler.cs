@@ -22,7 +22,7 @@ public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentF
   public async Task<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
     CancellationToken cancellationToken)
   {
-    Enrollment? existingEnrollment = await _dbContext.Enrollments
+    var existingEnrollment = await _dbContext.Enrollments
       .FirstOrDefaultAsync(e => e.CourseId == command.CourseId && e.StudentId == command.StudentId, cancellationToken);
     if (existingEnrollment == null)
     {

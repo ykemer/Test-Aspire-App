@@ -34,10 +34,10 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
   public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(CreateCourseRequest createCourseCommand,
     CancellationToken ct)
   {
-    AsyncUnaryCall<GrpcCourseResponse>? request =
+    var request =
       _coursesGrpcService.CreateCourseAsync(createCourseCommand.ToGrpcCreateCourseRequest(), cancellationToken: ct);
 
-    ErrorOr<GrpcCourseResponse> result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     return result.Match<ErrorOr<CourseResponse>>(
       data => data.ToCourseResponse(),
       error => error);

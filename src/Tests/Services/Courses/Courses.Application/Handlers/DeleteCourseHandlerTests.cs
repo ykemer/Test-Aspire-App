@@ -46,7 +46,7 @@ public class DeleteCourseHandlerTests
     DeleteCourseCommand? command = new("bad-id");
 
     // Act
-    ErrorOr<Deleted> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -57,7 +57,7 @@ public class DeleteCourseHandlerTests
   public async Task Handle_ShouldDeleteCourse_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .Build();
     await _dbContext.Courses.AddAsync(course);
@@ -66,7 +66,7 @@ public class DeleteCourseHandlerTests
     DeleteCourseCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Deleted> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

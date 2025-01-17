@@ -1,12 +1,12 @@
 using Service.Courses;
 using Service.Courses.Features.Courses;
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
 builder.Services.AddServices();
 
-WebApplication? app = builder.Build();
+var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<CoursesService>();
 
@@ -18,8 +18,8 @@ app.MapGet("/",
 if (app.Environment.IsDevelopment())
 {
   app.UseDeveloperExceptionPage();
-  using IServiceScope? scope = app.Services.CreateScope();
-  ApplicationDbContextInitializer? initializer =
+  using var scope = app.Services.CreateScope();
+  var initializer =
     scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
   await initializer.InitialiseAsync();
   await initializer.SeedAsync();
