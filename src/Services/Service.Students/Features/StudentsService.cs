@@ -1,5 +1,3 @@
-using Contracts.Common;
-
 using Grpc.Core;
 
 using Library.GRPC;
@@ -25,7 +23,7 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
   public override async Task<GrpcStudentResponse> GetStudentById(GrpcGetStudentByIdRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Student> studentResult = await _mediator.Send(request.ToGetStudentQuery());
+    var studentResult = await _mediator.Send(request.ToGetStudentQuery());
     return studentResult.Match(
       data => data.ToGrpcStudentResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -34,7 +32,7 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
   public override Task<GrpcListStudentsResponse> ListStudents(GrpcListStudentsRequest request,
     ServerCallContext context)
   {
-    Task<ErrorOr<PagedList<Student>>>? studentsResult = _mediator.Send(request.ToListStudentsQuery());
+    var studentsResult = _mediator.Send(request.ToListStudentsQuery());
 
     return studentsResult.Match(
       data => data.ToGrpcListStudentsResponse(),
@@ -43,7 +41,7 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
 
   public override Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request, ServerCallContext context)
   {
-    Task<ErrorOr<Deleted>>? deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
+    var deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
     return deleteStudentResult.Match(
       _ => new GrpcUpdatedResponse { Updated = true, Message = "Student deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

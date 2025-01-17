@@ -1,6 +1,4 @@
-﻿using ErrorOr;
-
-using FizzWare.NBuilder;
+﻿using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,7 +22,7 @@ public class GetCourseHandlerTests
   {
     _loggerMock = new Mock<ILogger<GetCourseHandler>>();
 
-    DbContextOptions<ApplicationDbContext>? options = new DbContextOptionsBuilder<ApplicationDbContext>()
+    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
@@ -38,7 +36,7 @@ public class GetCourseHandlerTests
   public async Task Handle_ShouldReturnCourse_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Test Course")
       .Build();
@@ -48,7 +46,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new(course.Id);
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _handler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -63,7 +61,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new("bad-id");
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _handler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

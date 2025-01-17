@@ -20,13 +20,13 @@ public class RedisTokenService : ITokenService
 
   public async Task<string> GetAccessTokenAsync()
   {
-    string? userId = GetUserId();
+    var userId = GetUserId();
     return await _cache.GetStringAsync(GetAccessTokenCacheKey(userId));
   }
 
   public async Task SetAccessTokenAsync(string token, TimeSpan? expiration = null)
   {
-    string? userId = GetUserId();
+    var userId = GetUserId();
     DistributedCacheEntryOptions? options = new()
     {
       AbsoluteExpirationRelativeToNow =
@@ -38,14 +38,14 @@ public class RedisTokenService : ITokenService
 
   public async Task ClearAccessTokenAsync()
   {
-    string? userId = GetUserId();
+    var userId = GetUserId();
     await _cache.RemoveAsync(GetAccessTokenCacheKey(userId));
   }
 
 
   public async Task SetRefreshTokenAsync(string refreshToken, TimeSpan? expiration = null)
   {
-    string? userId = GetUserId();
+    var userId = GetUserId();
     DistributedCacheEntryOptions? options = new()
     {
       AbsoluteExpirationRelativeToNow =
@@ -57,15 +57,15 @@ public class RedisTokenService : ITokenService
 
   public async Task<string?> GetRefreshTokenAsync()
   {
-    string? userId = GetUserId();
-    string? tokenKey = GetRefreshTokenCacheKey(userId);
-    string? token = await _cache.GetStringAsync(tokenKey);
+    var userId = GetUserId();
+    var tokenKey = GetRefreshTokenCacheKey(userId);
+    var token = await _cache.GetStringAsync(tokenKey);
     return token;
   }
 
   public async Task ClearRefreshTokenAsync()
   {
-    string? userId = GetUserId();
+    var userId = GetUserId();
     await _cache.RemoveAsync(GetRefreshTokenCacheKey(userId));
   }
 

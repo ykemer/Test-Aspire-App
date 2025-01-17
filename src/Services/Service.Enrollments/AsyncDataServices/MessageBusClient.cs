@@ -17,14 +17,14 @@ public class MessageBusClient : AsyncMessenger<MessageBusClient>, IMessageBusCli
   public void PublishStudentEnrolledEvent(StudentEnrolledEvent studentEnrolledEvent)
   {
     studentEnrolledEvent.EventType = AsyncEventType.StudentEnrolled;
-    string? messageObject = JsonSerializer.Serialize(studentEnrolledEvent);
+    var messageObject = JsonSerializer.Serialize(studentEnrolledEvent);
     SendMessage(messageObject);
   }
 
   public void PublishStudentUnenrolledEvent(StudentUnenrolledEvent studentUnenrolledEvent)
   {
     studentUnenrolledEvent.EventType = AsyncEventType.StudentUnenrolled;
-    string? messageObject = JsonSerializer.Serialize(studentUnenrolledEvent);
+    var messageObject = JsonSerializer.Serialize(studentUnenrolledEvent);
     SendMessage(messageObject);
   }
 }

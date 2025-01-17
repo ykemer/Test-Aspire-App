@@ -24,8 +24,8 @@ public class LoggingBehaviour<TRequest, TResponse> : IRequestPostProcessor<TRequ
       return Task.CompletedTask;
     }
 
-    List<Error>? nonValidationErrors = response.Errors.Where(i => i.Type != ErrorType.Validation).ToList();
-    foreach (Error error in nonValidationErrors)
+    var nonValidationErrors = response.Errors.Where(i => i.Type != ErrorType.Validation).ToList();
+    foreach (var error in nonValidationErrors)
     {
       _logger.LogError("Request: {Name}. Error: {@Error}", typeof(TRequest).Name, error);
     }

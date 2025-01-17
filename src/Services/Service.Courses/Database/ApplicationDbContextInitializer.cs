@@ -46,7 +46,10 @@ public sealed class ApplicationDbContextInitializer
     {
       _context.Courses.Add(new Course
       {
-        Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0", Name = "Math", Description = "Math course", EnrollmentsCount = 1
+        Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
+        Name = "Math",
+        Description = "Math course",
+        EnrollmentsCount = 1
       });
 
       _context.Courses.Add(new Course { Name = "Physics", Description = "Physics course", EnrollmentsCount = 0 });

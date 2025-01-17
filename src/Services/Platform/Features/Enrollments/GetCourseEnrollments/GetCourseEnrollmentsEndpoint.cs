@@ -6,8 +6,6 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Grpc.Core;
-
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
 
@@ -38,20 +36,20 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
   public override async Task<ErrorOr<List<EnrollmentResponse>>> ExecuteAsync(
     CancellationToken ct)
   {
-    Guid id = Route<Guid>("CourseId");
-    AsyncUnaryCall<GrpcCourseResponse>? coursesRequest =
+    var id = Route<Guid>("CourseId");
+    var coursesRequest =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = id.ToString() }, cancellationToken: ct);
 
-    ErrorOr<GrpcCourseResponse> coursesResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
+    var coursesResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
     if (coursesResult.IsError)
     {
       return coursesResult.FirstError;
     }
 
-    GrpcCourseResponse? course = coursesResult.Value;
-    AsyncUnaryCall<GrpcListEnrollmentsResponse>? enrollmentsRequest =
+    var course = coursesResult.Value;
+    var enrollmentsRequest =
       _enrollmentsGrpcService.GetCourseEnrollmentsAsync(new GrpcGetCourseEnrollmentsRequest { CourseId = course.Id });
-    ErrorOr<GrpcListEnrollmentsResponse> enrollmentsResult =
+    var enrollmentsResult =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
 
     return enrollmentsResult.Match<ErrorOr<List<EnrollmentResponse>>>(

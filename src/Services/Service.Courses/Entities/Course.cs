@@ -4,7 +4,7 @@ namespace Service.Courses.Entities;
 
 public class Course
 {
-  [Key] [Required] public string Id { get; init; } = Guid.NewGuid().ToString();
+  [Key][Required] public string Id { get; init; } = Guid.NewGuid().ToString();
 
   [Required] public string Name { get; set; }
 

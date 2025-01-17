@@ -4,8 +4,6 @@ using Contracts.Students.Responses;
 
 using FastEndpoints;
 
-using Grpc.Core;
-
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
 
@@ -34,9 +32,9 @@ public class ListStudentsEndpoint : Endpoint<ListStudentsRequest, ErrorOr<PagedL
   public override async Task<ErrorOr<PagedList<StudentResponse>>> ExecuteAsync(ListStudentsRequest query,
     CancellationToken ct)
   {
-    AsyncUnaryCall<GrpcListStudentsResponse>? studentRequest =
+    var studentRequest =
       _studentsGrpcService.ListStudentsAsync(query.ToGrpcListStudentsRequest());
-    ErrorOr<GrpcListStudentsResponse> studentResponse =
+    var studentResponse =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
     return studentResponse.Match<ErrorOr<PagedList<StudentResponse>>>(
       data => data.ToStudentListResponse(),

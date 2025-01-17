@@ -17,7 +17,7 @@ public class MessageBusClient : AsyncMessenger<MessageBusClient>, IMessageBusCli
   public void PublishUserRegisteredMessage(UserCreatedEvent userRegisteredMessage)
   {
     userRegisteredMessage.EventType = AsyncEventType.UseCreated;
-    string? messageObject = JsonSerializer.Serialize(userRegisteredMessage);
+    var messageObject = JsonSerializer.Serialize(userRegisteredMessage);
     SendMessage(messageObject);
   }
 }

@@ -6,8 +6,6 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Grpc.Core;
-
 using Platform.Middleware.Grpc;
 using Platform.Services.User;
 
@@ -46,35 +44,35 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
-    Guid userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
+    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
       return Error.Failure(description: "User not found");
     }
 
 
-    AsyncUnaryCall<GrpcStudentResponse>? studentRequest =
+    var studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
-    ErrorOr<GrpcStudentResponse>
+    var
       studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
     if (studentResponse.IsError)
     {
       return studentResponse.Errors[0];
     }
 
-    GrpcStudentResponse? student = studentResponse.Value;
+    var student = studentResponse.Value;
 
-    AsyncUnaryCall<GrpcCourseResponse>? courseRequest =
+    var courseRequest =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = request.CourseId.ToString() });
 
-    ErrorOr<GrpcCourseResponse> courseResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(courseRequest, ct);
+    var courseResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(courseRequest, ct);
     if (courseResponse.IsError)
     {
       return courseResponse.Errors[0];
     }
 
 
-    AsyncUnaryCall<GrpcUpdateEnrollmentResponse>? enrollmentRequest =
+    var enrollmentRequest =
       _enrollmentsGrpcService.EnrollStudentAsync(new GrpcEnrollStudentRequest
       {
         CourseId = request.CourseId.ToString(),
@@ -83,7 +81,7 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
         StudentLastName = student.LastName
       });
 
-    ErrorOr<GrpcUpdateEnrollmentResponse> enrollmentResponse =
+    var enrollmentResponse =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentRequest, ct);
     return enrollmentResponse.Match<ErrorOr<Updated>>(
       _ => Result.Updated,

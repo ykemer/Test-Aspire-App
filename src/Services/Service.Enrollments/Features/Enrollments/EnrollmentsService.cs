@@ -23,7 +23,7 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
   public override async Task<GrpcListEnrollmentsResponse> GetCourseEnrollments(GrpcGetCourseEnrollmentsRequest request,
     ServerCallContext context)
   {
-    ErrorOr<List<Enrollment>> result = await _mediator.Send(request.ToGetCourseEnrollmentsRequest());
+    var result = await _mediator.Send(request.ToGetCourseEnrollmentsRequest());
     return result.Match(
       enrollments => enrollments.ToGrpcListEnrollmentsResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -32,7 +32,7 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
   public override async Task<GrpcListEnrollmentsResponse> GetEnrollmentsByCourses(
     GrpcGetEnrollmentsByCoursesRequest request, ServerCallContext context)
   {
-    ErrorOr<List<Enrollment>> result =
+    var result =
       await _mediator.Send(request.ToListOfEnrollmentsByCoursesQuery());
     return result.Match(
       enrollments => enrollments.ToGrpcListEnrollmentsResponse(),
@@ -43,7 +43,7 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
   public override async Task<GrpcUpdateEnrollmentResponse> EnrollStudent(GrpcEnrollStudentRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Created> result = await _mediator.Send(request.ToEnrollStudentToCourseCommand());
+    var result = await _mediator.Send(request.ToEnrollStudentToCourseCommand());
     return result.Match(
       _ => new GrpcUpdateEnrollmentResponse { Success = true, Message = "Student enrolled successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -52,7 +52,7 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
   public override async Task<GrpcUpdateEnrollmentResponse> DeleteEnrollment(GrpcDeleteEnrollmentRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Deleted> result = await _mediator.Send(request.ToGrpcDeleteEnrollmentRequest());
+    var result = await _mediator.Send(request.ToGrpcDeleteEnrollmentRequest());
     return result.Match(
       _ => new GrpcUpdateEnrollmentResponse { Success = true, Message = "Student enrolled successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

@@ -41,7 +41,7 @@ public class ProblemDetailsMiddleware
     context.Response.ContentType = "application/json";
     context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-    string? json = JsonSerializer.Serialize(problemDetails);
+    var json = JsonSerializer.Serialize(problemDetails);
     return context.Response.WriteAsync(json);
   }
 }

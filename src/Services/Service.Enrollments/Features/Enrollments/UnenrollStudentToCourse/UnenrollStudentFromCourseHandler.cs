@@ -1,7 +1,6 @@
 ﻿using Contracts.Enrollments.Events;
 
 using Service.Enrollments.AsyncDataServices;
-using Service.Enrollments.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentToCourse;
 
@@ -22,7 +21,7 @@ public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentF
   public async Task<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
     CancellationToken cancellationToken)
   {
-    Enrollment? existingEnrollment = await _dbContext.Enrollments
+    var existingEnrollment = await _dbContext.Enrollments
       .FirstOrDefaultAsync(e => e.CourseId == command.CourseId && e.StudentId == command.StudentId, cancellationToken);
     if (existingEnrollment == null)
     {
@@ -36,7 +35,8 @@ public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentF
     await _dbContext.SaveChangesAsync(cancellationToken);
     _messageBusClient.PublishStudentUnenrolledEvent(new StudentUnenrolledEvent
     {
-      StudentId = command.StudentId, CourseId = command.CourseId
+      StudentId = command.StudentId,
+      CourseId = command.CourseId
     });
 
     return Result.Deleted;

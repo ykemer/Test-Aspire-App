@@ -1,7 +1,6 @@
 ﻿using Contracts.Courses.Events;
 
 using Service.Courses.AsyncDataServices;
-using Service.Courses.Entities;
 
 namespace Service.Courses.Features.Courses.DeleteCourse;
 
@@ -21,7 +20,7 @@ public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand, ErrorOr<
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
   {
-    Course? course = await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
+    var course = await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
     if (course == null)
     {
       _logger.Log(LogLevel.Warning, "Course with id {RequestId} was not found", request.Id);

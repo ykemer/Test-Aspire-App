@@ -15,14 +15,14 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
 
   public override async Task<AuthenticationState> GetAuthenticationStateAsync()
   {
-    string? token = await _authenticationService.GetJwtAsync();
+    var token = await _authenticationService.GetJwtAsync();
     if (string.IsNullOrEmpty(token))
     {
       return new AuthenticationState(new ClaimsPrincipal());
     }
 
-    string? userName = _authenticationService.GetUsername(token);
-    string? userRole = _authenticationService.GetUserRole(token);
+    var userName = _authenticationService.GetUsername(token);
+    var userRole = _authenticationService.GetUserRole(token);
 
     ClaimsIdentity? identity =
       new(new[] { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, userRole) },

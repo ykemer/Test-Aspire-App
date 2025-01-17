@@ -2,6 +2,6 @@
 
 global using MediatR;
 
-global using Service.Enrollments.Database;
-
 global using Microsoft.EntityFrameworkCore;
+
+global using Service.Enrollments.Database;

@@ -20,15 +20,15 @@ public class BearerTokenInterceptor : DelegatingHandler
   protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
     CancellationToken cancellationToken)
   {
-    string? jwt = await _authenticationService.GetJwtAsync();
-    bool isToServer = request.RequestUri?.AbsoluteUri.StartsWith(_configuration["ServerUrl"] ?? "") ?? false;
+    var jwt = await _authenticationService.GetJwtAsync();
+    var isToServer = request.RequestUri?.AbsoluteUri.StartsWith(_configuration["ServerUrl"] ?? "") ?? false;
 
     if (isToServer && !string.IsNullOrEmpty(jwt))
     {
       request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
     }
 
-    HttpResponseMessage? response = await base.SendAsync(request, cancellationToken);
+    var response = await base.SendAsync(request, cancellationToken);
 
     if (!_refreshing && !string.IsNullOrEmpty(jwt) && response.StatusCode == HttpStatusCode.Unauthorized)
     {

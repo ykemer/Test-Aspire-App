@@ -12,7 +12,8 @@ public static class GrpcExtensionMethods
 
   public static ListStudentsQuery ToListStudentsQuery(this GrpcListStudentsRequest request) => new()
   {
-    PageNumber = request.Page, PageSize = request.PageSize
+    PageNumber = request.Page,
+    PageSize = request.PageSize
   };
 
   public static DeleteStudentCommand ToDeleteStudentCommand(this GrpcDeleteStudentRequest request) => new(request.Id);

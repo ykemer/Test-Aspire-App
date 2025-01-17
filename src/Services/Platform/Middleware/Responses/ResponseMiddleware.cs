@@ -27,14 +27,14 @@ internal sealed class ResponseMiddleware : IGlobalPostProcessor
     if (errorOr.Errors?.All(e => e.Type == ErrorType.Validation) is true)
     {
       return context.HttpContext.Response.SendErrorsAsync(
-        [..errorOr.Errors.Select(e => new ValidationFailure(e.Code, e.Description))],
+        [.. errorOr.Errors.Select(e => new ValidationFailure(e.Code, e.Description))],
         cancellation: ct);
     }
 
-    Error? problem = errorOr.Errors?.FirstOrDefault(e => e.Type != ErrorType.Validation);
+    var problem = errorOr.Errors?.FirstOrDefault(e => e.Type != ErrorType.Validation);
     return context.HttpContext.Response.SendErrorsAsync(
       statusCode: GetStatusCode(problem?.Type),
-      failures: [..errorOr.Errors.Select(e => new ValidationFailure(e.Code, e.Description))],
+      failures: [.. errorOr.Errors.Select(e => new ValidationFailure(e.Code, e.Description))],
       cancellation: ct);
   }
 
@@ -51,7 +51,7 @@ internal sealed class ResponseMiddleware : IGlobalPostProcessor
   private static object GetValueFromErrorOr(object errorOr)
   {
     ArgumentNullException.ThrowIfNull(errorOr);
-    Type? tErrorOr = errorOr.GetType();
+    var tErrorOr = errorOr.GetType();
 
     if (!tErrorOr.IsGenericType || tErrorOr.GetGenericTypeDefinition() != typeof(ErrorOr<>))
     {
@@ -62,7 +62,7 @@ internal sealed class ResponseMiddleware : IGlobalPostProcessor
 
     static Func<object, object> CreateValueAccessor(Type errorOrType)
     {
-      ParameterExpression? parameter = Expression.Parameter(typeof(object), "errorOr");
+      var parameter = Expression.Parameter(typeof(object), "errorOr");
 
       return Expression.Lambda<Func<object, object>>(
           Expression.Convert(

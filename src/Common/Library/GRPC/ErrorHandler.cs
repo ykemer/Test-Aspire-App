@@ -10,10 +10,10 @@ public static class GrpcErrorHandler
 {
   public static RpcException ThrowAndLogRpcException(List<Error> errors, ILogger logger)
   {
-    Error firstError = errors[0];
-    StatusCode status = GetErrorStatus(firstError);
+    var firstError = errors[0];
+    var status = GetErrorStatus(firstError);
 
-    string message = string.Join(", ", errors.Select(i => i.Description));
+    var message = string.Join(", ", errors.Select(i => i.Description));
     LogError(message, logger);
     return new RpcException(new Status(status, message));
   }

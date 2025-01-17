@@ -12,7 +12,7 @@ public class ListCoursesHandler : IRequestHandler<ListCoursesRequest, ErrorOr<Pa
 
   public Task<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
   {
-    IQueryable<Course>? query = _dbContext.Courses.AsQueryable();
+    var query = _dbContext.Courses.AsQueryable();
     if (!string.IsNullOrWhiteSpace(request.Query))
     {
       // TODO - implement Elasticsearch
@@ -20,7 +20,7 @@ public class ListCoursesHandler : IRequestHandler<ListCoursesRequest, ErrorOr<Pa
         .OrderBy(i => i.Name);
     }
 
-    PagedList<Course>? output = PagedList<Course>.Create(query, request.PageNumber, request.PageSize);
+    var output = PagedList<Course>.Create(query, request.PageNumber, request.PageSize);
     return Task.FromResult<ErrorOr<PagedList<Course>>>(output);
   }
 }

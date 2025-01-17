@@ -28,7 +28,9 @@ public static class RequestsExtensionMethods
   public static GrpcUpdateCourseRequest ToGrpcUpdateCourseRequest(this UpdateCourseRequest updateCourseCommand) =>
     new()
     {
-      Id = updateCourseCommand.Id, Name = updateCourseCommand.Name, Description = updateCourseCommand.Description
+      Id = updateCourseCommand.Id,
+      Name = updateCourseCommand.Name,
+      Description = updateCourseCommand.Description
     };
 
   public static ApplicationUser ToApplicationUser(this UserRegisterRequest request) =>

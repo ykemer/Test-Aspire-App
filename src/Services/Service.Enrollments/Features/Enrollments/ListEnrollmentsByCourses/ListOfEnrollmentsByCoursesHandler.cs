@@ -12,7 +12,7 @@ public class
   public async Task<ErrorOr<List<Enrollment>>> Handle(ListOfEnrollmentsByCoursesQuery request,
     CancellationToken cancellationToken)
   {
-    IQueryable<Enrollment>? query = _dbContext.Enrollments
+    var query = _dbContext.Enrollments
       .Where(i => request.CourseIds.Contains(i.CourseId));
 
     if (!string.IsNullOrEmpty(request.StudentId))

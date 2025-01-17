@@ -9,7 +9,7 @@ public class UserService : IUserService
 
   public Guid GetUserId(ClaimsPrincipal user)
   {
-    Guid.TryParse(user.FindFirstValue(ClaimTypes.Sid), out Guid id);
+    Guid.TryParse(user.FindFirstValue(ClaimTypes.Sid), out var id);
     return id;
   }
 
@@ -21,7 +21,7 @@ public class UserService : IUserService
 
   private string GetStringValueFromClaims(ClaimsPrincipal user, string claimType)
   {
-    string? value = user.FindFirstValue(claimType);
+    var value = user.FindFirstValue(claimType);
     if (string.IsNullOrWhiteSpace(value))
     {
       throw new DataException($"User's {claimType} not found");

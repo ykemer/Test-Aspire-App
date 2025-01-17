@@ -2,8 +2,6 @@
 
 using FastEndpoints;
 
-using Grpc.Core;
-
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
 
@@ -31,11 +29,11 @@ public class GetStudentEndpoint : EndpointWithoutRequest<ErrorOr<StudentResponse
 
   public override async Task<ErrorOr<StudentResponse>> ExecuteAsync(CancellationToken ct)
   {
-    Guid id = Route<Guid>("StudentId");
+    var id = Route<Guid>("StudentId");
 
-    AsyncUnaryCall<GrpcStudentResponse>? studentRequest =
+    var studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = id.ToString() });
-    ErrorOr<GrpcStudentResponse>
+    var
       studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
     return studentResponse.Match<ErrorOr<StudentResponse>>(
       data => data.ToStudentResponse(),

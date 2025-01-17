@@ -1,7 +1,6 @@
 ﻿using Contracts.Students.Events;
 
 using Service.Students.AsyncDataServices;
-using Service.Students.Entities;
 
 namespace Service.Students.Features.DeleteStudent;
 
@@ -21,7 +20,7 @@ public class DeleteStudentHandler : IRequestHandler<DeleteStudentCommand, ErrorO
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteStudentCommand request, CancellationToken cancellationToken)
   {
-    Student? student = await _dbContext.Students.FirstOrDefaultAsync(i => i.Id == request.StudentId, cancellationToken);
+    var student = await _dbContext.Students.FirstOrDefaultAsync(i => i.Id == request.StudentId, cancellationToken);
     if (student == null)
     {
       _logger.LogWarning("Student {StudentId} not found", request.StudentId);

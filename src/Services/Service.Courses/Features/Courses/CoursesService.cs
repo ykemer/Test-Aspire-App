@@ -1,6 +1,4 @@
-﻿using Contracts.Common;
-
-using CoursesGRPC;
+﻿using CoursesGRPC;
 
 using Grpc.Core;
 
@@ -25,7 +23,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcCourseResponse> CreateCourse(GrpcCreateCourseRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Course> output =
+    var output =
       await _mediator.Send(request.ToCreateCourseCommand());
 
     return output.Match(
@@ -40,7 +38,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> UpdateCourse(GrpcUpdateCourseRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Updated> result = await _mediator.Send(request.ToUpdateCourseCommand());
+    var result = await _mediator.Send(request.ToUpdateCourseCommand());
 
     return result.Match(
       _ => new GrpcUpdatedCourseResponse { Message = "Course updated successfully", Success = true },
@@ -50,7 +48,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> DeleteCourse(GrpcDeleteCourseRequest request,
     ServerCallContext context)
   {
-    ErrorOr<Deleted> output = await _mediator.Send(request.ToDeleteCourseCommand());
+    var output = await _mediator.Send(request.ToDeleteCourseCommand());
     return output.Match(
       _ => new GrpcUpdatedCourseResponse { Success = true, Message = "Course deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -58,7 +56,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
 
   public override async Task<GrpcCourseResponse> GetCourse(GrpcGetCourseRequest request, ServerCallContext context)
   {
-    ErrorOr<Course> output = await _mediator.Send(request.ToGetCourseQuery());
+    var output = await _mediator.Send(request.ToGetCourseQuery());
     return output.Match(
       course => course.ToGrpcCourseResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -67,7 +65,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcListCoursesResponse> ListCourses(GrpcListCoursesRequest request,
     ServerCallContext context)
   {
-    ErrorOr<PagedList<Course>> output = await _mediator.Send(request.ToListCoursesRequest());
+    var output = await _mediator.Send(request.ToListCoursesRequest());
     return output.Match(value => value.ToGrpcListCoursesResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }

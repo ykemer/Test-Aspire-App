@@ -12,8 +12,8 @@ public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, ErrorOr<Pa
 
   public Task<ErrorOr<PagedList<Student>>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
   {
-    IQueryable<Student>? students = _dbContext.Students.AsQueryable();
-    PagedList<Student>? pagedStudents = PagedList<Student>.Create(students, request.PageNumber, request.PageSize);
+    var students = _dbContext.Students.AsQueryable();
+    var pagedStudents = PagedList<Student>.Create(students, request.PageNumber, request.PageSize);
     return Task.FromResult<ErrorOr<PagedList<Student>>>(pagedStudents);
   }
 }

@@ -13,7 +13,7 @@ public class GrpcRequestMiddleware : IGrpcRequestMiddleware
   {
     try
     {
-      TResponse? response = await grpcCall.ResponseAsync;
+      var response = await grpcCall.ResponseAsync;
       return response;
     }
     catch (RpcException e)

@@ -22,7 +22,7 @@ public class CoursesApiService : ICoursesApiService
   {
     JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
 
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.GetAsync($"{CoursesUri}/list?page={page}&pageSize={pageSize}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
@@ -38,7 +38,7 @@ public class CoursesApiService : ICoursesApiService
   {
     JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
 
-    HttpResponseMessage? response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
+    var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
     {
@@ -53,28 +53,28 @@ public class CoursesApiService : ICoursesApiService
   {
     JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
 
-    HttpResponseMessage? response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
+    var response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
     {
       throw new ArgumentException("Error fetching enrollments");
     }
 
-    List<EnrollmentResponse>? output = await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+    var output = await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
     return output;
   }
 
 
   public async Task EnrollToCourse(Guid courseId, CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response = await _httpClient.PostAsJsonAsync("/api/courses/enroll",
+    var response = await _httpClient.PostAsJsonAsync("/api/courses/enroll",
       new ChangeCourseEnrollmentRequest { CourseId = courseId }, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
 
   public async Task LeaveCourse(Guid courseId, CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response = await _httpClient.PostAsJsonAsync("/api/courses/leave",
+    var response = await _httpClient.PostAsJsonAsync("/api/courses/leave",
       new ChangeCourseEnrollmentRequest { CourseId = courseId }, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
@@ -82,7 +82,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task EnrollToCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest,
     CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.PostAsJsonAsync("/api/courses/enroll", adminRequest, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
@@ -90,7 +90,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task LeaveCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest,
     CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.PostAsJsonAsync("/api/courses/unenroll", adminRequest, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
@@ -98,7 +98,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task CreateCourse(CreateCourseRequest createCourseRequest,
     CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.PostAsJsonAsync("/api/courses/create", createCourseRequest, cancellationToken);
     if (response.IsSuccessStatusCode)
     {
@@ -110,7 +110,7 @@ public class CoursesApiService : ICoursesApiService
 
   public async Task DeleteCourse(Guid id, CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.PostAsJsonAsync("/api/courses/delete", new DeleteCourseRequest(id), cancellationToken);
     if (response.IsSuccessStatusCode)
     {
@@ -123,7 +123,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task UpdateCourse(UpdateCourseRequest updateCourseRequest,
     CancellationToken cancellationToken = default)
   {
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.PostAsJsonAsync("/api/courses/update", updateCourseRequest, cancellationToken);
     if (response.IsSuccessStatusCode)
     {

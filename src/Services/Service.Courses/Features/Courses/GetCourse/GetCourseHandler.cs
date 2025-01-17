@@ -15,7 +15,7 @@ public class GetCourseHandler : IRequestHandler<GetCourseQuery, ErrorOr<Course>>
 
   public async Task<ErrorOr<Course>> Handle(GetCourseQuery request, CancellationToken cancellationToken)
   {
-    Course? course = await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
+    var course = await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
     if (course != null)
     {
       return course;

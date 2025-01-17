@@ -4,8 +4,6 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Grpc.Core;
-
 using Platform.Middleware.Grpc;
 using Platform.Services.User;
 
@@ -41,29 +39,30 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
-    Guid userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
+    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
       return Error.Failure(description: "User not found");
     }
 
-    AsyncUnaryCall<GrpcStudentResponse>? studentRequest =
+    var studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
 
-    ErrorOr<GrpcStudentResponse>
+    var
       studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
     if (studentResponse.IsError)
     {
       return studentResponse.Errors[0];
     }
 
-    AsyncUnaryCall<GrpcUpdateEnrollmentResponse>? unerollmentRequest =
+    var unerollmentRequest =
       _enrollmentsGrpcService.DeleteEnrollmentAsync(new GrpcDeleteEnrollmentRequest
       {
-        CourseId = request.CourseId.ToString(), StudentId = userId.ToString()
+        CourseId = request.CourseId.ToString(),
+        StudentId = userId.ToString()
       });
 
-    ErrorOr<GrpcUpdateEnrollmentResponse> unenrollmentResponse =
+    var unenrollmentResponse =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(unerollmentRequest, ct);
     return unenrollmentResponse.Match<ErrorOr<Deleted>>(
       _ => Result.Deleted,

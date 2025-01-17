@@ -22,7 +22,7 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(RefreshAccessTokenRequest req, CancellationToken ct)
   {
-    ApplicationUser? user = _userManager.Users.FirstOrDefault(i => i.RefreshToken == req.RefreshToken);
+    var user = _userManager.Users.FirstOrDefault(i => i.RefreshToken == req.RefreshToken);
     if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
     {
       return Error.Unauthorized(description: "Refresh token is not valid");

@@ -11,7 +11,7 @@ public class GetCourseEnrollmentsHandler : IRequestHandler<GetCourseEnrollmentsR
   public async Task<ErrorOr<List<Enrollment>>> Handle(GetCourseEnrollmentsRequest request,
     CancellationToken cancellationToken)
   {
-    List<Enrollment>? enrollments = await _dbContext.Enrollments
+    var enrollments = await _dbContext.Enrollments
       .Where(e => e.CourseId == request.CourseId)
       .ToListAsync(cancellationToken);
 

@@ -1,6 +1,4 @@
-﻿using ErrorOr;
-
-using FizzWare.NBuilder;
+﻿using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,7 +22,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
   {
     _loggerMock = new Mock<ILogger<IncreaseNumberOfEnrolledStudentsHandler>>();
 
-    DbContextOptions<ApplicationDbContext>? options = new DbContextOptionsBuilder<ApplicationDbContext>()
+    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
@@ -42,7 +40,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     IncreaseNumberOfEnrolledStudentsCommand? command = new("bad-id");
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -54,7 +52,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
   public async Task Handle_ShouldIncreaseEnrollmentsCount_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .With(course => course.EnrollmentsCount, 5)
       .Build();
@@ -64,7 +62,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     IncreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Updated> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

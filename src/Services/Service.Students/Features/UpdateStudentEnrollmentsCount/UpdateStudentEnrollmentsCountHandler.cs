@@ -1,6 +1,4 @@
-﻿using Service.Students.Entities;
-
-namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
+﻿namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
 public class
   UpdateStudentEnrollmentsCountHandler : IRequestHandler<UpdateStudentEnrollmentsCountCommand, ErrorOr<Updated>>
@@ -18,7 +16,7 @@ public class
   public async Task<ErrorOr<Updated>> Handle(UpdateStudentEnrollmentsCountCommand request,
     CancellationToken cancellationToken)
   {
-    Student? student = _dbContext.Students.Find(request.StudentId);
+    var student = _dbContext.Students.Find(request.StudentId);
     if (student == null)
     {
       _logger.LogError("Student {StudentId} not found", request.StudentId);

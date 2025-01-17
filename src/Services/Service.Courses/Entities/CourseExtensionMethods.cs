@@ -9,7 +9,10 @@ public static class CourseExtensionMethods
   public static GrpcCourseResponse ToGrpcCourseResponse(this Course course) =>
     new()
     {
-      Id = course.Id, Name = course.Name, Description = course.Description, TotalStudents = course.EnrollmentsCount
+      Id = course.Id,
+      Name = course.Name,
+      Description = course.Description,
+      TotalStudents = course.EnrollmentsCount
     };
 
   public static GrpcListCoursesResponse ToGrpcListCoursesResponse(this PagedList<Course> coursesResponse) =>

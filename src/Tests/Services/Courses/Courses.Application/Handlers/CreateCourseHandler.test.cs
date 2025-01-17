@@ -1,6 +1,4 @@
-﻿using ErrorOr;
-
-using FizzWare.NBuilder;
+﻿using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -24,7 +22,7 @@ public class CreateCourseHandlerTests
   {
     _loggerMock = new Mock<ILogger<CreateCourseHandler>>();
 
-    DbContextOptions<ApplicationDbContext>? options = new DbContextOptionsBuilder<ApplicationDbContext>()
+    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
@@ -43,7 +41,7 @@ public class CreateCourseHandlerTests
     CreateCourseCommand? command = new("Test Course", "Test Description");
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -54,7 +52,7 @@ public class CreateCourseHandlerTests
   public async Task Handle_ShouldReturnError_WhenCourseAlreadyExists()
   {
     // Arrange
-    Course? existingCourse = Builder<Course>
+    var existingCourse = Builder<Course>
       .CreateNew()
       .With(course => course.Name, "Existing Course")
       .With(course => course.EnrollmentsCount, 5)
@@ -66,7 +64,7 @@ public class CreateCourseHandlerTests
     CreateCourseCommand? command = new(existingCourse.Name, "New Description");
 
     // Act
-    ErrorOr<Course> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

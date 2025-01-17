@@ -30,7 +30,7 @@ public class AsyncMessageHandler<T> : BackgroundService where T : class
 
   private void InitialiseRabbitMq()
   {
-    string? connectionString = _configuration.GetConnectionString("messaging");
+    var connectionString = _configuration.GetConnectionString("messaging");
 
     ConnectionFactory factory = new() { Uri = new Uri(connectionString) };
 
@@ -77,8 +77,8 @@ public class AsyncMessageHandler<T> : BackgroundService where T : class
     EventingBasicConsumer consumer = new(channel);
     consumer.Received += (model, ea) =>
     {
-      ReadOnlyMemory<byte> body = ea.Body;
-      string notificationMessage = Encoding.UTF8.GetString(body.ToArray());
+      var body = ea.Body;
+      var notificationMessage = Encoding.UTF8.GetString(body.ToArray());
       _eventProcessor.ProcessEvent(notificationMessage);
     };
 

@@ -22,13 +22,13 @@ public class AuthenticationService : IAuthenticationService
 
   public async ValueTask<string> GetJwtAsync()
   {
-    string? token = await _tokenService.GetAccessTokenAsync();
+    var token = await _tokenService.GetAccessTokenAsync();
     if (!string.IsNullOrEmpty(token))
     {
       return token;
     }
 
-    bool success = await TryRefreshTokenAsync();
+    var success = await TryRefreshTokenAsync();
     if (success)
     {
       return await _tokenService.GetAccessTokenAsync();
@@ -39,7 +39,7 @@ public class AuthenticationService : IAuthenticationService
 
   public async Task LogoutAsync()
   {
-    string? refreshToken = await _tokenService.GetRefreshTokenAsync();
+    var refreshToken = await _tokenService.GetRefreshTokenAsync();
     if (string.IsNullOrEmpty(refreshToken))
     {
       return;
@@ -50,7 +50,7 @@ public class AuthenticationService : IAuthenticationService
     await _tokenService.ClearRefreshTokenAsync();
     await _tokenService.ClearAccessTokenAsync();
 
-    HttpResponseMessage? response = await _factory.CreateClient("ServerApi").PostAsync("api/auth/revoke",
+    var response = await _factory.CreateClient("ServerApi").PostAsync("api/auth/revoke",
       JsonContent.Create(request));
 
 
@@ -64,7 +64,7 @@ public class AuthenticationService : IAuthenticationService
 
   public async Task<DateTime> LoginAsync(UserLoginRequest request)
   {
-    LoginResponse? content = await GetApiResponseAsync("/api/auth/login", request);
+    var content = await GetApiResponseAsync("/api/auth/login", request);
 
     await SetTokensAsync(content);
 
@@ -73,13 +73,13 @@ public class AuthenticationService : IAuthenticationService
 
   public async Task RegisterAsync(UserRegisterRequest request)
   {
-    LoginResponse? content = await GetApiResponseAsync("/api/auth/register", request);
+    var content = await GetApiResponseAsync("/api/auth/register", request);
     await SetTokensAsync(content);
   }
 
   public async Task<bool> RefreshAsync()
   {
-    LoginResponse? content = await GetApiResponseAsync("api/auth/refresh",
+    var content = await GetApiResponseAsync("api/auth/refresh",
       new RefreshAccessTokenRequest { RefreshToken = await _tokenService.GetRefreshTokenAsync() });
 
     if (content == null)
@@ -95,7 +95,7 @@ public class AuthenticationService : IAuthenticationService
 
   private async Task<bool> TryRefreshTokenAsync()
   {
-    string? refreshToken = await _tokenService.GetRefreshTokenAsync();
+    var refreshToken = await _tokenService.GetRefreshTokenAsync();
     if (string.IsNullOrEmpty(refreshToken))
     {
       return false;
@@ -112,11 +112,11 @@ public class AuthenticationService : IAuthenticationService
 
   private async Task<LoginResponse> GetApiResponseAsync(string url, object request)
   {
-    HttpResponseMessage? response = await _factory.CreateClient("ServerApi").PostAsJsonAsync(url, request);
+    var response = await _factory.CreateClient("ServerApi").PostAsJsonAsync(url, request);
 
     if (response.IsSuccessStatusCode)
     {
-      LoginResponse? content = await response.Content.ReadFromJsonAsync<LoginResponse>();
+      var content = await response.Content.ReadFromJsonAsync<LoginResponse>();
       if (content == null)
       {
         throw new InvalidDataException("Invalid response content.");
@@ -127,7 +127,7 @@ public class AuthenticationService : IAuthenticationService
 
     await FrontendHelper.ProcessValidationDetails(response);
 
-    string? errorContent = await response.Content.ReadAsStringAsync();
+    var errorContent = await response.Content.ReadAsStringAsync();
     throw new ArgumentException($"Request failed with status code {response.StatusCode}: {errorContent}");
   }
 

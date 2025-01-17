@@ -1,7 +1,5 @@
 ﻿using Contracts.Courses.Events;
 
-using ErrorOr;
-
 using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
@@ -29,7 +27,7 @@ public class DeleteCourseHandlerTests
     _loggerMock = new Mock<ILogger<DeleteCourseHandler>>();
     _messageBusClientMock = new Mock<IMessageBusClient>();
 
-    DbContextOptions<ApplicationDbContext>? options = new DbContextOptionsBuilder<ApplicationDbContext>()
+    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
@@ -46,7 +44,7 @@ public class DeleteCourseHandlerTests
     DeleteCourseCommand? command = new("bad-id");
 
     // Act
-    ErrorOr<Deleted> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -57,7 +55,7 @@ public class DeleteCourseHandlerTests
   public async Task Handle_ShouldDeleteCourse_WhenCourseExists()
   {
     // Arrange
-    Course? course = Builder<Course>
+    var course = Builder<Course>
       .CreateNew()
       .Build();
     await _dbContext.Courses.AddAsync(course);
@@ -66,7 +64,7 @@ public class DeleteCourseHandlerTests
     DeleteCourseCommand? command = new(course.Id);
 
     // Act
-    ErrorOr<Deleted> result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

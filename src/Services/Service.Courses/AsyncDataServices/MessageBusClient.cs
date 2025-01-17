@@ -17,7 +17,7 @@ public class MessageBusClient : AsyncMessenger<MessageBusClient>, IMessageBusCli
   public void PublishCourseDeletedMessage(CourseDeletedEvent courseDeletedEvent)
   {
     courseDeletedEvent.EventType = AsyncEventType.CourseDeleted;
-    string? messageObject = JsonSerializer.Serialize(courseDeletedEvent);
+    var messageObject = JsonSerializer.Serialize(courseDeletedEvent);
     SendMessage(messageObject);
   }
 }

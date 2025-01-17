@@ -1,6 +1,4 @@
-﻿using Service.Courses.Entities;
-
-namespace Service.Courses.Features.Courses.DecreaseNumberOfEnrolledStudents;
+﻿namespace Service.Courses.Features.Courses.DecreaseNumberOfEnrolledStudents;
 
 public class
   DecreaseNumberOfEnrolledStudentsHandler : IRequestHandler<DecreaseNumberOfEnrolledStudentsCommand, ErrorOr<Updated>>
@@ -19,7 +17,7 @@ public class
   public async Task<ErrorOr<Updated>> Handle(DecreaseNumberOfEnrolledStudentsCommand request,
     CancellationToken cancellationToken)
   {
-    Course? existingCourse = await _dbContext.Courses
+    var existingCourse = await _dbContext.Courses
       .FirstOrDefaultAsync(c => c.Id == request.CourseId, cancellationToken);
 
     if (existingCourse == null)

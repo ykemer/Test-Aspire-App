@@ -20,7 +20,7 @@ public class EventProcessor : IEventProcessor
 
   public async Task ProcessEvent(string message)
   {
-    AsyncEventType eventType = AsyncMessageHelper.DetermineEvent(message);
+    var eventType = AsyncMessageHelper.DetermineEvent(message);
     switch (eventType)
     {
       case AsyncEventType.CourseDeleted:
@@ -35,17 +35,17 @@ public class EventProcessor : IEventProcessor
 
   private async Task CourseDeletedProcessor(string publishedMessage)
   {
-    CourseDeletedEvent? courseDeletedEvent = JsonSerializer.Deserialize<CourseDeletedEvent>(publishedMessage);
-    using IServiceScope? scope = _scopeFactory.CreateScope();
-    IMediator? mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    var courseDeletedEvent = JsonSerializer.Deserialize<CourseDeletedEvent>(publishedMessage);
+    using var scope = _scopeFactory.CreateScope();
+    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
     await mediator.Send(new DeleteEnrollmentsByCourseCommand(courseDeletedEvent.CourseId));
   }
 
   private async Task StudentDeletedProcessor(string publishedMessage)
   {
-    StudentDeletedEvent? studentDeletedEvent = JsonSerializer.Deserialize<StudentDeletedEvent>(publishedMessage);
-    using IServiceScope? scope = _scopeFactory.CreateScope();
-    IMediator? mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+    var studentDeletedEvent = JsonSerializer.Deserialize<StudentDeletedEvent>(publishedMessage);
+    using var scope = _scopeFactory.CreateScope();
+    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
     await mediator.Send(new DeleteEnrollmentsByStudentCommand(studentDeletedEvent.StudentId));
   }
 }

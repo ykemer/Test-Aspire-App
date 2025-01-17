@@ -17,7 +17,7 @@ public class StudentApiService : IStudentApiService
   {
     JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
 
-    HttpResponseMessage? response =
+    var response =
       await _httpClient.GetAsync($"/api/students/list?page={page}&pageSize={pageSize}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
@@ -25,7 +25,7 @@ public class StudentApiService : IStudentApiService
       throw new ApplicationException("Error fetching attributes");
     }
 
-    PagedList<StudentResponse>? res = await response.Content.ReadFromJsonAsync<PagedList<StudentResponse>>(options);
+    var res = await response.Content.ReadFromJsonAsync<PagedList<StudentResponse>>(options);
     return res;
   }
 }

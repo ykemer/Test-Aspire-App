@@ -8,7 +8,7 @@ public static class AsyncMessageHelper
 {
   public static AsyncEventType DetermineEvent(string notification)
   {
-    AsyncMessage? asyncEvent = JsonSerializer.Deserialize<AsyncMessage>(notification);
+    var asyncEvent = JsonSerializer.Deserialize<AsyncMessage>(notification);
     return asyncEvent.EventType;
   }
 }

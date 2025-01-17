@@ -5,7 +5,7 @@ using AuthenticationService = Aspire_App.Web.Services.Auth.AuthenticationService
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
 
 
-WebApplicationBuilder? builder = WebApplication.CreateBuilder(args);
+var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
@@ -16,7 +16,7 @@ builder.AddRedisDistributedCache("cache");
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddWebServices();
 
-WebApplication? app = builder.Build();
+var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())
 {
