@@ -4,7 +4,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var cache = builder.AddRedis("cache");
 
 var postgres =
-  builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\PG").WithPgWeb();
+  builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\postgres").WithPgWeb().WithPgAdmin();
 // To avoid resource consumption, we add databases to a single postgres instance
 var mainDb = postgres.AddDatabase("mainDb");
 var coursesDb = postgres.AddDatabase("coursesDb");

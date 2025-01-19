@@ -1,4 +1,7 @@
-﻿using Service.Courses.Entities;
+﻿using Microsoft.EntityFrameworkCore.Diagnostics;
+
+using Service.Courses.Database.Configurations;
+using Service.Courses.Entities;
 
 namespace Service.Courses.Database;
 
@@ -9,4 +12,9 @@ public class ApplicationDbContext : DbContext
     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
   public virtual DbSet<Course> Courses { get; set; }
+
+  protected override void OnModelCreating(ModelBuilder modelBuilder)
+  {
+    modelBuilder.ApplyConfiguration(new CoursesConfiguration());
+  }
 }

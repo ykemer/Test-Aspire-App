@@ -23,22 +23,19 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
 
   public async Task InitialiseAsync()
   {
+    await MigrateAsync();
+  }
+
+  private async Task MigrateAsync()
+  {
     try
     {
-      try
-      {
-        await _context.Database.EnsureCreatedAsync();
-        await _context.Database.MigrateAsync();
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(
-          ex, "An error occurred while trying to migrate the database. This is expected when using project locally.");
-      }
+      await _context.Database.MigrateAsync();
     }
     catch (Exception ex)
     {
-      _logger.LogError(ex, "An error occurred while initialising the database.");
+      _logger.LogError(ex,
+        "An error occurred while trying to migrate the database.");
     }
   }
 

@@ -16,15 +16,19 @@ public sealed class ApplicationDbContextInitializer
 
   public async Task InitialiseAsync()
   {
+    await MigrateAsync();
+  }
+
+  private async Task MigrateAsync()
+  {
     try
     {
-      await _context.Database.EnsureCreatedAsync();
       await _context.Database.MigrateAsync();
     }
     catch (Exception ex)
     {
       _logger.LogError(ex,
-        "An error occurred while trying to migrate the database. This is expected when using project locally.");
+        "An error occurred while trying to migrate the database.");
     }
   }
 
@@ -52,9 +56,17 @@ public sealed class ApplicationDbContextInitializer
         EnrollmentsCount = 1
       });
 
-      _context.Courses.Add(new Course { Name = "Physics", Description = "Physics course", EnrollmentsCount = 0 });
 
-      _context.Courses.Add(new Course { Name = "Coding", Description = "Coding course", EnrollmentsCount = 0 });
+      var courseNames = new List<string> { "Physics", "Coding" };
+      for (int i = 1; i <= 1000; i++)
+      {
+        courseNames.Add($"Course-{i}");
+      }
+
+      foreach (var name in courseNames)
+      {
+        _context.Courses.Add(new Course { Name = name, Description = $"{name} course", EnrollmentsCount = 0 });
+      }
     }
 
 

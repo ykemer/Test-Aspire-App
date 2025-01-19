@@ -12,7 +12,7 @@ using Service.Students.Database;
 namespace Service.Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241230181510_InitialCreate")]
+    [Migration("20250119192021_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -20,12 +20,12 @@ namespace Service.Students.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "9.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Service.Students.Entitites.Student", b =>
+            modelBuilder.Entity("Service.Students.Entities.Student", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -49,6 +49,11 @@ namespace Service.Students.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("FirstName", "LastName", "Email")
+                        .HasAnnotation("Npgsql:TsVectorConfig", "english");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("FirstName", "LastName", "Email"), "GIN");
 
                     b.ToTable("Students");
                 });
