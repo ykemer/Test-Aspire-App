@@ -1,6 +1,6 @@
 ﻿using Contracts.Enrollments.Events;
 
-using Service.Enrollments.AsyncDataServices;
+using MassTransit;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentToCourse;
 
@@ -8,14 +8,14 @@ public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentF
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<UnenrollStudentFromCourseHandler> _logger;
-  private readonly IMessageBusClient _messageBusClient;
+  private readonly IPublishEndpoint _publishEndpoint;
 
   public UnenrollStudentFromCourseHandler(ILogger<UnenrollStudentFromCourseHandler> logger,
-    ApplicationDbContext dbContext, IMessageBusClient messageBusClient)
+    ApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
   {
     _logger = logger;
     _dbContext = dbContext;
-    _messageBusClient = messageBusClient;
+    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
@@ -33,11 +33,8 @@ public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentF
 
     _dbContext.Enrollments.Remove(existingEnrollment);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _messageBusClient.PublishStudentUnenrolledEvent(new StudentUnenrolledEvent
-    {
-      StudentId = command.StudentId,
-      CourseId = command.CourseId
-    });
+    await _publishEndpoint.Publish(
+      new StudentUnenrolledEvent { StudentId = command.StudentId, CourseId = command.CourseId }, cancellationToken);
 
     return Result.Deleted;
   }

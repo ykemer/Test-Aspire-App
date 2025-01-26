@@ -9,7 +9,7 @@ public class StudentsConfiguration : IEntityTypeConfiguration<Student>
   public void Configure(EntityTypeBuilder<Student> builder)
   {
     builder.HasKey(b => b.Id);
-    builder.HasIndex(b => new { b.FirstName, b.LastName, b.Email})
+    builder.HasIndex(b => new { b.FirstName, b.LastName, b.Email })
       .HasMethod("GIN")
       .IsTsVectorExpressionIndex("english");
   }

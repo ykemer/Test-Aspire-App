@@ -31,7 +31,7 @@ public class ProblemDetailsMiddleware
 
   private static Task HandleExceptionAsync(HttpContext context, Exception exception)
   {
-    ProblemDetails? problemDetails = new()
+    var problemDetails = new ProblemDetails()
     {
       Status = (int)HttpStatusCode.BadRequest,
       //Title = "An error occurred while processing your request.",

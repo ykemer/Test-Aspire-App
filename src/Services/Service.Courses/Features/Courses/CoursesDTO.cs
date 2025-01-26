@@ -5,7 +5,7 @@ using Service.Courses.Entities;
 
 namespace Service.Courses.Features.Courses;
 
-public class CoursesDTO: Course
+public class CoursesDTO : Course
 {
   public float Rank { get; set; } = 0;
 }

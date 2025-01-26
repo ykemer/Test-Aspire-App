@@ -16,7 +16,8 @@ public class
   public async Task<ErrorOr<Updated>> Handle(UpdateStudentEnrollmentsCountCommand request,
     CancellationToken cancellationToken)
   {
-    var student = _dbContext.Students.Find(request.StudentId);
+    _logger.LogInformation("Updating student {StudentId} enrollments count", request.StudentId);
+    var student = await _dbContext.Students.FindAsync(request.StudentId, cancellationToken);
     if (student == null)
     {
       _logger.LogError("Student {StudentId} not found", request.StudentId);
@@ -25,6 +26,13 @@ public class
     }
 
     student.EnrolledCourses += request.Increase ? 1 : -1;
+    if(student.EnrolledCourses < 0)
+    {
+      _logger.LogError("Student {StudentId} enrollments count cannot be negative", request.StudentId);
+      return Error.Conflict("student_service.update_student_enrollments_count.invalid_enrollments_count",
+        "Student enrollments count cannot be negative");
+    }
+
     await _dbContext.SaveChangesAsync(cancellationToken);
     return Result.Updated;
   }

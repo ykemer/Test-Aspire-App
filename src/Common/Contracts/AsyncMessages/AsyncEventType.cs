@@ -6,5 +6,7 @@ public enum AsyncEventType
   StudentEnrolled,
   StudentUnenrolled,
   StudentDeleted,
-  UseCreated
+  UserCreated,
+  DecreaseStudentEnrollments,
+  DecreaseCourseEnrollments
 }

@@ -4,10 +4,11 @@ using FastEndpoints;
 
 using Library.Auth;
 
+using MassTransit;
+
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
-using Platform.AsyncDataServices;
 using Platform.Entities;
 using Platform.Middleware.Mappers;
 using Platform.Services.JWT;
@@ -18,16 +19,16 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
 {
   private readonly IJwtService _jwtService;
   private readonly ILogger<UserRegisterEndpoint> _logger;
-  private readonly IMessageBusClient _messageBusClient;
+  private readonly IPublishEndpoint _publishEndpoint;
   private readonly UserManager<ApplicationUser> _userManager;
 
   public UserRegisterEndpoint(UserManager<ApplicationUser> signInManager, ILogger<UserRegisterEndpoint> logger,
-    IJwtService jwtService, IMessageBusClient messageBusClient)
+    IJwtService jwtService, IPublishEndpoint publishEndpoint)
   {
     _userManager = signInManager;
     _logger = logger;
     _jwtService = jwtService;
-    _messageBusClient = messageBusClient;
+    _publishEndpoint = publishEndpoint;
   }
 
   public override void Configure()
@@ -64,15 +65,13 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
     var user = await _userManager.FindByNameAsync(request.Email);
     await _userManager.AddToRolesAsync(user, ["User"]);
 
-    _messageBusClient.PublishUserRegisteredMessage(user.ToUserCreatedEvent());
+    await _publishEndpoint.Publish(user.ToUserCreatedEvent(), ct);
     _logger.LogInformation("User {UserName} registered", user.UserName);
     var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
     return new AccessTokenResponse
     {
-      AccessToken = jwtTokenResponse.AccessToken,
-      ExpiresIn = jwtTokenResponse.ExpiresIn,
-      RefreshToken = refreshToken
+      AccessToken = jwtTokenResponse.AccessToken, ExpiresIn = jwtTokenResponse.ExpiresIn, RefreshToken = refreshToken
     };
   }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-
-using Service.Students.Database.Configurations;
+﻿using Service.Students.Database.Configurations;
 using Service.Students.Entities;
 
 namespace Service.Students.Database;
@@ -14,8 +12,6 @@ public class ApplicationDbContext : DbContext
   public virtual DbSet<Student> Students { get; set; }
 
 
-  protected override void OnModelCreating(ModelBuilder modelBuilder)
-  {
+  protected override void OnModelCreating(ModelBuilder modelBuilder) =>
     modelBuilder.ApplyConfiguration(new StudentsConfiguration());
-  }
 }

@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Diagnostics;
-
-using Service.Enrollments.Entities;
+﻿using Service.Enrollments.Entities;
 
 namespace Service.Enrollments.Database;
 

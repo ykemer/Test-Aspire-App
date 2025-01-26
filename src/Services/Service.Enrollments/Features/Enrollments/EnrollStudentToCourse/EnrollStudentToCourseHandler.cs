@@ -1,6 +1,7 @@
 ﻿using Contracts.Enrollments.Events;
 
-using Service.Enrollments.AsyncDataServices;
+using MassTransit;
+
 using Service.Enrollments.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToCourse;
@@ -9,14 +10,14 @@ public class EnrollStudentToCourseHandler : IRequestHandler<EnrollStudentToCours
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<EnrollStudentToCourseHandler> _logger;
-  private readonly IMessageBusClient _messageBusClient;
+  private readonly IPublishEndpoint _publishEndpoint;
 
   public EnrollStudentToCourseHandler(ILogger<EnrollStudentToCourseHandler> logger, ApplicationDbContext dbContext,
-    IMessageBusClient messageBusClient)
+    IPublishEndpoint publishEndpoint)
   {
     _logger = logger;
     _dbContext = dbContext;
-    _messageBusClient = messageBusClient;
+    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Created>> Handle(EnrollStudentToCourseCommand command, CancellationToken cancellationToken)
@@ -40,11 +41,9 @@ public class EnrollStudentToCourseHandler : IRequestHandler<EnrollStudentToCours
     };
     await _dbContext.Enrollments.AddAsync(enrollment, cancellationToken);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _messageBusClient.PublishStudentEnrolledEvent(new StudentEnrolledEvent
-    {
-      StudentId = command.StudentId,
-      CourseId = command.CourseId
-    });
+
+    await _publishEndpoint.Publish(
+      new StudentEnrolledEvent { StudentId = command.StudentId, CourseId = command.CourseId }, cancellationToken);
 
     return Result.Created;
   }

@@ -21,23 +21,7 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
     _roleManager = roleManager;
   }
 
-  public async Task InitialiseAsync()
-  {
-    await MigrateAsync();
-  }
-
-  private async Task MigrateAsync()
-  {
-    try
-    {
-      await _context.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex,
-        "An error occurred while trying to migrate the database.");
-    }
-  }
+  public async Task InitialiseAsync() => await MigrateAsync();
 
   public async Task SeedAsync()
   {
@@ -97,5 +81,18 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
 
 
     await _context.SaveChangesAsync();
+  }
+
+  private async Task MigrateAsync()
+  {
+    try
+    {
+      await _context.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+      _logger.LogError(ex,
+        "An error occurred while trying to migrate the database.");
+    }
   }
 }

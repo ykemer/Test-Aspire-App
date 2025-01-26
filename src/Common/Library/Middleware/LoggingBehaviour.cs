@@ -18,7 +18,7 @@ public class LoggingBehaviour<TRequest, TResponse> : IRequestPostProcessor<TRequ
 
   public Task Process(TRequest request, TResponse response, CancellationToken cancellationToken)
   {
-    _logger.LogInformation("Request: {Name}. {Request}", typeof(TRequest).Name, request);
+    _logger.LogInformation("Incoming request: {Name}. {Request}", typeof(TRequest).Name, request);
     if (!response.IsError)
     {
       return Task.CompletedTask;

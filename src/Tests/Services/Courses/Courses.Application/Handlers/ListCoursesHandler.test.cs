@@ -1,4 +1,6 @@
-﻿using FizzWare.NBuilder;
+﻿using Courses.Application.Setup;
+
+using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,7 @@ public class ListCoursesHandlerTests
   {
     var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
+      .AddInterceptors(new FullTextSearchInterceptor())
       .Options;
     _dbContext = new ApplicationDbContext(options);
 
@@ -89,6 +92,6 @@ public class ListCoursesHandlerTests
     // Assert
     Assert.That(result.IsError, Is.False);
     Assert.That(result.Value.Items.Count, Is.EqualTo(1));
-    Assert.That(result.Value.Items.First().Name, Is.EqualTo("Special Course"));
+    Assert.That(result.Value.Items[0].Name, Is.EqualTo("Special Course"));
   }
 }

@@ -1,9 +1,15 @@
+using Library.Infrastructure;
+
 using Service.Courses;
 using Service.Courses.Features.Courses;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
+
+// Add services to the container.
+var assembly = typeof(Program).Assembly;
+builder.Services.AddMassTransitServices(assembly, "queue-courses");
 builder.Services.AddServices();
 
 var app = builder.Build();

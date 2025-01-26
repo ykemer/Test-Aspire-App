@@ -1,7 +1,4 @@
-﻿using Library.AsyncMessages;
-using Library.Middleware;
-
-using Service.Students.AsyncDataServices;
+﻿using Library.Middleware;
 
 namespace Service.Students;
 
@@ -11,9 +8,6 @@ public static class DependencyInjection
   {
     services.AddGrpc();
     services.AddScoped<ApplicationDbContextInitializer>();
-    services.AddTransient<IMessageBusClient, MessageBusClient>();
-    services.AddSingleton<IEventProcessor, EventProcessor>();
-    services.AddHostedService<MessageBusSubscriber>();
     services.AddMediatR(options =>
     {
       options.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection));

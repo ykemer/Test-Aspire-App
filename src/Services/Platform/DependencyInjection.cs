@@ -12,7 +12,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.IdentityModel.Tokens;
 
-using Platform.AsyncDataServices;
 using Platform.Database;
 using Platform.Entities;
 using Platform.Middleware.Grpc;
@@ -26,13 +25,27 @@ namespace Platform;
 
 public static class DependencyInjection
 {
-  public static IServiceCollection AddApiServices(this IServiceCollection services)
+  public static IServiceCollection AddGrpcServices(this IServiceCollection services)
   {
-    services.AddTransient<IEmailSender<ApplicationUser>, UserMailService>();
-    services.AddTransient<IEmailSender, EmailSender>();
-    services.AddTransient<IMessageBusClient, MessageBusClient>();
+    services.AddScoped<IGrpcRequestMiddleware, GrpcRequestMiddleware>();
 
+    services.AddGrpcClient<GrpcCoursesService.GrpcCoursesServiceClient>(options =>
+    {
+      options.Address = new Uri("http://coursesService");
+    });
+    services.AddGrpcClient<GrpcEnrollmentsService.GrpcEnrollmentsServiceClient>(options =>
+    {
+      options.Address = new Uri("http://enrollmentsService");
+    });
+    services.AddGrpcClient<GrpcStudentsService.GrpcStudentsServiceClient>(options =>
+    {
+      options.Address = new Uri("http://studentsService");
+    });
+    return services;
+  }
 
+  public static IServiceCollection AddAuthServices(this IServiceCollection services)
+  {
     services
       .AddIdentity<ApplicationUser, IdentityRole>()
       .AddEntityFrameworkStores<ApplicationDbContext>()
@@ -59,29 +72,26 @@ public static class DependencyInjection
           };
         });
 
+    services.AddAuthorization(options =>
+    {
+      options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Administrator"));
+      options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Administrator"));
+    });
+    return services;
+  }
+
+  public static IServiceCollection AddApiServices(this IServiceCollection services)
+  {
+    services.AddTransient<IEmailSender<ApplicationUser>, UserMailService>();
+    services.AddTransient<IEmailSender, EmailSender>();
+
+
     services.AddScoped<ApplicationDbContextInitializer>();
     services.AddScoped<IJwtService, JwtService>();
     services.AddScoped<IUserService, UserService>();
-    services.AddScoped<IGrpcRequestMiddleware, GrpcRequestMiddleware>();
 
-    services.AddGrpcClient<GrpcCoursesService.GrpcCoursesServiceClient>(options =>
-    {
-      options.Address = new Uri("http://coursesService");
-    });
-    services.AddGrpcClient<GrpcEnrollmentsService.GrpcEnrollmentsServiceClient>(options =>
-    {
-      options.Address = new Uri("http://enrollmentsService");
-    });
-    services.AddGrpcClient<GrpcStudentsService.GrpcStudentsServiceClient>(options =>
-    {
-      options.Address = new Uri("http://studentsService");
-    });
 
-    services.AddAuthorization(options =>
-      {
-        options.AddPolicy("RequireAdministratorRole", policy => policy.RequireRole("Administrator"));
-        options.AddPolicy("RequireUserRole", policy => policy.RequireRole("User", "Administrator"));
-      })
+    services
       .AddFastEndpoints()
       .AddResponseCaching()
       .SwaggerDocument(o =>

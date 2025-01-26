@@ -1,24 +1,39 @@
-﻿namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByStudent;
+﻿using Contracts.Courses.Events;
+
+using MassTransit;
+
+namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByStudent;
 
 public class DeleteEnrollmentsByStudentHandler : IRequestHandler<DeleteEnrollmentsByStudentCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteEnrollmentsByStudentHandler> _logger;
+  private readonly IPublishEndpoint _publishEndpoint;
 
   public DeleteEnrollmentsByStudentHandler(ApplicationDbContext dbContext,
-    ILogger<DeleteEnrollmentsByStudentHandler> logger)
+    ILogger<DeleteEnrollmentsByStudentHandler> logger, IPublishEndpoint publishEndpoint)
   {
     _dbContext = dbContext;
     _logger = logger;
+    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteEnrollmentsByStudentCommand request,
     CancellationToken cancellationToken)
   {
+    var events = await _dbContext.Enrollments
+      .Where(enrollment => enrollment.CourseId == request.StudentId)
+      .Select(enrollment => new DecreaseCourseEnrollments { CourseId = enrollment.CourseId })
+      .ToListAsync(cancellationToken);
+
     _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment => enrollment.StudentId == request.StudentId));
     await _dbContext.SaveChangesAsync(cancellationToken);
     _logger.LogInformation("Deleting enrollments for Student {StudentId}", request.StudentId);
-    // TODO: Notify courses service about the deletion
+    if (events.Count > 0)
+    {
+      await _publishEndpoint.PublishBatch(events, cancellationToken);
+    }
+
     return Result.Deleted;
   }
 }

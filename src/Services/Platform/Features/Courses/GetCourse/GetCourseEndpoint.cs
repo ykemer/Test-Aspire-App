@@ -31,6 +31,7 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
   public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(
     CancellationToken ct)
   {
+    throw new NotImplementedException();
     var id = Route<Guid>("CourseId");
     var request =
       _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = id.ToString() }, cancellationToken: ct);

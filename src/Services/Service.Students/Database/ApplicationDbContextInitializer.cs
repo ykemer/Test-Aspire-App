@@ -15,10 +15,7 @@ public sealed class ApplicationDbContextInitializer
     _context = context;
   }
 
-  public async Task InitialiseAsync()
-  {
-    await MigrateAsync();
-  }
+  public async Task InitialiseAsync() => await MigrateAsync();
 
   private async Task MigrateAsync()
   {

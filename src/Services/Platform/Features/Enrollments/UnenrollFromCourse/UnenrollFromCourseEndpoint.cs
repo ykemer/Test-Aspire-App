@@ -58,8 +58,7 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
     var unerollmentRequest =
       _enrollmentsGrpcService.DeleteEnrollmentAsync(new GrpcDeleteEnrollmentRequest
       {
-        CourseId = request.CourseId.ToString(),
-        StudentId = userId.ToString()
+        CourseId = request.CourseId.ToString(), StudentId = userId.ToString()
       });
 
     var unenrollmentResponse =

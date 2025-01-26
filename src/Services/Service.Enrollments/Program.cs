@@ -1,11 +1,18 @@
+using Library.Infrastructure;
+
 using Service.Enrollments;
 using Service.Enrollments.Features.Enrollments;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.AddNpgsqlDbContext<ApplicationDbContext>("enrollmentsDb");
 builder.AddRedisDistributedCache("cache");
+
+
 // Add services to the container.
+var assembly = typeof(Program).Assembly;
+
 builder.Services.AddGrpc();
+builder.Services.AddMassTransitServices(assembly, "queue-enrollments");
 builder.Services.AddServices();
 
 

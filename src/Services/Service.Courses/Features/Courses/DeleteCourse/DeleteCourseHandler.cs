@@ -1,6 +1,6 @@
 ﻿using Contracts.Courses.Events;
 
-using Service.Courses.AsyncDataServices;
+using MassTransit;
 
 namespace Service.Courses.Features.Courses.DeleteCourse;
 
@@ -8,14 +8,14 @@ public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand, ErrorOr<
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteCourseHandler> _logger;
-  private readonly IMessageBusClient _messageBusClient;
+  private readonly IPublishEndpoint _publishEndpoint;
 
   public DeleteCourseHandler(ApplicationDbContext dbContext, ILogger<DeleteCourseHandler> logger,
-    IMessageBusClient messageBusClient)
+    IPublishEndpoint publishEndpoint)
   {
     _dbContext = dbContext;
     _logger = logger;
-    _messageBusClient = messageBusClient;
+    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class DeleteCourseHandler : IRequestHandler<DeleteCourseCommand, ErrorOr<
 
     _dbContext.Courses.Remove(course);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _messageBusClient.PublishCourseDeletedMessage(new CourseDeletedEvent { CourseId = course.Id });
+    _publishEndpoint.Publish(new CourseDeletedEvent { CourseId = course.Id });
     _logger.Log(LogLevel.Information, "Course with id {RequestId} was deleted", request.Id);
     return Result.Deleted;
   }

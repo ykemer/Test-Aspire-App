@@ -18,10 +18,15 @@ public class ListCoursesHandler : IRequestHandler<ListCoursesRequest, ErrorOr<Pa
     var query = _dbContext.Courses.AsQueryable();
     if (!string.IsNullOrWhiteSpace(request.Query))
     {
+      var tsQuery = EF.Functions.PhraseToTsQuery("english", request.Query);
 
-      query = query
+      // First, filter using ToTsVector
+      var filteredQuery = query
         .Where(x => EF.Functions.ToTsVector("english", x.Name + " " + x.Description)
-          .Matches(EF.Functions.PhraseToTsQuery("english", request.Query)))
+          .Matches(tsQuery));
+
+      // Then, project and order after bringing to client-side
+      query = filteredQuery
         .Select(i => new CoursesDTO
         {
           CreatedAt = i.CreatedAt,
@@ -29,9 +34,11 @@ public class ListCoursesHandler : IRequestHandler<ListCoursesRequest, ErrorOr<Pa
           EnrollmentsCount = i.EnrollmentsCount,
           Id = i.Id,
           Name = i.Name,
-          Rank = EF.Functions.ToTsVector("english", i.Name + " " + i.Description).Rank(
-            EF.Functions.PhraseToTsQuery("english", request.Query))
-        }).OrderByDescending(x => x.Rank);
+          Rank = EF.Functions
+            .ToTsVector("english", i.Name + " " + i.Description)
+            .Rank(tsQuery)
+        })
+        .OrderByDescending(x => x.Rank);
     }
 
 

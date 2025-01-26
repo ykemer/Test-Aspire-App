@@ -6,6 +6,7 @@ public sealed class ApplicationDbContextInitializer
 {
   private readonly ApplicationDbContext _context;
   private readonly ILogger<ApplicationDbContextInitializer> _logger;
+  private const bool AddManyCourses = false;
 
   public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
     ApplicationDbContext context)
@@ -14,10 +15,7 @@ public sealed class ApplicationDbContextInitializer
     _context = context;
   }
 
-  public async Task InitialiseAsync()
-  {
-    await MigrateAsync();
-  }
+  public async Task InitialiseAsync() => await MigrateAsync();
 
   private async Task MigrateAsync()
   {
@@ -48,19 +46,19 @@ public sealed class ApplicationDbContextInitializer
   {
     if (!await _context.Courses.AnyAsync())
     {
+      var courseNames = new List<string> { "Physics", "Coding" };
       _context.Courses.Add(new Course
       {
-        Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
-        Name = "Math",
-        Description = "Math course",
-        EnrollmentsCount = 1
+        Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0", Name = "Math", Description = "Math course", EnrollmentsCount = 1
       });
 
 
-      var courseNames = new List<string> { "Physics", "Coding" };
-      for (int i = 1; i <= 1000; i++)
+      if (AddManyCourses)
       {
-        courseNames.Add($"Course-{i}");
+         for (var i = 1; i <= 1000; i++)
+         {
+           courseNames.Add($"Course-{i}");
+         }
       }
 
       foreach (var name in courseNames)
@@ -68,7 +66,6 @@ public sealed class ApplicationDbContextInitializer
         _context.Courses.Add(new Course { Name = name, Description = $"{name} course", EnrollmentsCount = 0 });
       }
     }
-
 
     await _context.SaveChangesAsync();
   }

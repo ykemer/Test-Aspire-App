@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\..\Services\Service.Courses\Service.Courses.csproj"/>
+    <ProjectReference Include="..\..\..\..\Services\Service.Students\Service.Students.csproj" />
   </ItemGroup>
 
 

@@ -2,12 +2,13 @@
 
 using FizzWare.NBuilder;
 
+using MassTransit;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using Moq;
 
-using Service.Courses.AsyncDataServices;
 using Service.Courses.Database;
 using Service.Courses.Entities;
 using Service.Courses.Features.Courses.DeleteCourse;
@@ -19,13 +20,13 @@ public class DeleteCourseHandlerTests
   private ApplicationDbContext _dbContext;
   private DeleteCourseHandler _handler;
   private Mock<ILogger<DeleteCourseHandler>> _loggerMock;
-  private Mock<IMessageBusClient> _messageBusClientMock;
+  private Mock<IPublishEndpoint> _messageBusClientMock;
 
   [SetUp]
   public void Setup()
   {
     _loggerMock = new Mock<ILogger<DeleteCourseHandler>>();
-    _messageBusClientMock = new Mock<IMessageBusClient>();
+    _messageBusClientMock = new Mock<IPublishEndpoint>();
 
     var options = new DbContextOptionsBuilder<ApplicationDbContext>()
       .UseInMemoryDatabase("TestDatabase")
@@ -70,6 +71,6 @@ public class DeleteCourseHandlerTests
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Courses.FindAsync(course.Id), Is.Null);
     _messageBusClientMock.Verify(
-      m => m.PublishCourseDeletedMessage(It.Is<CourseDeletedEvent>(e => e.CourseId == course.Id)), Times.Once);
+      m => m.Publish(It.Is<CourseDeletedEvent>(e => e.CourseId == course.Id), CancellationToken.None), Times.Once);
   }
 }

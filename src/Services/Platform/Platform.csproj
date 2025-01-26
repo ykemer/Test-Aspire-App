@@ -30,6 +30,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="MassTransit" Version="8.3.4"/>
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4"/>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1"/>
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.1"/>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1"/>
@@ -41,6 +43,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0"/>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Contracts\Contracts.csproj"/>

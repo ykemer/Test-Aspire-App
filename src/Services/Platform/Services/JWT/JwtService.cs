@@ -68,8 +68,7 @@ public class JwtService : IJwtService
 
     return new JwtTokenServiceResponse
     {
-      AccessToken = jwtToken,
-      ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
+      AccessToken = jwtToken, ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
     };
   }
 

@@ -1,7 +1,4 @@
-﻿using Library.AsyncMessages;
-using Library.Middleware;
-
-using Service.Enrollments.AsyncDataServices;
+﻿using Library.Middleware;
 
 namespace Service.Enrollments;
 
@@ -11,16 +8,12 @@ public static class DependencyInjection
   {
     services.AddGrpc();
     services.AddScoped<ApplicationDbContextInitializer>();
-    services.AddScoped<IMessageBusClient, MessageBusClient>();
-    services.AddSingleton<IEventProcessor, EventProcessor>();
-    services.AddHostedService<MessageBusSubscriber>();
     services.AddMediatR(options =>
     {
       options.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection));
       options.AddOpenRequestPostProcessor(typeof(LoggingBehaviour<,>));
       options.AutoRegisterRequestProcessors = false;
     });
-
 
     return services;
   }

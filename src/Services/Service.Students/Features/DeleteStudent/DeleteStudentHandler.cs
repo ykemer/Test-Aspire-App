@@ -1,6 +1,6 @@
 ﻿using Contracts.Students.Events;
 
-using Service.Students.AsyncDataServices;
+using MassTransit;
 
 namespace Service.Students.Features.DeleteStudent;
 
@@ -8,14 +8,14 @@ public class DeleteStudentHandler : IRequestHandler<DeleteStudentCommand, ErrorO
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteStudentHandler> _logger;
-  private readonly IMessageBusClient _messageBusClient;
+  private readonly IPublishEndpoint _publishEndpoint;
 
   public DeleteStudentHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentHandler> logger,
-    IMessageBusClient messageBusClient)
+    IPublishEndpoint publishEndpoint)
   {
     _dbContext = dbContext;
     _logger = logger;
-    _messageBusClient = messageBusClient;
+    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Deleted>> Handle(DeleteStudentCommand request, CancellationToken cancellationToken)
@@ -30,7 +30,7 @@ public class DeleteStudentHandler : IRequestHandler<DeleteStudentCommand, ErrorO
 
     _dbContext.Remove(student);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _messageBusClient.PublishStudentDeletedEvent(new StudentDeletedEvent { StudentId = request.StudentId });
+    _publishEndpoint.Publish(new StudentDeletedEvent { StudentId = request.StudentId });
     return Result.Deleted;
   }
 }
