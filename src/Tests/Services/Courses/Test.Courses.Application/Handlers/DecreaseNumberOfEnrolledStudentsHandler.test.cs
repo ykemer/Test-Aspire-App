@@ -1,4 +1,6 @@
-﻿using FizzWare.NBuilder;
+﻿using Courses.Application.Setup;
+
+using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,12 +23,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
   public void Setup()
   {
     _loggerMock = new Mock<ILogger<DecreaseNumberOfEnrolledStudentsHandler>>();
-
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseInMemoryDatabase("TestDatabase")
-      .Options;
-    _dbContext = new ApplicationDbContext(options);
-
+    _dbContext = ApplicationDbContextCreator.GetDbContext();
     _handler = new DecreaseNumberOfEnrolledStudentsHandler(_loggerMock.Object, _dbContext);
   }
 
@@ -37,7 +34,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
     // Arrange
-    DecreaseNumberOfEnrolledStudentsCommand? command = new("bad-id");
+    var command = new DecreaseNumberOfEnrolledStudentsCommand("bad-id");
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -60,7 +57,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     await _dbContext.Courses.AddAsync(course);
     await _dbContext.SaveChangesAsync();
 
-    DecreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
+    var command = new DecreaseNumberOfEnrolledStudentsCommand(course.Id);
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -82,7 +79,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     await _dbContext.Courses.AddAsync(course);
     await _dbContext.SaveChangesAsync();
 
-    DecreaseNumberOfEnrolledStudentsCommand? command = new(course.Id);
+    var command = new DecreaseNumberOfEnrolledStudentsCommand(course.Id);
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);

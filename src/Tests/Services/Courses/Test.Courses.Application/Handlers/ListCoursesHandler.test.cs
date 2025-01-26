@@ -4,6 +4,8 @@ using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 
+using Moq;
+
 using Service.Courses.Database;
 using Service.Courses.Entities;
 using Service.Courses.Features.Courses.ListCourses;
@@ -18,12 +20,7 @@ public class ListCoursesHandlerTests
   [SetUp]
   public void Setup()
   {
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseInMemoryDatabase("TestDatabase")
-      .AddInterceptors(new FullTextSearchInterceptor())
-      .Options;
-    _dbContext = new ApplicationDbContext(options);
-
+    _dbContext = ApplicationDbContextCreator.GetDbContext();
     _handler = new ListCoursesHandler(_dbContext);
   }
 

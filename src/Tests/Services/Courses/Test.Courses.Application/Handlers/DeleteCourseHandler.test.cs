@@ -1,5 +1,7 @@
 ﻿using Contracts.Courses.Events;
 
+using Courses.Application.Setup;
+
 using FizzWare.NBuilder;
 
 using MassTransit;
@@ -27,11 +29,7 @@ public class DeleteCourseHandlerTests
   {
     _loggerMock = new Mock<ILogger<DeleteCourseHandler>>();
     _messageBusClientMock = new Mock<IPublishEndpoint>();
-
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseInMemoryDatabase("TestDatabase")
-      .Options;
-    _dbContext = new ApplicationDbContext(options);
+    _dbContext = ApplicationDbContextCreator.GetDbContext();
     _handler = new DeleteCourseHandler(_dbContext, _loggerMock.Object, _messageBusClientMock.Object);
   }
 
@@ -42,7 +40,7 @@ public class DeleteCourseHandlerTests
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
     // Arrange
-    DeleteCourseCommand? command = new("bad-id");
+    var command = new DeleteCourseCommand("bad-id");
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -62,7 +60,7 @@ public class DeleteCourseHandlerTests
     await _dbContext.Courses.AddAsync(course);
     await _dbContext.SaveChangesAsync();
 
-    DeleteCourseCommand? command = new(course.Id);
+    var command = new DeleteCourseCommand(course.Id);
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);

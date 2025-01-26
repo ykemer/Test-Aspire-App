@@ -1,4 +1,6 @@
-﻿using FizzWare.NBuilder;
+﻿using Courses.Application.Setup;
+
+using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -21,12 +23,7 @@ public class CreateCourseHandlerTests
   public void Setup()
   {
     _loggerMock = new Mock<ILogger<CreateCourseHandler>>();
-
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseInMemoryDatabase("TestDatabase")
-      .Options;
-    _dbContext = new ApplicationDbContext(options);
-
+    _dbContext = ApplicationDbContextCreator.GetDbContext();
     _handler = new CreateCourseHandler(_dbContext, _loggerMock.Object);
   }
 
@@ -38,7 +35,7 @@ public class CreateCourseHandlerTests
   public async Task Handle_ShouldReturnCourse_WhenCourseIsCreated()
   {
     // Arrange
-    CreateCourseCommand? command = new("Test Course", "Test Description");
+    var command = new CreateCourseCommand("Test Course", "Test Description");
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);
@@ -61,7 +58,7 @@ public class CreateCourseHandlerTests
     await _dbContext.Courses.AddAsync(existingCourse);
     await _dbContext.SaveChangesAsync();
 
-    CreateCourseCommand? command = new(existingCourse.Name, "New Description");
+    var command = new CreateCourseCommand(existingCourse.Name, "New Description");
 
     // Act
     var result = await _handler.Handle(command, CancellationToken.None);

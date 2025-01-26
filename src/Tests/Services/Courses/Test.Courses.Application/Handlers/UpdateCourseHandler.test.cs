@@ -1,4 +1,6 @@
-﻿using FizzWare.NBuilder;
+﻿using Courses.Application.Setup;
+
+using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -20,12 +22,8 @@ public class UpdateCourseHandlerTests
   [SetUp]
   public void Setup()
   {
-    var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseInMemoryDatabase("TestDatabase")
-      .Options;
-    _dbContext = new ApplicationDbContext(options);
+    _dbContext = ApplicationDbContextCreator.GetDbContext();
     _loggerMock = new Mock<ILogger<UpdateCourseHandler>>();
-
     _handler = new UpdateCourseHandler(_dbContext, _loggerMock.Object);
   }
 

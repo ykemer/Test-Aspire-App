@@ -27,7 +27,7 @@ public class ListCoursesHandler : IRequestHandler<ListCoursesRequest, ErrorOr<Pa
 
       // Then, project and order after bringing to client-side
       query = filteredQuery
-        .Select(i => new CoursesDTO
+        .Select(i => new CoursesDto
         {
           CreatedAt = i.CreatedAt,
           Description = i.Description,
