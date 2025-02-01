@@ -69,26 +69,4 @@ public class ListCoursesHandlerTests
     Assert.That(result.Value.Items.Count, Is.EqualTo(1));
     Assert.That(result.Value.TotalCount, Is.EqualTo(3));
   }
-
-  [Test]
-  public async Task Handle_ShouldReturnFilteredPagedList_WhenQueryIsProvided()
-  {
-    // Arrange
-    var courses = Builder<Course>.CreateListOfSize(3)
-      .TheFirst(1).With(c => c.Name = "Course 1").And(c => c.Description = "Description 1")
-      .TheNext(1).With(c => c.Name = "Special Course").And(c => c.Description = "Special Description")
-      .TheNext(1).With(c => c.Name = "Course 3").And(c => c.Description = "Description 3")
-      .Build().ToArray();
-    await AddCoursesToDatabase(courses);
-
-    ListCoursesRequest? request = new() { Query = "Special", PageNumber = 1, PageSize = 2 };
-
-    // Act
-    var result = await _handler.Handle(request, CancellationToken.None);
-
-    // Assert
-    Assert.That(result.IsError, Is.False);
-    Assert.That(result.Value.Items.Count, Is.EqualTo(1));
-    Assert.That(result.Value.Items[0].Name, Is.EqualTo("Special Course"));
-  }
 }

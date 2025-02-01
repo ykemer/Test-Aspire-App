@@ -73,8 +73,8 @@ public class UpdateCourseHandlerTests
 
     // Assert
     Assert.That(result.IsError, Is.False);
-    var updatedCourse = await _dbContext.Courses.FindAsync(existingCourse.Id);
-    Assert.That(updatedCourse.Name, Is.EqualTo("New Name"));
+    var updatedCourse = await _dbContext.Courses.AsNoTracking().FirstOrDefaultAsync(x => x.Id == existingCourse.Id, CancellationToken.None);
+    Assert.That(updatedCourse?.Name, Is.EqualTo("New Name"));
     Assert.That(updatedCourse.Description, Is.EqualTo("New Description"));
   }
 }

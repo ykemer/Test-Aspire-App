@@ -55,9 +55,9 @@ public sealed class ApplicationDbContextInitializer
 
       if (AddManyCourses)
       {
-         for (var i = 1; i <= 1000; i++)
+         for (var i = 1; i <= 5000; i++)
          {
-           courseNames.Add($"Course-{i}");
+           courseNames.Add($"Course-Created-By-Yakov-{i}");
          }
       }
 

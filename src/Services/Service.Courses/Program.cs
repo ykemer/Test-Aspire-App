@@ -4,6 +4,7 @@ using Service.Courses;
 using Service.Courses.Features.Courses;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
 
