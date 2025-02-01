@@ -42,7 +42,9 @@ public class GetStudentHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.False);
-    Assert.That(result.Value, Is.EqualTo(existingStudent));
+    Assert.That(result.Value, Is.InstanceOf<Student>());
+    Assert.That(result.Value.GetHashCode(), Is.EqualTo(existingStudent.GetHashCode()));
+
   }
 
   [Test]

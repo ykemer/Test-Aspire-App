@@ -44,18 +44,18 @@ public class StudentsServiceTests
     var student = Builder<Student>.CreateNew()
       .Build();
 
-    var request = new GrpcGetStudentByIdRequest { Id = student.Id.ToString() };
+    var request = new GrpcGetStudentByIdRequest { Id = student.Id };
     var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), default))
+      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), CancellationToken.None))
       .ReturnsAsync(student);
 
     // Act
     var response = await _studentsService.GetStudentById(request, serverCallContext);
 
     // Assert
-    Assert.That(response.Id, Is.EqualTo(student.Id.ToString()));
+    Assert.That(response.Id, Is.EqualTo(student.Id));
   }
 
   [Test]
@@ -72,7 +72,7 @@ public class StudentsServiceTests
     var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<ListStudentsQuery>(), default))
+      .Setup(m => m.Send(It.IsAny<ListStudentsQuery>(), CancellationToken.None))
       .ReturnsAsync(pagedList);
 
     // Act
@@ -91,7 +91,7 @@ public class StudentsServiceTests
     var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<DeleteStudentCommand>(), default))
+      .Setup(m => m.Send(It.IsAny<DeleteStudentCommand>(), CancellationToken.None))
       .ReturnsAsync(Result.Deleted);
 
     // Act
@@ -111,7 +111,7 @@ public class StudentsServiceTests
     var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), default))
+      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), CancellationToken.None))
       .ReturnsAsync(error);
 
     // Act & Assert

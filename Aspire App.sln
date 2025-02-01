@@ -34,9 +34,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Courses", "Courses", "{B1D8
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{0F1B3A33-9851-405C-A364-CBB6200B1AC9}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ApplicationTests", "ApplicationTests", "{C52DA067-8177-4C4C-A6DF-5494E80BBCC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Courses.Application", "tests\Services\Courses\Test.Courses.Application\Test.Courses.Application.csproj", "{6C10ECE7-BDE8-476F-AC4C-208FCCCA582F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Courses.Application", "src\Tests\Services\Courses\Test.Courses.Application\Test.Courses.Application.csproj", "{6C10ECE7-BDE8-476F-AC4C-208FCCCA582F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Students.Application", "tests\Services\Students\Test.Students.Application\Test.Students.Application.csproj", "{B3DCE356-4883-4FFA-A5AA-629E3E33537D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{91EFD4B4-B331-47D9-AE5B-B5FBDD0E1359}"
 	ProjectSection(SolutionItems) = preProject
@@ -44,7 +44,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.Students.Application", "Test.Students.Application\Test.Students.Application.csproj", "{B3DCE356-4883-4FFA-A5AA-629E3E33537D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Students", "Students", "{0E1A2876-559C-4F53-A13A-1813165DD5A3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,9 +112,9 @@ Global
 		{ADACD167-EFA9-4A77-A2B9-811DD66BE53E} = {0E51FBAE-CD3F-42F8-B635-F3DCD43A66C0}
 		{B1D802E1-CC34-4BBE-AE27-3625D82DA5F5} = {0F1B3A33-9851-405C-A364-CBB6200B1AC9}
 		{0F1B3A33-9851-405C-A364-CBB6200B1AC9} = {67658552-2847-4DBB-9AD0-9F88D999F587}
-		{C52DA067-8177-4C4C-A6DF-5494E80BBCC1} = {B1D802E1-CC34-4BBE-AE27-3625D82DA5F5}
-		{6C10ECE7-BDE8-476F-AC4C-208FCCCA582F} = {C52DA067-8177-4C4C-A6DF-5494E80BBCC1}
-		{B3DCE356-4883-4FFA-A5AA-629E3E33537D} = {C52DA067-8177-4C4C-A6DF-5494E80BBCC1}
+		{0E1A2876-559C-4F53-A13A-1813165DD5A3} = {0F1B3A33-9851-405C-A364-CBB6200B1AC9}
+		{B3DCE356-4883-4FFA-A5AA-629E3E33537D} = {0E1A2876-559C-4F53-A13A-1813165DD5A3}
+		{6C10ECE7-BDE8-476F-AC4C-208FCCCA582F} = {B1D802E1-CC34-4BBE-AE27-3625D82DA5F5}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {F6CC98D5-166B-43D2-8954-837652E6EA73}

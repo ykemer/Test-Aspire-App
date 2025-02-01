@@ -12,6 +12,7 @@ public class GetCourseEnrollmentsHandler : IRequestHandler<GetCourseEnrollmentsR
     CancellationToken cancellationToken)
   {
     var enrollments = await _dbContext.Enrollments
+      .AsNoTracking()
       .Where(e => e.CourseId == request.CourseId)
       .ToListAsync(cancellationToken);
 

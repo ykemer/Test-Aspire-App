@@ -13,6 +13,7 @@ public class
     CancellationToken cancellationToken)
   {
     var query = _dbContext.Enrollments
+      .AsNoTracking()
       .Where(i => request.CourseIds.Contains(i.CourseId));
 
     if (!string.IsNullOrEmpty(request.StudentId))

@@ -20,5 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Common\Contracts\Contracts.csproj"/>
     <ProjectReference Include="..\..\Common\Library\Library.csproj"/>
+    <ProjectReference Include="..\..\Infrastructure\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj" />
   </ItemGroup>
 </Project>

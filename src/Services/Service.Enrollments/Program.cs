@@ -4,6 +4,7 @@ using Service.Enrollments;
 using Service.Enrollments.Features.Enrollments;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("enrollmentsDb");
 builder.AddRedisDistributedCache("cache");
 
