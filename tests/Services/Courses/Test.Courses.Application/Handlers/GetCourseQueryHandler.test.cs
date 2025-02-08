@@ -13,18 +13,18 @@ using Service.Courses.Features.Courses.GetCourse;
 
 namespace Courses.Application.Handlers;
 
-public class GetCourseHandlerTests
+public class GetCourseQueryHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private GetCourseHandler _handler;
-  private Mock<ILogger<GetCourseHandler>> _loggerMock;
+  private GetCourseQueryHandler _queryHandler;
+  private Mock<ILogger<GetCourseQueryHandler>> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<GetCourseHandler>>();
+    _loggerMock = new Mock<ILogger<GetCourseQueryHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new GetCourseHandler(_loggerMock.Object, _dbContext);
+    _queryHandler = new GetCourseQueryHandler(_loggerMock.Object, _dbContext);
   }
 
   [TearDown]
@@ -44,7 +44,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new(course.Id);
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -59,7 +59,7 @@ public class GetCourseHandlerTests
     GetCourseQuery? query = new("bad-id");
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

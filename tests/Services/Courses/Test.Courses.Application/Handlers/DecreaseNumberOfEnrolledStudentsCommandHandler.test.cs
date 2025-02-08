@@ -13,18 +13,18 @@ using Service.Courses.Features.Courses.DecreaseNumberOfEnrolledStudents;
 
 namespace Courses.Application.Handlers;
 
-public class DecreaseNumberOfEnrolledStudentsHandlerTests
+public class DecreaseNumberOfEnrolledStudentsCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private DecreaseNumberOfEnrolledStudentsHandler _handler;
-  private Mock<ILogger<DecreaseNumberOfEnrolledStudentsHandler>> _loggerMock;
+  private DecreaseNumberOfEnrolledStudentsCommandHandler _commandHandler;
+  private Mock<ILogger<DecreaseNumberOfEnrolledStudentsCommandHandler>> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<DecreaseNumberOfEnrolledStudentsHandler>>();
+    _loggerMock = new Mock<ILogger<DecreaseNumberOfEnrolledStudentsCommandHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new DecreaseNumberOfEnrolledStudentsHandler(_loggerMock.Object, _dbContext);
+    _commandHandler = new DecreaseNumberOfEnrolledStudentsCommandHandler(_loggerMock.Object, _dbContext);
   }
 
   [TearDown]
@@ -37,7 +37,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     var command = new DecreaseNumberOfEnrolledStudentsCommand("bad-id");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -60,7 +60,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     var command = new DecreaseNumberOfEnrolledStudentsCommand(course.Id);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -82,7 +82,7 @@ public class DecreaseNumberOfEnrolledStudentsHandlerTests
     var command = new DecreaseNumberOfEnrolledStudentsCommand(course.Id);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

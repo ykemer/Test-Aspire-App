@@ -13,18 +13,18 @@ using Service.Courses.Features.Courses.IncreaseNumberOfEnrolledStudents;
 
 namespace Courses.Application.Handlers;
 
-public class IncreaseNumberOfEnrolledStudentsHandlerTests
+public class IncreaseNumberOfEnrolledStudentsCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private IncreaseNumberOfEnrolledStudentsHandler _handler;
-  private Mock<ILogger<IncreaseNumberOfEnrolledStudentsHandler>> _loggerMock;
+  private IncreaseNumberOfEnrolledStudentsCommandHandler _commandHandler;
+  private Mock<ILogger<IncreaseNumberOfEnrolledStudentsCommandHandler>> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<IncreaseNumberOfEnrolledStudentsHandler>>();
+    _loggerMock = new Mock<ILogger<IncreaseNumberOfEnrolledStudentsCommandHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new IncreaseNumberOfEnrolledStudentsHandler(_loggerMock.Object, _dbContext);
+    _commandHandler = new IncreaseNumberOfEnrolledStudentsCommandHandler(_loggerMock.Object, _dbContext);
   }
 
   [TearDown]
@@ -37,7 +37,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     var command = new IncreaseNumberOfEnrolledStudentsCommand("bad-id");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -59,7 +59,7 @@ public class IncreaseNumberOfEnrolledStudentsHandlerTests
     var command = new IncreaseNumberOfEnrolledStudentsCommand(course.Id);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

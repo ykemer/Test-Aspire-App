@@ -1,11 +1,11 @@
 ﻿namespace Service.Courses.Features.Courses.UpdateCourse;
 
-public class UpdateCourseHandler : IRequestHandler<UpdateCourseCommand, ErrorOr<Updated>>
+public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, ErrorOr<Updated>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<UpdateCourseHandler> _logger;
+  private readonly ILogger<UpdateCourseCommandHandler> _logger;
 
-  public UpdateCourseHandler(ApplicationDbContext dbContext, ILogger<UpdateCourseHandler> logger)
+  public UpdateCourseCommandHandler(ApplicationDbContext dbContext, ILogger<UpdateCourseCommandHandler> logger)
   {
     _dbContext = dbContext;
     _logger = logger;

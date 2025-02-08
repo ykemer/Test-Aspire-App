@@ -10,18 +10,18 @@ using Test.Students.Application.Setup;
 
 namespace Test.Students.Application.Handlers;
 
-public class GetStudentHandlerTest
+public class GetStudentQueryHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<GetStudentHandler>> _loggerMock;
-  private GetStudentHandler _handler;
+  private Mock<ILogger<GetStudentQueryHandler>> _loggerMock;
+  private GetStudentQueryHandler _queryHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<GetStudentHandler>>();
-    _handler = new GetStudentHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = new Mock<ILogger<GetStudentQueryHandler>>();
+    _queryHandler = new GetStudentQueryHandler(_dbContext, _loggerMock.Object);
   }
 
   [TearDown]
@@ -38,7 +38,7 @@ public class GetStudentHandlerTest
     var query = new GetStudentQuery(existingStudent.Id);
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -54,7 +54,7 @@ public class GetStudentHandlerTest
     var query = new GetStudentQuery("non-existing-student-id");
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

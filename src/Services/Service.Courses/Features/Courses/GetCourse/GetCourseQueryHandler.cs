@@ -2,12 +2,12 @@
 
 namespace Service.Courses.Features.Courses.GetCourse;
 
-public class GetCourseHandler : IRequestHandler<GetCourseQuery, ErrorOr<Course>>
+public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, ErrorOr<Course>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<GetCourseHandler> _logger;
+  private readonly ILogger<GetCourseQueryHandler> _logger;
 
-  public GetCourseHandler(ILogger<GetCourseHandler> logger, ApplicationDbContext dbContext)
+  public GetCourseQueryHandler(ILogger<GetCourseQueryHandler> logger, ApplicationDbContext dbContext)
   {
     _logger = logger;
     _dbContext = dbContext;

@@ -8,16 +8,16 @@ using Test.Students.Application.Setup;
 
 namespace Test.Students.Application.Handlers;
 
-public class ListStudentsHandlerTest
+public class ListStudentsQueryHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private ListStudentsHandler _handler;
+  private ListStudentsQueryHandler _queryHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new ListStudentsHandler(_dbContext);
+    _queryHandler = new ListStudentsQueryHandler(_dbContext);
   }
 
   [TearDown]
@@ -38,7 +38,7 @@ public class ListStudentsHandlerTest
     };
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -61,7 +61,7 @@ public class ListStudentsHandlerTest
     };
 
     // Act
-    var result = await _handler.Handle(query, CancellationToken.None);
+    var result = await _queryHandler.Handle(query, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

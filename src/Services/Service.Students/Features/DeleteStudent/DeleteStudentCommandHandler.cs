@@ -4,13 +4,13 @@ using MassTransit;
 
 namespace Service.Students.Features.DeleteStudent;
 
-public class DeleteStudentHandler : IRequestHandler<DeleteStudentCommand, ErrorOr<Deleted>>
+public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<DeleteStudentHandler> _logger;
+  private readonly ILogger<DeleteStudentCommandHandler> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public DeleteStudentHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentHandler> logger,
+  public DeleteStudentCommandHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentCommandHandler> logger,
     IPublishEndpoint publishEndpoint)
   {
     _dbContext = dbContext;

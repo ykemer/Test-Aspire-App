@@ -8,16 +8,16 @@ using Service.Courses.Features.Courses.ListCourses;
 
 namespace Courses.Application.Handlers;
 
-public class ListCoursesHandlerTests
+public class ListCoursesRequestHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private ListCoursesHandler _handler;
+  private ListCoursesRequestHandler _requestHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new ListCoursesHandler(_dbContext);
+    _requestHandler = new ListCoursesRequestHandler(_dbContext);
   }
 
   [TearDown]
@@ -40,7 +40,7 @@ public class ListCoursesHandlerTests
     var request = new ListCoursesRequest{ PageNumber = 1, PageSize = 2 };
 
     // Act
-    var result = await _handler.Handle(request, CancellationToken.None);
+    var result = await _requestHandler.Handle(request, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -58,7 +58,7 @@ public class ListCoursesHandlerTests
     var request = new ListCoursesRequest { PageNumber = 2, PageSize = 2 };
 
     // Act
-    var result = await _handler.Handle(request, CancellationToken.None);
+    var result = await _requestHandler.Handle(request, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

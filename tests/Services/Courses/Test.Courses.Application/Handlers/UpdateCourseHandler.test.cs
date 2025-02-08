@@ -13,18 +13,18 @@ using Service.Courses.Features.Courses.UpdateCourse;
 
 namespace Courses.Application.Handlers;
 
-public class UpdateCourseHandlerTests
+public class UpdateCourseCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private UpdateCourseHandler _handler;
-  private Mock<ILogger<UpdateCourseHandler>> _loggerMock;
+  private UpdateCourseCommandHandler _commandHandler;
+  private Mock<ILogger<UpdateCourseCommandHandler>> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<UpdateCourseHandler>>();
-    _handler = new UpdateCourseHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = new Mock<ILogger<UpdateCourseCommandHandler>>();
+    _commandHandler = new UpdateCourseCommandHandler(_dbContext, _loggerMock.Object);
   }
 
   [TearDown]
@@ -45,7 +45,7 @@ public class UpdateCourseHandlerTests
       .Build();
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -69,7 +69,7 @@ public class UpdateCourseHandlerTests
       .Build();
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

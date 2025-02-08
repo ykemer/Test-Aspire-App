@@ -1,12 +1,12 @@
 ﻿namespace Service.Courses.Features.Courses.DecreaseNumberOfEnrolledStudents;
 
 public class
-  DecreaseNumberOfEnrolledStudentsHandler : IRequestHandler<DecreaseNumberOfEnrolledStudentsCommand, ErrorOr<Updated>>
+  DecreaseNumberOfEnrolledStudentsCommandHandler : IRequestHandler<DecreaseNumberOfEnrolledStudentsCommand, ErrorOr<Updated>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<DecreaseNumberOfEnrolledStudentsHandler> _logger;
+  private readonly ILogger<DecreaseNumberOfEnrolledStudentsCommandHandler> _logger;
 
-  public DecreaseNumberOfEnrolledStudentsHandler(ILogger<DecreaseNumberOfEnrolledStudentsHandler> logger,
+  public DecreaseNumberOfEnrolledStudentsCommandHandler(ILogger<DecreaseNumberOfEnrolledStudentsCommandHandler> logger,
     ApplicationDbContext dbContext)
   {
     _logger = logger;

@@ -1,12 +1,12 @@
 ﻿namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
 public class
-  UpdateStudentEnrollmentsCountHandler : IRequestHandler<UpdateStudentEnrollmentsCountCommand, ErrorOr<Updated>>
+  UpdateStudentEnrollmentsCountCommandHandler : IRequestHandler<UpdateStudentEnrollmentsCountCommand, ErrorOr<Updated>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<UpdateStudentEnrollmentsCountHandler> _logger;
+  private readonly ILogger<UpdateStudentEnrollmentsCountCommandHandler> _logger;
 
-  public UpdateStudentEnrollmentsCountHandler(ILogger<UpdateStudentEnrollmentsCountHandler> logger,
+  public UpdateStudentEnrollmentsCountCommandHandler(ILogger<UpdateStudentEnrollmentsCountCommandHandler> logger,
     ApplicationDbContext dbContext)
   {
     _logger = logger;

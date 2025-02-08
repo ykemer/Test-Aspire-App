@@ -17,21 +17,21 @@ using Test.Students.Application.Setup;
 
 namespace Test.Students.Application.Handlers;
 
-public class DeleteStudentHandlerTest
+public class DeleteStudentCommandHandlerTest
 {
 
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<DeleteStudentHandler>> _loggerMock;
+  private Mock<ILogger<DeleteStudentCommandHandler>> _loggerMock;
   private Mock<IPublishEndpoint> _publishEndpointMock;
-  private DeleteStudentHandler _handler;
+  private DeleteStudentCommandHandler _commandHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<DeleteStudentHandler>>();
+    _loggerMock = new Mock<ILogger<DeleteStudentCommandHandler>>();
     _publishEndpointMock = new Mock<IPublishEndpoint>();
-    _handler = new DeleteStudentHandler(_dbContext, _loggerMock.Object, _publishEndpointMock.Object);
+    _commandHandler = new DeleteStudentCommandHandler(_dbContext, _loggerMock.Object, _publishEndpointMock.Object);
   }
 
   [TearDown]
@@ -48,7 +48,7 @@ public class DeleteStudentHandlerTest
     var command = new DeleteStudentCommand(existingStudent.Id);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -63,7 +63,7 @@ public class DeleteStudentHandlerTest
     var command = new DeleteStudentCommand("non-existing-student-id");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

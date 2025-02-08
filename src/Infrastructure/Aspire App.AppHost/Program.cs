@@ -1,21 +1,26 @@
 using Projects;
 
 var builder = DistributedApplication.CreateBuilder(args);
+
 var cache = builder.AddRedis("cache");
 
+#region Databases
 var postgres =
   builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\postgres").WithPgWeb().WithPgAdmin();
+
 // To avoid resource consumption, we add databases to a single postgres instance
 var mainDb = postgres.AddDatabase("mainDb");
 var coursesDb = postgres.AddDatabase("coursesDb");
 var enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
 var studentsDb = postgres.AddDatabase("studentsDb");
-
+#endregion
 
 var rabbitmq = builder
   .AddRabbitMQ("messaging")
   .WithDataBindMount(@"C:\Volumes\RabbitMQ")
   .WithManagementPlugin();
+
+#region main services
 
 var coursesService = builder
   .AddProject<Service_Courses>("coursesService")
@@ -37,6 +42,8 @@ var studentsService = builder
   .WaitFor(studentsDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq);
+
+#endregion
 
 var platformService = builder
   .AddProject<Platform>("platformService")

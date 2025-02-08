@@ -2,12 +2,12 @@
 
 namespace Service.Students.Features.GetStudent;
 
-public class GetStudentHandler : IRequestHandler<GetStudentQuery, ErrorOr<Student>>
+public class GetStudentQueryHandler : IRequestHandler<GetStudentQuery, ErrorOr<Student>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<GetStudentHandler> _logger;
+  private readonly ILogger<GetStudentQueryHandler> _logger;
 
-  public GetStudentHandler(ApplicationDbContext dbContext, ILogger<GetStudentHandler> logger)
+  public GetStudentQueryHandler(ApplicationDbContext dbContext, ILogger<GetStudentQueryHandler> logger)
   {
     _dbContext = dbContext;
     _logger = logger;

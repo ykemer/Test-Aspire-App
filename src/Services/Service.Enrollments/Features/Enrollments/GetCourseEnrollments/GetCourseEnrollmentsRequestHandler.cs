@@ -2,11 +2,11 @@
 
 namespace Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 
-public class GetCourseEnrollmentsHandler : IRequestHandler<GetCourseEnrollmentsRequest, ErrorOr<List<Enrollment>>>
+public class GetCourseEnrollmentsRequestHandler : IRequestHandler<GetCourseEnrollmentsRequest, ErrorOr<List<Enrollment>>>
 {
   private readonly ApplicationDbContext _dbContext;
 
-  public GetCourseEnrollmentsHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
+  public GetCourseEnrollmentsRequestHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
   public async Task<ErrorOr<List<Enrollment>>> Handle(GetCourseEnrollmentsRequest request,
     CancellationToken cancellationToken)

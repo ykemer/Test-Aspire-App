@@ -9,11 +9,11 @@ using Service.Students.Features.UpdateStudentEnrollmentsCount;
 
 namespace Test.Students.Application.Handlers;
 
-public class UpdateStudentEnrollmentsCountHandlerTest
+public class UpdateStudentEnrollmentsCountCommandHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<UpdateStudentEnrollmentsCountHandler>> _loggerMock;
-  private UpdateStudentEnrollmentsCountHandler _handler;
+  private Mock<ILogger<UpdateStudentEnrollmentsCountCommandHandler>> _loggerMock;
+  private UpdateStudentEnrollmentsCountCommandHandler _commandHandler;
 
   [SetUp]
   public void Setup()
@@ -22,8 +22,8 @@ public class UpdateStudentEnrollmentsCountHandlerTest
       .UseInMemoryDatabase(databaseName: "TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
-    _loggerMock = new Mock<ILogger<UpdateStudentEnrollmentsCountHandler>>();
-    _handler = new UpdateStudentEnrollmentsCountHandler(_loggerMock.Object, _dbContext);
+    _loggerMock = new Mock<ILogger<UpdateStudentEnrollmentsCountCommandHandler>>();
+    _commandHandler = new UpdateStudentEnrollmentsCountCommandHandler(_loggerMock.Object, _dbContext);
 
     // Clear the database before each test
     _dbContext.Students.RemoveRange(_dbContext.Students);
@@ -44,7 +44,7 @@ public class UpdateStudentEnrollmentsCountHandlerTest
     var command = new UpdateStudentEnrollmentsCountCommand(existingStudent.Id, true);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -58,7 +58,7 @@ public class UpdateStudentEnrollmentsCountHandlerTest
     var command = new UpdateStudentEnrollmentsCountCommand("non-existing-student-id", true);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -76,7 +76,7 @@ public class UpdateStudentEnrollmentsCountHandlerTest
     var command = new UpdateStudentEnrollmentsCountCommand(existingStudent.Id, false);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

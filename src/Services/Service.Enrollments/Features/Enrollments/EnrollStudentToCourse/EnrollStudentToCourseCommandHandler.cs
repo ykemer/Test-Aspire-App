@@ -6,13 +6,13 @@ using Service.Enrollments.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToCourse;
 
-public class EnrollStudentToCourseHandler : IRequestHandler<EnrollStudentToCourseCommand, ErrorOr<Created>>
+public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudentToCourseCommand, ErrorOr<Created>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<EnrollStudentToCourseHandler> _logger;
+  private readonly ILogger<EnrollStudentToCourseCommandHandler> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public EnrollStudentToCourseHandler(ILogger<EnrollStudentToCourseHandler> logger, ApplicationDbContext dbContext,
+  public EnrollStudentToCourseCommandHandler(ILogger<EnrollStudentToCourseCommandHandler> logger, ApplicationDbContext dbContext,
     IPublishEndpoint publishEndpoint)
   {
     _logger = logger;

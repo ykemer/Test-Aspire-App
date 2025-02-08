@@ -2,12 +2,12 @@
 
 namespace Service.Courses.Features.Courses.CreateCourse;
 
-public class CreateCourseHandler : IRequestHandler<CreateCourseCommand, ErrorOr<Course>>
+public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, ErrorOr<Course>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<CreateCourseHandler> _logger;
+  private readonly ILogger<CreateCourseCommandHandler> _logger;
 
-  public CreateCourseHandler(ApplicationDbContext dbContext, ILogger<CreateCourseHandler> logger)
+  public CreateCourseCommandHandler(ApplicationDbContext dbContext, ILogger<CreateCourseCommandHandler> logger)
   {
     _dbContext = dbContext;
     _logger = logger;

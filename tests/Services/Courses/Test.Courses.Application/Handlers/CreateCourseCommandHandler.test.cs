@@ -13,18 +13,18 @@ using Service.Courses.Features.Courses.CreateCourse;
 
 namespace Courses.Application.Handlers;
 
-public class CreateCourseHandlerTests
+public class CreateCourseCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private CreateCourseHandler _handler;
-  private Mock<ILogger<CreateCourseHandler>> _loggerMock;
+  private CreateCourseCommandHandler _commandHandler;
+  private Mock<ILogger<CreateCourseCommandHandler>> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<CreateCourseHandler>>();
+    _loggerMock = new Mock<ILogger<CreateCourseCommandHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new CreateCourseHandler(_dbContext, _loggerMock.Object);
+    _commandHandler = new CreateCourseCommandHandler(_dbContext, _loggerMock.Object);
   }
 
 
@@ -38,7 +38,7 @@ public class CreateCourseHandlerTests
     var command = new CreateCourseCommand("Test Course", "Test Description");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -61,7 +61,7 @@ public class CreateCourseHandlerTests
     var command = new CreateCourseCommand(existingCourse.Name, "New Description");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

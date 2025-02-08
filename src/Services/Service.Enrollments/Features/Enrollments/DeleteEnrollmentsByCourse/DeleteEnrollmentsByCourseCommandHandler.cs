@@ -4,14 +4,14 @@ using MassTransit;
 
 namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
 
-public class DeleteEnrollmentsByCourseHandler : IRequestHandler<DeleteEnrollmentsByCourseCommand, ErrorOr<Deleted>>
+public class DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnrollmentsByCourseCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<DeleteEnrollmentsByCourseHandler> _logger;
+  private readonly ILogger<DeleteEnrollmentsByCourseCommandHandler> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public DeleteEnrollmentsByCourseHandler(ApplicationDbContext dbContext,
-    ILogger<DeleteEnrollmentsByCourseHandler> logger, IPublishEndpoint publishEndpoint)
+  public DeleteEnrollmentsByCourseCommandHandler(ApplicationDbContext dbContext,
+    ILogger<DeleteEnrollmentsByCourseCommandHandler> logger, IPublishEndpoint publishEndpoint)
   {
     _dbContext = dbContext;
     _logger = logger;

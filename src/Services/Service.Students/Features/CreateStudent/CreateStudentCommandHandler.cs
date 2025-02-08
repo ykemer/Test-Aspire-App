@@ -2,12 +2,12 @@
 
 namespace Service.Students.Features.CreateStudent;
 
-public class CreateStudentHandler : IRequestHandler<CreateStudentCommand, ErrorOr<Created>>
+public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, ErrorOr<Created>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<CreateStudentHandler> _logger;
+  private readonly ILogger<CreateStudentCommandHandler> _logger;
 
-  public CreateStudentHandler(ApplicationDbContext dbContext, ILogger<CreateStudentHandler> logger)
+  public CreateStudentCommandHandler(ApplicationDbContext dbContext, ILogger<CreateStudentCommandHandler> logger)
   {
     _dbContext = dbContext;
     _logger = logger;

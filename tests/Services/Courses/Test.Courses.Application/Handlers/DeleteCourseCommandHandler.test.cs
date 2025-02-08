@@ -17,20 +17,20 @@ using Service.Courses.Features.Courses.DeleteCourse;
 
 namespace Courses.Application.Handlers;
 
-public class DeleteCourseHandlerTests
+public class DeleteCourseCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
-  private DeleteCourseHandler _handler;
-  private Mock<ILogger<DeleteCourseHandler>> _loggerMock;
+  private DeleteCourseCommandHandler _commandHandler;
+  private Mock<ILogger<DeleteCourseCommandHandler>> _loggerMock;
   private Mock<IPublishEndpoint> _messageBusClientMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<DeleteCourseHandler>>();
+    _loggerMock = new Mock<ILogger<DeleteCourseCommandHandler>>();
     _messageBusClientMock = new Mock<IPublishEndpoint>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new DeleteCourseHandler(_dbContext, _loggerMock.Object, _messageBusClientMock.Object);
+    _commandHandler = new DeleteCourseCommandHandler(_dbContext, _loggerMock.Object, _messageBusClientMock.Object);
   }
 
   [TearDown]
@@ -43,7 +43,7 @@ public class DeleteCourseHandlerTests
     var command = new DeleteCourseCommand("bad-id");
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);
@@ -63,7 +63,7 @@ public class DeleteCourseHandlerTests
     var command = new DeleteCourseCommand(course.Id);
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);

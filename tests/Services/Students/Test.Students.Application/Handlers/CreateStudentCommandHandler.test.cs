@@ -13,18 +13,18 @@ using Test.Students.Application.Setup;
 
 namespace Test.Students.Application.Handlers;
 
-public class CreateStudentHandlerTest
+public class CreateStudentCommandHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<CreateStudentHandler>> _loggerMock;
-  private CreateStudentHandler _handler;
+  private Mock<ILogger<CreateStudentCommandHandler>> _loggerMock;
+  private CreateStudentCommandHandler _commandHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<CreateStudentHandler>>();
-    _handler = new CreateStudentHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = new Mock<ILogger<CreateStudentCommandHandler>>();
+    _commandHandler = new CreateStudentCommandHandler(_dbContext, _loggerMock.Object);
   }
 
   [TearDown]
@@ -37,7 +37,7 @@ public class CreateStudentHandlerTest
     var command = Builder<CreateStudentCommand>.CreateNew().Build();
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.False);
@@ -59,7 +59,7 @@ public class CreateStudentHandlerTest
       .Build();
 
     // Act
-    var result = await _handler.Handle(command, CancellationToken.None);
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
 
     // Assert
     Assert.That(result.IsError, Is.True);

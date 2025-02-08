@@ -4,13 +4,14 @@ using MassTransit;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentToCourse;
 
-public class UnenrollStudentFromCourseHandler : IRequestHandler<UnenrollStudentFromCourseCommand, ErrorOr<Deleted>>
+public class UnenrollStudentFromCourseCommandHandler
+  : IRequestHandler<UnenrollStudentFromCourseCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<UnenrollStudentFromCourseHandler> _logger;
+  private readonly ILogger<UnenrollStudentFromCourseCommandHandler> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public UnenrollStudentFromCourseHandler(ILogger<UnenrollStudentFromCourseHandler> logger,
+  public UnenrollStudentFromCourseCommandHandler(ILogger<UnenrollStudentFromCourseCommandHandler> logger,
     ApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
   {
     _logger = logger;

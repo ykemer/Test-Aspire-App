@@ -4,11 +4,11 @@ using Service.Students.Entities;
 
 namespace Service.Students.Features.ListStudent;
 
-public class ListStudentsHandler : IRequestHandler<ListStudentsQuery, ErrorOr<PagedList<Student>>>
+public class ListStudentsQueryHandler : IRequestHandler<ListStudentsQuery, ErrorOr<PagedList<Student>>>
 {
   private readonly ApplicationDbContext _dbContext;
 
-  public ListStudentsHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
+  public ListStudentsQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
   public Task<ErrorOr<PagedList<Student>>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
   {
