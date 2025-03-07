@@ -28,6 +28,7 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
       return Error.Unauthorized(description: "Refresh token is not valid");
     }
 
+    user.SecurityStamp = Guid.NewGuid().ToString();
     user.RefreshToken = null;
     await _userManager.UpdateAsync(user);
     return Result.Deleted;

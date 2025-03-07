@@ -9,7 +9,8 @@ namespace Library.Infrastructure;
 
 public static class AsyncMessagesSetup
 {
-  public static IServiceCollection AddMassTransitServices(this IServiceCollection services, Assembly assembly, string queue)
+  public static IServiceCollection AddMassTransitServices(this IServiceCollection services, Assembly assembly,
+    string queue)
   {
     services.Configure<MassTransitHostOptions>(options =>
     {

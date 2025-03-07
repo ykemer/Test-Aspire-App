@@ -25,8 +25,8 @@ public class
         $"Student {request.StudentId} not found");
     }
 
-    student.EnrolledCourses += request.Increase ? 1 : -1;
-    if(student.EnrolledCourses < 0)
+    student.EnrollmentsCount += request.IsIncrease ? 1 : -1;
+    if(student.EnrollmentsCount < 0)
     {
       _logger.LogError("Student {StudentId} enrollments count cannot be negative", request.StudentId);
       return Error.Conflict("student_service.update_student_enrollments_count.invalid_enrollments_count",
@@ -34,6 +34,7 @@ public class
     }
 
     await _dbContext.SaveChangesAsync(cancellationToken);
+    _logger.LogInformation("Student {StudentId} enrollments count updated - {EnrollmentsCount}", request.StudentId, student.EnrollmentsCount);
     return Result.Updated;
   }
 }

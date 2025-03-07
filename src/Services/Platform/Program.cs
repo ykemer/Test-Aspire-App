@@ -23,10 +23,9 @@ builder.AddRabbitMQClient("messaging");
 builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
-var assembly = typeof(Program).Assembly;
-builder.Services.AddMassTransitServices(assembly, "queue-platform");
 builder.Services.AddGrpcServices();
 builder.Services.AddAuthServices();
+builder.Services.AddMassTransitServices();
 builder.Services.AddApiServices();
 
 var app = builder.Build();

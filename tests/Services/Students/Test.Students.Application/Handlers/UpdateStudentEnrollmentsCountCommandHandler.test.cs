@@ -37,7 +37,7 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
   public async Task Handle_ShouldUpdateEnrollmentsCount_WhenStudentExists()
   {
     // Arrange
-    var existingStudent = Builder<Student>.CreateNew().With(x => x.EnrolledCourses, 0).Build();
+    var existingStudent = Builder<Student>.CreateNew().With(x => x.EnrollmentsCount, 0).Build();
     await _dbContext.Students.AddAsync(existingStudent);
     await _dbContext.SaveChangesAsync();
 
@@ -48,7 +48,7 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.False);
-    Assert.That(existingStudent.EnrolledCourses, Is.EqualTo(1));
+    Assert.That(existingStudent.EnrollmentsCount, Is.EqualTo(1));
   }
 
   [Test]
@@ -69,7 +69,7 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
   public async Task Handle_ShouldReturnConflict_WhenEnrollmentsCountBecomesNegative()
   {
     // Arrange
-    var existingStudent = Builder<Student>.CreateNew().With(x => x.EnrolledCourses, 0).Build();
+    var existingStudent = Builder<Student>.CreateNew().With(x => x.EnrollmentsCount, 0).Build();
     await _dbContext.Students.AddAsync(existingStudent);
     await _dbContext.SaveChangesAsync();
 

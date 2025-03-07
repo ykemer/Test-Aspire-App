@@ -20,7 +20,7 @@ namespace Service.Students.Migrations
                     LastName = table.Column<string>(type: "text", nullable: false),
                     Email = table.Column<string>(type: "text", nullable: false),
                     DateOfBirth = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    EnrolledCourses = table.Column<int>(type: "integer", nullable: false)
+                    EnrollmentsCount = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

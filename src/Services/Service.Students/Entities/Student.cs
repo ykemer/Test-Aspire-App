@@ -12,7 +12,7 @@ public class Student
 
   public DateTime DateOfBirth { get; init; }
 
-  public int EnrolledCourses { get; set; } = 0;
+  public int EnrollmentsCount { get; set; } = 0;
 
   public override int GetHashCode()
   {

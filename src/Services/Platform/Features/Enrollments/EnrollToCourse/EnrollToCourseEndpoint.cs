@@ -1,10 +1,13 @@
 ﻿using Contracts.Courses.Requests;
+using Contracts.Enrollments.Events;
 
 using CoursesGRPCClient;
 
 using EnrollmentsGRPCClient;
 
 using FastEndpoints;
+
+using MassTransit;
 
 using Platform.Middleware.Grpc;
 using Platform.Services.User;
@@ -20,18 +23,23 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
   private readonly IUserService _userService;
+  private readonly IPublishEndpoint _publishEndpoint;
+
 
   public EnrollToCourseEndpoint(
     IUserService userService,
     GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
     GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService)
+    IGrpcRequestMiddleware grpcRequestMiddleware,
+    GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
+    IPublishEndpoint publishEndpoint)
   {
     _userService = userService;
     _coursesGrpcService = coursesGrpcService;
     _enrollmentsGrpcService = enrollmentsGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
+    _publishEndpoint = publishEndpoint;
   }
 
   public override void Configure()
@@ -81,11 +89,24 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
         StudentLastName = student.LastName
       });
 
+
     var enrollmentResponse =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentRequest, ct);
-    return enrollmentResponse.Match<ErrorOr<Updated>>(
-      _ => Result.Updated,
-      error => error
-    );
+
+    if (enrollmentResponse.IsError)
+    {
+      return enrollmentResponse.Errors[0];
+    }
+
+    await _publishEndpoint.Publish(
+      new StudentEnrollmentCountChangedEvent
+      {
+        StudentId = userId.ToString(),
+        CourseId = request.CourseId.ToString(),
+        IsIncrease = true
+      }, ct);
+
+
+    return Result.Updated;
   }
 }

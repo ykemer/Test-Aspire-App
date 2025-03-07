@@ -53,7 +53,7 @@ public sealed class ApplicationDbContextInitializer
         FirstName = "Marry",
         LastName = "Doe",
         DateOfBirth = DateTime.Now.AddYears(-25),
-        EnrolledCourses = 1
+        EnrollmentsCount = 1
       });
 
       await _context.SaveChangesAsync();

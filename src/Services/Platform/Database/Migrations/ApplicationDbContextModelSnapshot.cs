@@ -17,7 +17,7 @@ namespace Platform.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -152,6 +152,50 @@ namespace Platform.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Platform.AsyncDataServices.StateMachines.StudentEnrollmentsState", b =>
+                {
+                    b.Property<Guid>("EventId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("CourseId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("CurrentState")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("EnrolledDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<string>("FailureReason")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsCourseEnrollmentsUpdated")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsIncrease")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsStudentEnrollmentsUpdated")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("StudentId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("EventId");
+
+                    b.HasIndex("CorrelationId");
+
+                    b.ToTable("StudentEnrollmentStates");
                 });
 
             modelBuilder.Entity("Platform.Entities.ApplicationUser", b =>

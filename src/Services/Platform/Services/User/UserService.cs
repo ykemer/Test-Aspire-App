@@ -1,11 +1,16 @@
 ﻿using System.Data;
 using System.Security.Claims;
 
+using Microsoft.AspNetCore.Identity;
+
+using Platform.Entities;
+
 namespace Platform.Services.User;
 
 public class UserService : IUserService
 {
   private const string AdministratorRole = "Administrator";
+
 
   public Guid GetUserId(ClaimsPrincipal user)
   {

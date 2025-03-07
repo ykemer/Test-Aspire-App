@@ -20,6 +20,12 @@ var rabbitmq = builder
   .WithDataBindMount(@"C:\Volumes\RabbitMQ")
   .WithManagementPlugin();
 
+
+// var kafka = builder
+//   .AddKafka("kafka")
+//   .WithDataBindMount(@"C:\Volumes\kafka")
+//   .WithKafkaUI();
+
 #region main services
 
 var coursesService = builder
@@ -27,21 +33,24 @@ var coursesService = builder
   .WithReference(coursesDb)
   .WaitFor(coursesDb)
   .WithReference(rabbitmq)
-  .WaitFor(rabbitmq);
+  .WaitFor(rabbitmq)
+  .WithHttpsEndpoint();
 
 var enrollmentsService = builder
   .AddProject<Service_Enrollments>("enrollmentsService")
   .WithReference(enrollmentsDb)
   .WaitFor(enrollmentsDb)
   .WithReference(rabbitmq)
-  .WaitFor(rabbitmq);
+  .WaitFor(rabbitmq)
+  .WithHttpsEndpoint();
 
 var studentsService = builder
   .AddProject<Service_Students>("studentsService")
   .WithReference(studentsDb)
   .WaitFor(studentsDb)
   .WithReference(rabbitmq)
-  .WaitFor(rabbitmq);
+  .WaitFor(rabbitmq)
+  .WithHttpsEndpoint();
 
 #endregion
 
@@ -51,15 +60,19 @@ var platformService = builder
   .WaitFor(mainDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq)
+  .WithReference(cache)
+  .WaitFor(cache)
   .WithReference(coursesService)
   .WithReference(enrollmentsService)
-  .WithReference(studentsService);
+  .WithReference(studentsService)
+  .WithHttpsEndpoint();
 
 builder.AddProject<Aspire_App_Web>("webfrontend")
   .WithExternalHttpEndpoints()
   .WithReference(cache)
   .WithReference(platformService)
-  .WaitFor(platformService);
+  .WaitFor(platformService)
+  .WithHttpsEndpoint();
 
 
 await builder.Build().RunAsync();

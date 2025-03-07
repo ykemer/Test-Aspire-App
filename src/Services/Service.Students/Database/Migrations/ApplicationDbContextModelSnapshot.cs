@@ -17,7 +17,7 @@ namespace Service.Students.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.1")
+                .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -34,7 +34,7 @@ namespace Service.Students.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("EnrolledCourses")
+                    b.Property<int>("EnrollmentsCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("FirstName")

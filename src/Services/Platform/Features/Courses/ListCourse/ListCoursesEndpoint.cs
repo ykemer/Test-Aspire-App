@@ -73,7 +73,7 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
 
 
     var enrollments = enrollmentsResult.Value;
-    var mappedList = courses.ToCourseListItemResponse(enrollments);
-    return PagedList<CourseListItemResponse>.Create(mappedList, query.PageNumber, query.PageSize);
+    return courses.ToCourseListItemResponse(enrollments);
+
   }
 }

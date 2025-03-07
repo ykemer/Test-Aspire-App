@@ -1,8 +1,6 @@
-﻿using Contracts.AsyncMessages;
+﻿namespace Contracts.Courses.Events;
 
-namespace Contracts.Courses.Events;
-
-public class CourseDeletedEvent : AsyncMessage
+public record CourseDeletedEvent
 {
   public string CourseId { get; set; }
 }

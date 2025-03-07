@@ -31,6 +31,15 @@ public class ProblemDetailsMiddleware
 
   private static Task HandleExceptionAsync(HttpContext context, Exception exception)
   {
+
+
+    if (context.Response.HasStarted)
+    {
+      // Log the exception and return
+      Console.WriteLine("The response has already started, the error handling middleware will not be executed.");
+      return Task.CompletedTask;
+    }
+
     var problemDetails = new ProblemDetails()
     {
       Status = (int)HttpStatusCode.BadRequest,

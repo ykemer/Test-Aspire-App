@@ -4,6 +4,7 @@ using MassTransit;
 
 using Service.Enrollments.Entities;
 
+
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToCourse;
 
 public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudentToCourseCommand, ErrorOr<Created>>
@@ -12,7 +13,9 @@ public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudent
   private readonly ILogger<EnrollStudentToCourseCommandHandler> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public EnrollStudentToCourseCommandHandler(ILogger<EnrollStudentToCourseCommandHandler> logger, ApplicationDbContext dbContext,
+
+  public EnrollStudentToCourseCommandHandler(ILogger<EnrollStudentToCourseCommandHandler> logger,
+    ApplicationDbContext dbContext,
     IPublishEndpoint publishEndpoint)
   {
     _logger = logger;
@@ -32,7 +35,7 @@ public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudent
         $"Student {command.StudentId} is already enrolled to course {command.CourseId}");
     }
 
-    Enrollment? enrollment = new()
+    var enrollment = new Enrollment()
     {
       CourseId = command.CourseId,
       StudentId = command.StudentId,
@@ -41,9 +44,6 @@ public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudent
     };
     await _dbContext.Enrollments.AddAsync(enrollment, cancellationToken);
     await _dbContext.SaveChangesAsync(cancellationToken);
-
-    await _publishEndpoint.Publish(
-      new StudentEnrolledEvent { StudentId = command.StudentId, CourseId = command.CourseId }, cancellationToken);
 
     return Result.Created;
   }

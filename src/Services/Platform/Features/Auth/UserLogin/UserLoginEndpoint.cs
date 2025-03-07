@@ -46,9 +46,6 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
     user.RefreshTokenExpiry = DateTime.Now.AddMonths(1);
     await _signInManager.UserManager.UpdateAsync(user);
 
-    var token = await _jwtService.GenerateToken(user);
-    Console.WriteLine(token);
-
     return new AccessTokenResponse
     {
       AccessToken = jwtTokenResponse.AccessToken,

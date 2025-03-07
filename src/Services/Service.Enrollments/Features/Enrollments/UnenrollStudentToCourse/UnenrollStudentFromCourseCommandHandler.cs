@@ -9,14 +9,12 @@ public class UnenrollStudentFromCourseCommandHandler
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<UnenrollStudentFromCourseCommandHandler> _logger;
-  private readonly IPublishEndpoint _publishEndpoint;
 
   public UnenrollStudentFromCourseCommandHandler(ILogger<UnenrollStudentFromCourseCommandHandler> logger,
     ApplicationDbContext dbContext, IPublishEndpoint publishEndpoint)
   {
     _logger = logger;
     _dbContext = dbContext;
-    _publishEndpoint = publishEndpoint;
   }
 
   public async Task<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
@@ -34,9 +32,6 @@ public class UnenrollStudentFromCourseCommandHandler
 
     _dbContext.Enrollments.Remove(existingEnrollment);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    await _publishEndpoint.Publish(
-      new StudentUnenrolledEvent { StudentId = command.StudentId, CourseId = command.CourseId }, cancellationToken);
-
     return Result.Deleted;
   }
 }

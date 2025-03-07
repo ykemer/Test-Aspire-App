@@ -57,6 +57,26 @@ namespace Platform.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "StudentEnrollmentStates",
+                columns: table => new
+                {
+                    EventId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CurrentState = table.Column<string>(type: "text", nullable: false),
+                    StudentId = table.Column<string>(type: "text", nullable: false),
+                    CourseId = table.Column<string>(type: "text", nullable: false),
+                    IsIncrease = table.Column<bool>(type: "boolean", nullable: false),
+                    IsStudentEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
+                    IsCourseEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
+                    EnrolledDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    FailureReason = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_StudentEnrollmentStates", x => x.EventId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -198,6 +218,11 @@ namespace Platform.Migrations
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_StudentEnrollmentStates_CorrelationId",
+                table: "StudentEnrollmentStates",
+                column: "CorrelationId");
         }
 
         /// <inheritdoc />
@@ -217,6 +242,9 @@ namespace Platform.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "StudentEnrollmentStates");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");

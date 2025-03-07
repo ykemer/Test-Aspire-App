@@ -1,8 +1,6 @@
-﻿using Contracts.AsyncMessages;
+﻿namespace Contracts.Users.Events;
 
-namespace Contracts.Users.Events;
-
-public class UserCreatedEvent : AsyncMessage
+public record UserCreatedEvent
 {
   public string Id { get; set; }
   public string FirstName { get; set; }
