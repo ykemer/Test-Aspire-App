@@ -23,25 +23,25 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
   public override async Task<GrpcStudentResponse> GetStudentById(GrpcGetStudentByIdRequest request,
     ServerCallContext context)
   {
-    var studentResult = await _mediator.Send(request.ToGetStudentQuery());
+    var studentResult = await _mediator.Send(request.MapToGetStudentQuery());
     return studentResult.Match(
-      data => data.ToGrpcStudentResponse(),
+      data => data.MapToGrpcStudentResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 
   public override Task<GrpcListStudentsResponse> ListStudents(GrpcListStudentsRequest request,
     ServerCallContext context)
   {
-    var studentsResult = _mediator.Send(request.ToListStudentsQuery());
+    var studentsResult = _mediator.Send(request.MapToListStudentsQuery());
 
     return studentsResult.Match(
-      data => data.ToGrpcListStudentsResponse(),
+      data => data.MapToGrpcListStudentsResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 
   public override Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request, ServerCallContext context)
   {
-    var deleteStudentResult = _mediator.Send(request.ToDeleteStudentCommand());
+    var deleteStudentResult = _mediator.Send(request.MapToDeleteStudentCommand());
     return deleteStudentResult.Match(
       _ => new GrpcUpdatedResponse { Updated = true, Message = "Student deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

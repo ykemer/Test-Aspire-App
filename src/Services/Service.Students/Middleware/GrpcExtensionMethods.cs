@@ -8,12 +8,12 @@ namespace Service.Students.Middleware;
 
 public static class GrpcExtensionMethods
 {
-  public static GetStudentQuery ToGetStudentQuery(this GrpcGetStudentByIdRequest request) => new(request.Id);
+  public static GetStudentQuery MapToGetStudentQuery(this GrpcGetStudentByIdRequest request) => new(request.Id);
 
-  public static ListStudentsQuery ToListStudentsQuery(this GrpcListStudentsRequest request) => new()
+  public static ListStudentsQuery MapToListStudentsQuery(this GrpcListStudentsRequest request) => new()
   {
     PageNumber = request.Page, PageSize = request.PageSize
   };
 
-  public static DeleteStudentCommand ToDeleteStudentCommand(this GrpcDeleteStudentRequest request) => new(request.Id);
+  public static DeleteStudentCommand MapToDeleteStudentCommand(this GrpcDeleteStudentRequest request) => new(request.Id);
 }

@@ -10,16 +10,16 @@ namespace Service.Courses.Middleware;
 
 public static class GrpcExtensionMethods
 {
-  public static CreateCourseCommand ToCreateCourseCommand(this GrpcCreateCourseRequest request) =>
+  public static CreateCourseCommand MapToCreateCourseCommand(this GrpcCreateCourseRequest request) =>
     new(request.Name, request.Description);
 
-  public static UpdateCourseCommand ToUpdateCourseCommand(this GrpcUpdateCourseRequest request) =>
+  public static UpdateCourseCommand MapToUpdateCourseCommand(this GrpcUpdateCourseRequest request) =>
     new() { Id = request.Id, Name = request.Name, Description = request.Description };
 
-  public static DeleteCourseCommand ToDeleteCourseCommand(this GrpcDeleteCourseRequest request) => new(request.Id);
+  public static DeleteCourseCommand MapToDeleteCourseCommand(this GrpcDeleteCourseRequest request) => new(request.Id);
 
   public static GetCourseQuery ToGetCourseQuery(this GrpcGetCourseRequest request) => new(request.Id);
 
-  public static ListCoursesRequest ToListCoursesRequest(this GrpcListCoursesRequest request) =>
+  public static ListCoursesRequest MapToListCoursesRequest(this GrpcListCoursesRequest request) =>
     new() { PageSize = request.PageSize, PageNumber = request.Page, Query = request.Query };
 }

@@ -3,13 +3,13 @@
 namespace Service.Enrollments.Features.Enrollments.ListEnrollmentsByCourses;
 
 public class
-  ListOfEnrollmentsByCoursesQueryHandler : IRequestHandler<ListOfEnrollmentsByCoursesQuery, ErrorOr<List<Enrollment>>>
+  ListEnrollmentsByCoursesQueryHandler : IRequestHandler<ListEnrollmentsByCoursesQuery, ErrorOr<List<Enrollment>>>
 {
   private readonly ApplicationDbContext _dbContext;
 
-  public ListOfEnrollmentsByCoursesQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
+  public ListEnrollmentsByCoursesQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
-  public async Task<ErrorOr<List<Enrollment>>> Handle(ListOfEnrollmentsByCoursesQuery request,
+  public async Task<ErrorOr<List<Enrollment>>> Handle(ListEnrollmentsByCoursesQuery request,
     CancellationToken cancellationToken)
   {
     var query = _dbContext.Enrollments

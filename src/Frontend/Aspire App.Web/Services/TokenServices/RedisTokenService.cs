@@ -27,7 +27,7 @@ public class RedisTokenService : ITokenService
   public async Task SetAccessTokenAsync(string token, TimeSpan? expiration = null)
   {
     var userId = GetUserId();
-    DistributedCacheEntryOptions? options = new()
+    var options = new DistributedCacheEntryOptions()
     {
       AbsoluteExpirationRelativeToNow =
         expiration ?? TimeSpan.FromHours(1) // Default to 1 hour if no expiration is specified
@@ -46,7 +46,7 @@ public class RedisTokenService : ITokenService
   public async Task SetRefreshTokenAsync(string refreshToken, TimeSpan? expiration = null)
   {
     var userId = GetUserId();
-    DistributedCacheEntryOptions? options = new()
+    var options = new DistributedCacheEntryOptions()
     {
       AbsoluteExpirationRelativeToNow =
         expiration ?? TimeSpan.FromDays(30) // Set according to your refresh token policy

@@ -6,7 +6,7 @@ namespace Service.Enrollments.Entities;
 
 public static class EnrollmentExtensionMethods
 {
-  public static GrpcEnrollmentResponse ToGrpcEnrollmentResponse(this Enrollment enrollment) =>
+  public static GrpcEnrollmentResponse MapToGrpcEnrollmentResponse(this Enrollment enrollment) =>
     new()
     {
       Id = enrollment.Id,
@@ -17,6 +17,6 @@ public static class EnrollmentExtensionMethods
       EnrollmentDateTime = DateTime.SpecifyKind(enrollment.EnrollmentDateTime, DateTimeKind.Utc).ToTimestamp()
     };
 
-  public static GrpcListEnrollmentsResponse ToGrpcListEnrollmentsResponse(this List<Enrollment> enrollments) =>
-    new() { Items = { enrollments.Select(i => i.ToGrpcEnrollmentResponse()) } };
+  public static GrpcListEnrollmentsResponse MapToGrpcListEnrollmentsResponse(this List<Enrollment> enrollments) =>
+    new() { Items = { enrollments.Select(i => i.MapToGrpcEnrollmentResponse()) } };
 }

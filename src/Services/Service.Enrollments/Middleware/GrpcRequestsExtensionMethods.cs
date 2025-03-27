@@ -10,14 +10,14 @@ namespace Service.Enrollments.Middleware;
 public static class GrpcRequestsExtensionMethods
 {
   public static GetCourseEnrollmentsRequest
-    ToGetCourseEnrollmentsRequest(this GrpcGetCourseEnrollmentsRequest request) => new(request.CourseId);
+    MapToGetCourseEnrollmentsRequest(this GrpcGetCourseEnrollmentsRequest request) => new(request.CourseId);
 
-  public static ListOfEnrollmentsByCoursesQuery ToListOfEnrollmentsByCoursesQuery(
+  public static ListEnrollmentsByCoursesQuery MapToListOfEnrollmentsByCoursesQuery(
     this GrpcGetEnrollmentsByCoursesRequest request) => new(request.CourseIds.ToList(), request.StudentId);
 
-  public static EnrollStudentToCourseCommand ToEnrollStudentToCourseCommand(this GrpcEnrollStudentRequest request) =>
+  public static EnrollStudentToCourseCommand MapToEnrollStudentToCourseCommand(this GrpcEnrollStudentRequest request) =>
     new(request.CourseId, request.StudentId, request.StudentFirstName, request.StudentLastName);
 
   public static UnenrollStudentFromCourseCommand
-    ToGrpcDeleteEnrollmentRequest(this GrpcDeleteEnrollmentRequest command) => new(command.CourseId, command.StudentId);
+    MapToUnenrollStudentFromCourseCommand(this GrpcDeleteEnrollmentRequest command) => new(command.CourseId, command.StudentId);
 }

@@ -8,7 +8,7 @@ namespace Service.Students.Entities;
 
 public static class StudentExtensionMethods
 {
-  public static GrpcStudentResponse ToGrpcStudentResponse(this Student student) =>
+  public static GrpcStudentResponse MapToGrpcStudentResponse(this Student student) =>
     new()
     {
       Id = student.Id,
@@ -18,10 +18,10 @@ public static class StudentExtensionMethods
       Email = student.Email
     };
 
-  public static GrpcListStudentsResponse ToGrpcListStudentsResponse(this PagedList<Student> studentsResult) =>
+  public static GrpcListStudentsResponse MapToGrpcListStudentsResponse(this PagedList<Student> studentsResult) =>
     new()
     {
-      Items = { studentsResult.Items.Select(i => i.ToGrpcStudentResponse()) },
+      Items = { studentsResult.Items.Select(i => i.MapToGrpcStudentResponse()) },
       TotalCount = studentsResult.TotalCount,
       PageSize = studentsResult.PageSize,
       CurrentPage = studentsResult.CurrentPage,

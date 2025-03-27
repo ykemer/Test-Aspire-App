@@ -24,13 +24,13 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
     ServerCallContext context)
   {
     var output =
-      await _mediator.Send(request.ToCreateCourseCommand());
+      await _mediator.Send(request.MapToCreateCourseCommand());
 
     return output.Match(
       course =>
       {
         _logger.LogTrace("Course {CourseName} is being created", request.Name);
-        return course.ToGrpcCourseResponse();
+        return course.MapToGrpcCourseResponse();
       },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
@@ -38,7 +38,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> UpdateCourse(GrpcUpdateCourseRequest request,
     ServerCallContext context)
   {
-    var result = await _mediator.Send(request.ToUpdateCourseCommand());
+    var result = await _mediator.Send(request.MapToUpdateCourseCommand());
 
     return result.Match(
       _ => new GrpcUpdatedCourseResponse { Message = "Course updated successfully", Success = true },
@@ -48,7 +48,7 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   public override async Task<GrpcUpdatedCourseResponse> DeleteCourse(GrpcDeleteCourseRequest request,
     ServerCallContext context)
   {
-    var output = await _mediator.Send(request.ToDeleteCourseCommand());
+    var output = await _mediator.Send(request.MapToDeleteCourseCommand());
     return output.Match(
       _ => new GrpcUpdatedCourseResponse { Success = true, Message = "Course deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
@@ -58,15 +58,15 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
   {
     var output = await _mediator.Send(request.ToGetCourseQuery());
     return output.Match(
-      course => course.ToGrpcCourseResponse(),
+      course => course.MapToGrpcCourseResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 
   public override async Task<GrpcListCoursesResponse> ListCourses(GrpcListCoursesRequest request,
     ServerCallContext context)
   {
-    var output = await _mediator.Send(request.ToListCoursesRequest());
-    return output.Match(value => value.ToGrpcListCoursesResponse(),
+    var output = await _mediator.Send(request.MapToListCoursesRequest());
+    return output.Match(value => value.MapToGrpcListCoursesResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 }
