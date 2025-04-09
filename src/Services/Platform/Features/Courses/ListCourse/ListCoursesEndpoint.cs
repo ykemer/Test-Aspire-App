@@ -6,30 +6,24 @@ using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;
 
-using EnrollmentsGRPCClient;
-
 using FastEndpoints;
+
+using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
-using Platform.Services.User;
 
 namespace Platform.Features.Courses.ListCourse;
 
 public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedList<CourseListItemResponse>>>
 {
   private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
-  private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly IUserService _userService;
 
-  public ListCoursesEndpoint(IUserService userService, GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
+  public ListCoursesEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
     IGrpcRequestMiddleware grpcRequestMiddleware)
   {
-    _userService = userService;
     _coursesGrpcService = coursesGrpcService;
-    _enrollmentsGrpcService = enrollmentsGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
   }
 
@@ -42,11 +36,11 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     ResponseCache(60);
   }
 
+  [OutputCache(PolicyName = "CoursesCache")]
+
   public override async Task<ErrorOr<PagedList<CourseListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
-    var userId = _userService.GetUserId(User);
-
     var coursesRequest =
       _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(), cancellationToken: ct);
 
@@ -59,21 +53,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     }
 
     var courses = coursesResult.Value;
-    var fetchedCourseIds = courses.Items.Select(i => i.Id).ToList();
-    var enrollmentsRequest =
-      _enrollmentsGrpcService.GetEnrollmentsByCoursesAsync(
-        new GrpcGetEnrollmentsByCoursesRequest { CourseIds = { fetchedCourseIds }, StudentId = userId.ToString() },
-        cancellationToken: ct);
-
-    var enrollmentsResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
-    if (enrollmentsResult.IsError)
-    {
-      return enrollmentsResult.FirstError;
-    }
 
 
-    var enrollments = enrollmentsResult.Value;
-    return courses.ToCourseListItemResponse(enrollments);
-
+    return courses.ToCourseListItemResponse();
   }
 }

@@ -4,6 +4,8 @@ using CoursesGRPCClient;
 
 using FastEndpoints;
 
+using Microsoft.AspNetCore.OutputCaching;
+
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
 
@@ -28,6 +30,7 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
   }
 
 
+  [OutputCache(PolicyName = "CoursesCache")]
   public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(
     CancellationToken ct)
   {

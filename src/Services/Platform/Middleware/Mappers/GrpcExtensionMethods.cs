@@ -54,16 +54,13 @@ public static class GrpcExtensionMethods
       EnrollmentsCount = course.TotalStudents
     };
 
-  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course,
-    GrpcListEnrollmentsResponse withEnrollments) =>
+  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course
+  ) =>
     new()
     {
       Items = course.Items.Select(i => new CourseListItemResponse
       {
-        Id = Guid.Parse(i.Id),
-        Name = i.Name,
-        Description = i.Description,
-        EnrollmentsCount = withEnrollments.Items.Count(e => e.CourseId == i.Id)
+        Id = Guid.Parse(i.Id), Name = i.Name, Description = i.Description, EnrollmentsCount = i.TotalStudents
       }).ToList(),
       CurrentPage = course.CurrentPage,
       TotalPages = course.TotalPages,

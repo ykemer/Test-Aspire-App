@@ -19,9 +19,6 @@ public static class RequestsExtensionMethods
   public static GrpcCreateCourseRequest ToGrpcCreateCourseRequest(this CreateCourseRequest createCourseCommand) =>
     new() { Name = createCourseCommand.Name, Description = createCourseCommand.Description };
 
-  public static GrpcDeleteCourseRequest ToGrpcDeleteCourseRequest(this DeleteCourseRequest deleteCourseCommand) =>
-    new() { Id = deleteCourseCommand.Id.ToString() };
-
   public static GrpcListCoursesRequest ToGrpcGetEnrollmentsByCoursesRequest(this ListCoursesRequest request) =>
     new() { Page = request.PageNumber, PageSize = request.PageSize, Query = request.Query ?? "" };
 

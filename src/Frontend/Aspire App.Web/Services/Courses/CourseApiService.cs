@@ -20,7 +20,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task<PagedList<CourseListItemResponse>> GetCoursesListAsync(int page, int pageSize = 10,
     CancellationToken cancellationToken = default)
   {
-    JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
+    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
     var response =
       await _httpClient.GetAsync($"{CoursesUri}/list?page={page}&pageSize={pageSize}", cancellationToken);
@@ -36,7 +36,7 @@ public class CoursesApiService : ICoursesApiService
 
   public async Task<CourseResponse> GetCourse(Guid guid, CancellationToken cancellationToken = default)
   {
-    JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
+    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
     var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
 
@@ -51,7 +51,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task<List<EnrollmentResponse>> GetCourseEnrollments(Guid guid,
     CancellationToken cancellationToken = default)
   {
-    JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
+    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
     var response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
 
@@ -111,7 +111,7 @@ public class CoursesApiService : ICoursesApiService
   public async Task DeleteCourse(Guid id, CancellationToken cancellationToken = default)
   {
     var response =
-      await _httpClient.PostAsJsonAsync("/api/courses/delete", new DeleteCourseRequest(id), cancellationToken);
+      await _httpClient.DeleteAsync($"/api/courses/{id.ToString()}", cancellationToken);
     if (response.IsSuccessStatusCode)
     {
       return;

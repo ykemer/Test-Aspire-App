@@ -4,6 +4,8 @@ using CoursesGRPCClient;
 
 using FastEndpoints;
 
+using Microsoft.AspNetCore.OutputCaching;
+
 using Platform.Middleware.Grpc;
 using Platform.Middleware.Mappers;
 
@@ -14,12 +16,14 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
 {
   private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
+  private readonly IOutputCacheStore _outputCache;
 
   public UpdateCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware)
+    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache)
   {
     _coursesGrpcService = coursesGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
+    _outputCache = outputCache;
   }
 
   public override void Configure()
@@ -35,6 +39,7 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
       _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(), cancellationToken: ct);
 
     var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    await _outputCache.EvictByTagAsync("courses", ct);
     return output.Match<ErrorOr<Updated>>(
       _ => Result.Updated,
       error => error
