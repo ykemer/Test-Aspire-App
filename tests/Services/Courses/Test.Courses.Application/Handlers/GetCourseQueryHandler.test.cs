@@ -2,10 +2,9 @@
 
 using FizzWare.NBuilder;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Courses.Database;
 using Service.Courses.Entities;
@@ -17,14 +16,15 @@ public class GetCourseQueryHandlerTests
 {
   private ApplicationDbContext _dbContext;
   private GetCourseQueryHandler _queryHandler;
-  private Mock<ILogger<GetCourseQueryHandler>> _loggerMock;
+  private ILogger<GetCourseQueryHandler> _loggerMock;
+
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<GetCourseQueryHandler>>();
+    _loggerMock = Substitute.For<ILogger<GetCourseQueryHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _queryHandler = new GetCourseQueryHandler(_loggerMock.Object, _dbContext);
+    _queryHandler = new GetCourseQueryHandler(_loggerMock, _dbContext);
   }
 
   [TearDown]

@@ -1,7 +1,9 @@
 ﻿using FizzWare.NBuilder;
+
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Moq;
+
+using NSubstitute;
 
 using Service.Students.Database;
 using Service.Students.Entities;
@@ -12,7 +14,7 @@ namespace Test.Students.Application.Handlers;
 public class UpdateStudentEnrollmentsCountCommandHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<UpdateStudentEnrollmentsCountCommandHandler>> _loggerMock;
+  private ILogger<UpdateStudentEnrollmentsCountCommandHandler> _loggerMock;
   private UpdateStudentEnrollmentsCountCommandHandler _commandHandler;
 
   [SetUp]
@@ -22,8 +24,8 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
       .UseInMemoryDatabase(databaseName: "TestDatabase")
       .Options;
     _dbContext = new ApplicationDbContext(options);
-    _loggerMock = new Mock<ILogger<UpdateStudentEnrollmentsCountCommandHandler>>();
-    _commandHandler = new UpdateStudentEnrollmentsCountCommandHandler(_loggerMock.Object, _dbContext);
+    _loggerMock = Substitute.For<ILogger<UpdateStudentEnrollmentsCountCommandHandler>>();
+    _commandHandler = new UpdateStudentEnrollmentsCountCommandHandler(_loggerMock, _dbContext);
 
     // Clear the database before each test
     _dbContext.Students.RemoveRange(_dbContext.Students);
@@ -62,7 +64,8 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("student_service.update_student_enrollments_count.student_not_found"));
+    Assert.That(result.FirstError.Code,
+      Is.EqualTo("student_service.update_student_enrollments_count.student_not_found"));
   }
 
   [Test]
@@ -80,6 +83,7 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("student_service.update_student_enrollments_count.invalid_enrollments_count"));
+    Assert.That(result.FirstError.Code,
+      Is.EqualTo("student_service.update_student_enrollments_count.invalid_enrollments_count"));
   }
 }

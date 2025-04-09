@@ -5,7 +5,7 @@ using FizzWare.NBuilder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Courses.Database;
 using Service.Courses.Entities;
@@ -17,14 +17,14 @@ public class UpdateCourseCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
   private UpdateCourseCommandHandler _commandHandler;
-  private Mock<ILogger<UpdateCourseCommandHandler>> _loggerMock;
+  private ILogger<UpdateCourseCommandHandler> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<UpdateCourseCommandHandler>>();
-    _commandHandler = new UpdateCourseCommandHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = Substitute.For<ILogger<UpdateCourseCommandHandler>>();
+    _commandHandler = new UpdateCourseCommandHandler(_dbContext, _loggerMock);
   }
 
   [TearDown]
@@ -73,7 +73,8 @@ public class UpdateCourseCommandHandlerTests
 
     // Assert
     Assert.That(result.IsError, Is.False);
-    var updatedCourse = await _dbContext.Courses.AsNoTracking().FirstOrDefaultAsync(x => x.Id == existingCourse.Id, CancellationToken.None);
+    var updatedCourse = await _dbContext.Courses.AsNoTracking()
+      .FirstOrDefaultAsync(x => x.Id == existingCourse.Id, CancellationToken.None);
     Assert.That(updatedCourse?.Name, Is.EqualTo("New Name"));
     Assert.That(updatedCourse.Description, Is.EqualTo("New Description"));
   }

@@ -3,7 +3,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Students.Database;
 using Service.Students.Entities;
@@ -16,15 +16,15 @@ namespace Test.Students.Application.Handlers;
 public class CreateStudentCommandHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<CreateStudentCommandHandler>> _loggerMock;
+  private ILogger<CreateStudentCommandHandler> _loggerMock;
   private CreateStudentCommandHandler _commandHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<CreateStudentCommandHandler>>();
-    _commandHandler = new CreateStudentCommandHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = Substitute.For<ILogger<CreateStudentCommandHandler>>();
+    _commandHandler = new CreateStudentCommandHandler(_dbContext, _loggerMock);
   }
 
   [TearDown]

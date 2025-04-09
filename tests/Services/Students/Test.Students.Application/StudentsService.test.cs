@@ -10,7 +10,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Students.Entities;
 using Service.Students.Features;
@@ -25,16 +25,18 @@ namespace Test.Students.Application;
 [TestFixture]
 public class StudentsServiceTests
 {
-  private Mock<IMediator> _mediatorMock;
-  private Mock<ILogger<StudentsService>> _loggerMock;
+  private IMediator _mediatorMock;
+  private ILogger<StudentsService> _loggerMock;
   private StudentsService _studentsService;
+  private ServerCallContext _context;
 
   [SetUp]
   public void Setup()
   {
-    _mediatorMock = new Mock<IMediator>();
-    _loggerMock = new Mock<ILogger<StudentsService>>();
-    _studentsService = new StudentsService(_loggerMock.Object, _mediatorMock.Object);
+    _mediatorMock = Substitute.For<IMediator>();
+    _loggerMock = Substitute.For<ILogger<StudentsService>>();
+    _studentsService = new StudentsService(_loggerMock, _mediatorMock);
+    _context = Substitute.For<ServerCallContext>();
   }
 
   [Test]
@@ -45,17 +47,32 @@ public class StudentsServiceTests
       .Build();
 
     var request = new GrpcGetStudentByIdRequest { Id = student.Id };
-    var serverCallContext = Mock.Of<ServerCallContext>();
+
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), CancellationToken.None))
-      .ReturnsAsync(student);
+      .Send(Arg.Any<GetStudentQuery>(), Arg.Any<CancellationToken>())
+      .Returns(student);
 
     // Act
-    var response = await _studentsService.GetStudentById(request, serverCallContext);
+    var response = await _studentsService.GetStudentById(request, _context);
 
     // Assert
     Assert.That(response.Id, Is.EqualTo(student.Id));
+  }
+
+  [Test]
+  public void GetStudentById_ErrorCase_ThrowsRpcException()
+  {
+    // Arrange
+    var error = Error.NotFound(description: "Student not found");
+    var request = new GrpcGetStudentByIdRequest { Id = Guid.NewGuid().ToString() };
+
+    _mediatorMock
+      .Send(Arg.Any<GetStudentQuery>(), Arg.Any<CancellationToken>())
+      .Returns(error);
+
+    // Act & Assert
+    Assert.ThrowsAsync<RpcException>(() => _studentsService.GetStudentById(request, _context));
   }
 
   [Test]
@@ -69,17 +86,31 @@ public class StudentsServiceTests
 
     var pagedList = new PagedList<Student>(students, students.Count, 1, 5);
     var request = new GrpcListStudentsRequest { Page = 1, PageSize = 5 };
-    var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<ListStudentsQuery>(), CancellationToken.None))
-      .ReturnsAsync(pagedList);
+      .Send(Arg.Any<ListStudentsQuery>(), Arg.Any<CancellationToken>())
+      .Returns(pagedList);
 
     // Act
-    var response = await _studentsService.ListStudents(request, serverCallContext);
+    var response = await _studentsService.ListStudents(request, _context);
 
     // Assert
     Assert.That(response.Items, Has.Count.EqualTo(5));
+  }
+
+  [Test]
+  public void ListStudents_ErrorCase_ThrowsRpcException()
+  {
+    // Arrange
+    var error = Error.Failure(description: "Failed to retrieve students");
+    var request = new GrpcListStudentsRequest { Page = 1, PageSize = 5 };
+
+    _mediatorMock
+      .Send(Arg.Any<ListStudentsQuery>(), Arg.Any<CancellationToken>())
+      .Returns(error);
+
+    // Act & Assert
+    Assert.ThrowsAsync<RpcException>(() => _studentsService.ListStudents(request, _context));
   }
 
   [Test]
@@ -88,14 +119,13 @@ public class StudentsServiceTests
     // Arrange
     var studentId = Guid.NewGuid();
     var request = new GrpcDeleteStudentRequest { Id = studentId.ToString() };
-    var serverCallContext = Mock.Of<ServerCallContext>();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<DeleteStudentCommand>(), CancellationToken.None))
-      .ReturnsAsync(Result.Deleted);
+      .Send(Arg.Any<DeleteStudentCommand>(), Arg.Any<CancellationToken>())
+      .Returns(Result.Deleted);
 
     // Act
-    var response = await _studentsService.DeleteStudent(request, serverCallContext);
+    var response = await _studentsService.DeleteStudent(request, _context);
 
     // Assert
     Assert.That(response.Updated, Is.True);
@@ -103,18 +133,17 @@ public class StudentsServiceTests
   }
 
   [Test]
-  public void GetStudentById_ErrorCase_ThrowsRpcException()
+  public void DeleteStudent_ErrorCase_ThrowsRpcException()
   {
     // Arrange
     var error = Error.NotFound(description: "Student not found");
-    var request = new GrpcGetStudentByIdRequest { Id = Guid.NewGuid().ToString() };
-    var serverCallContext = Mock.Of<ServerCallContext>();
+    var request = new GrpcDeleteStudentRequest { Id = Guid.NewGuid().ToString() };
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetStudentQuery>(), CancellationToken.None))
-      .ReturnsAsync(error);
+      .Send(Arg.Any<DeleteStudentCommand>(), Arg.Any<CancellationToken>())
+      .Returns(error);
 
     // Act & Assert
-    Assert.ThrowsAsync<RpcException>(() => _studentsService.GetStudentById(request, serverCallContext));
+    Assert.ThrowsAsync<RpcException>(() => _studentsService.DeleteStudent(request, _context));
   }
 }

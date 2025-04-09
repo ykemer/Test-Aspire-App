@@ -1,11 +1,13 @@
 ﻿using FizzWare.NBuilder;
 
 using Microsoft.Extensions.Logging;
-using Moq;
+
+using NSubstitute;
 
 using Service.Students.Database;
 using Service.Students.Entities;
 using Service.Students.Features.GetStudent;
+
 using Test.Students.Application.Setup;
 
 namespace Test.Students.Application.Handlers;
@@ -13,15 +15,15 @@ namespace Test.Students.Application.Handlers;
 public class GetStudentQueryHandlerTest
 {
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<GetStudentQueryHandler>> _loggerMock;
+  private ILogger<GetStudentQueryHandler> _loggerMock;
   private GetStudentQueryHandler _queryHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<GetStudentQueryHandler>>();
-    _queryHandler = new GetStudentQueryHandler(_dbContext, _loggerMock.Object);
+    _loggerMock = Substitute.For<ILogger<GetStudentQueryHandler>>();
+    _queryHandler = new GetStudentQueryHandler(_dbContext, _loggerMock);
   }
 
   [TearDown]
@@ -44,7 +46,6 @@ public class GetStudentQueryHandlerTest
     Assert.That(result.IsError, Is.False);
     Assert.That(result.Value, Is.InstanceOf<Student>());
     Assert.That(result.Value.GetHashCode(), Is.EqualTo(existingStudent.GetHashCode()));
-
   }
 
   [Test]

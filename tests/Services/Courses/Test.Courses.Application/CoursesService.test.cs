@@ -12,7 +12,7 @@ using MediatR;
 
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Courses.Entities;
 using Service.Courses.Features.Courses;
@@ -30,15 +30,15 @@ public class CoursesServiceTests
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<CoursesService>>();
-    _mediatorMock = new Mock<IMediator>();
-    _coursesService = new CoursesService(_loggerMock.Object, _mediatorMock.Object);
-    _context = new Mock<ServerCallContext>().Object;
+    _loggerMock = Substitute.For<ILogger<CoursesService>>();
+    _mediatorMock = Substitute.For<IMediator>();
+    _coursesService = new CoursesService(_loggerMock, _mediatorMock);
+    _context = Substitute.For<ServerCallContext>();
     _testError = Error.Unexpected("Test error message");
   }
 
-  private Mock<ILogger<CoursesService>> _loggerMock;
-  private Mock<IMediator> _mediatorMock;
+  private ILogger<CoursesService> _loggerMock;
+  private IMediator _mediatorMock;
   private CoursesService _coursesService;
   private ServerCallContext _context;
   private Error _testError;
@@ -60,8 +60,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<CreateCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(course);
+      .Send(Arg.Any<CreateCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(course);
 
     // Act
     var response = await _coursesService.CreateCourse(request, _context);
@@ -86,8 +86,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<CreateCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(_testError);
+      .Send(Arg.Any<CreateCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
@@ -107,8 +107,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<UpdateCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Result.Updated);
+      .Send(Arg.Any<UpdateCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(Result.Updated);
 
     // Act
     var response = await _coursesService.UpdateCourse(request, _context);
@@ -131,8 +131,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<UpdateCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(_testError);
+      .Send(Arg.Any<UpdateCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
@@ -152,8 +152,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<DeleteCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(Result.Deleted);
+      .Send(Arg.Any<DeleteCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(Result.Deleted);
 
     // Act
     var response = await _coursesService.DeleteCourse(request, _context);
@@ -176,8 +176,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<DeleteCourseCommand>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(_testError);
+      .Send(Arg.Any<DeleteCourseCommand>(), Arg.Any<CancellationToken>())
+      .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
@@ -201,8 +201,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetCourseQuery>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(course);
+      .Send(Arg.Any<GetCourseQuery>(), Arg.Any<CancellationToken>())
+      .Returns(course);
 
     // Act
     var response = await _coursesService.GetCourse(request, _context);
@@ -227,8 +227,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<GetCourseQuery>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(_testError);
+      .Send(Arg.Any<GetCourseQuery>(), Arg.Any<CancellationToken>())
+      .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
@@ -249,8 +249,8 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<ListCoursesRequest>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(PagedList<Course>.Create(courses, 1, 10));
+      .Send(Arg.Any<ListCoursesRequest>(), Arg.Any<CancellationToken>())
+      .Returns(PagedList<Course>.Create(courses, 1, 10));
 
     // Act
     var response = await _coursesService.ListCourses(request, _context);
@@ -272,8 +272,8 @@ public class CoursesServiceTests
     GrpcListCoursesRequest? request = new();
 
     _mediatorMock
-      .Setup(m => m.Send(It.IsAny<ListCoursesRequest>(), It.IsAny<CancellationToken>()))
-      .ReturnsAsync(_testError);
+      .Send(Arg.Any<ListCoursesRequest>(), Arg.Any<CancellationToken>())
+      .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>

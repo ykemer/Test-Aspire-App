@@ -2,10 +2,9 @@
 
 using FizzWare.NBuilder;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Courses.Database;
 using Service.Courses.Entities;
@@ -17,14 +16,14 @@ public class UpdateNumberOfEnrolledStudentsCommandHandlerTests
 {
   private ApplicationDbContext _dbContext;
   private UpdateNumberOfEnrolledStudentsCommandHandler _commandHandler;
-  private Mock<ILogger<UpdateNumberOfEnrolledStudentsCommandHandler>> _loggerMock;
+  private ILogger<UpdateNumberOfEnrolledStudentsCommandHandler> _loggerMock;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = new Mock<ILogger<UpdateNumberOfEnrolledStudentsCommandHandler>>();
+    _loggerMock = Substitute.For<ILogger<UpdateNumberOfEnrolledStudentsCommandHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _commandHandler = new UpdateNumberOfEnrolledStudentsCommandHandler(_loggerMock.Object, _dbContext);
+    _commandHandler = new UpdateNumberOfEnrolledStudentsCommandHandler(_loggerMock, _dbContext);
   }
 
   [TearDown]
@@ -102,6 +101,7 @@ public class UpdateNumberOfEnrolledStudentsCommandHandlerTests
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("course_service.update_course_enrollments_count.invalid_enrollments_count"));
+    Assert.That(result.FirstError.Code,
+      Is.EqualTo("course_service.update_course_enrollments_count.invalid_enrollments_count"));
   }
 }

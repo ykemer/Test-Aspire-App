@@ -7,7 +7,7 @@ using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using Moq;
+using NSubstitute;
 
 using Service.Students.Database;
 using Service.Students.Entities;
@@ -19,19 +19,18 @@ namespace Test.Students.Application.Handlers;
 
 public class DeleteStudentCommandHandlerTest
 {
-
   private ApplicationDbContext _dbContext;
-  private Mock<ILogger<DeleteStudentCommandHandler>> _loggerMock;
-  private Mock<IPublishEndpoint> _publishEndpointMock;
+  private ILogger<DeleteStudentCommandHandler> _loggerMock;
+  private IPublishEndpoint _publishEndpointMock;
   private DeleteStudentCommandHandler _commandHandler;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = new Mock<ILogger<DeleteStudentCommandHandler>>();
-    _publishEndpointMock = new Mock<IPublishEndpoint>();
-    _commandHandler = new DeleteStudentCommandHandler(_dbContext, _loggerMock.Object, _publishEndpointMock.Object);
+    _loggerMock = Substitute.For<ILogger<DeleteStudentCommandHandler>>();
+    _publishEndpointMock = Substitute.For<IPublishEndpoint>();
+    _commandHandler = new DeleteStudentCommandHandler(_dbContext, _loggerMock, _publishEndpointMock);
   }
 
   [TearDown]
@@ -53,7 +52,8 @@ public class DeleteStudentCommandHandlerTest
     // Assert
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Students.CountAsync(), Is.EqualTo(0));
-    _publishEndpointMock.Verify(p => p.Publish(It.IsAny<StudentDeletedEvent>(), It.IsAny<CancellationToken>()), Times.Once);
+    await _publishEndpointMock.Received(1).Publish(
+      Arg.Any<StudentDeletedEvent>(), Arg.Any<CancellationToken>());
   }
 
   [Test]
