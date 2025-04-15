@@ -5,11 +5,11 @@
     <ProjectReference Include="..\..\Infrastructure\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.1.0" />
-    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.1.0" />
-    <PackageReference Include="FastEndpoints" Version="5.35.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.3" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.7.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.2.0" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="9.2.0" />
+    <PackageReference Include="FastEndpoints" Version="6.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.8.0" />
   </ItemGroup>
 
 </Project>
