@@ -29,7 +29,7 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
 
   public override void Configure()
   {
-    Get("/api/courses/list");
+    Get("/api/courses");
     Policies("RequireUserRole");
     Claims("UserId");
     Claims(ClaimTypes.Role);

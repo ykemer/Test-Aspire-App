@@ -28,7 +28,7 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
 
   public override void Configure()
   {
-    Get("/api/courses/enrollments/{CourseId}");
+    Get("/api/courses/{CourseId}/enrollments");
     Policies("RequireAdministratorRole");
   }
 

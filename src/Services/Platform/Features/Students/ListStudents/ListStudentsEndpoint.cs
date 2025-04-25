@@ -25,7 +25,7 @@ public class ListStudentsEndpoint : Endpoint<ListStudentsRequest, ErrorOr<PagedL
 
   public override void Configure()
   {
-    Get("/api/students/list");
+    Get("/api/students");
     Policies("RequireAdministratorRole");
   }
 
