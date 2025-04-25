@@ -3,12 +3,12 @@
     <Protobuf Include="Protos\courses.proto" GrpcServices="Server"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.2.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.0" />
-    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.2.0" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.2.0" />
+    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.2.1" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.2.1" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.2.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.2.1" />
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
-    <PackageReference Include="Grpc.AspNetCore" Version="2.70.0" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="MassTransit" Version="8.4.0" />
     <PackageReference Include="MassTransit.Kafka" Version="8.4.0" />
     <PackageReference Include="MediatR" Version="12.5.0" />
