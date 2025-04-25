@@ -27,6 +27,7 @@ builder.Services.AddGrpcServices();
 builder.Services.AddAuthServices();
 builder.Services.AddMassTransitServices();
 builder.Services.AddApiServices();
+builder.Services.AddCaching();
 
 var app = builder.Build();
 
@@ -34,6 +35,8 @@ app.UseAuthentication()
   .UseAuthorization();
 
 app.UseDefaultExceptionHandler()
+  .UseOutputCache()
+  .UseResponseCaching()
   .UseFastEndpoints(options =>
   {
     options.Errors.UseProblemDetails();
@@ -56,7 +59,6 @@ app.UseDefaultExceptionHandler()
         }
       };
   })
-  .UseResponseCaching()
   .UseSwaggerGen();
 
 if (app.Environment.IsDevelopment())

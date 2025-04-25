@@ -148,11 +148,27 @@ public static class DependencyInjection
       {
         o.DocumentSettings = s =>
         {
-          s.Title = "My API";
+          s.Title = "Students API";
           s.Version = "v1";
         };
       });
 
+    return services;
+  }
+
+  public static IServiceCollection AddCaching(this IServiceCollection services)
+  {
+    services.AddResponseCaching(); // client side caching
+    services.AddOutputCache(x =>
+    {
+      x.AddBasePolicy(c => c.Cache());
+      x.AddPolicy("CoursesCache", c =>
+        c.Cache()
+          .Expire(TimeSpan.FromMinutes(5))
+          .SetVaryByQuery(["pageNumber", "pageSize"])
+          .Tag("courses")
+      );
+    });
     return services;
   }
 }
