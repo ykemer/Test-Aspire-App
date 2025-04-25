@@ -18,7 +18,7 @@ public class StudentApiService : IStudentApiService
     JsonSerializerOptions? options = new() { PropertyNameCaseInsensitive = true };
 
     var response =
-      await _httpClient.GetAsync($"/api/students/list?page={page}&pageSize={pageSize}", cancellationToken);
+      await _httpClient.GetAsync($"/api/students?page={page}&pageSize={pageSize}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
     {

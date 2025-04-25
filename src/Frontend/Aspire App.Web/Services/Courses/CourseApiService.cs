@@ -23,7 +23,7 @@ public class CoursesApiService : ICoursesApiService
     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
     var response =
-      await _httpClient.GetAsync($"{CoursesUri}/list?page={page}&pageSize={pageSize}", cancellationToken);
+      await _httpClient.GetAsync($"{CoursesUri}?page={page}&pageSize={pageSize}", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
     {
@@ -53,7 +53,7 @@ public class CoursesApiService : ICoursesApiService
   {
     var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
 
-    var response = await _httpClient.GetAsync($"/api/courses/enrollments/{guid}", cancellationToken);
+    var response = await _httpClient.GetAsync($"/api/courses/{guid}/enrollments", cancellationToken);
 
     if (!response.IsSuccessStatusCode)
     {
