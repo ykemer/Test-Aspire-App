@@ -23,7 +23,7 @@ public class EnrollStudentToCourseCommandHandler : IRequestHandler<EnrollStudent
     _publishEndpoint = publishEndpoint;
   }
 
-  public async Task<ErrorOr<Created>> Handle(EnrollStudentToCourseCommand command, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Created>> Handle(EnrollStudentToCourseCommand command, CancellationToken cancellationToken)
   {
     var existingEnrollment = await _dbContext.Enrollments
       .FirstOrDefaultAsync(e => e.CourseId == command.CourseId && e.StudentId == command.StudentId, cancellationToken);

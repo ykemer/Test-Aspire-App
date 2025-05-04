@@ -8,11 +8,11 @@ public static class DependencyInjection
   {
     services.AddGrpc();
     services.AddScoped<ApplicationDbContextInitializer>();
-    services.AddMediatR(options =>
+    services.AddMediator(options =>
     {
-      options.RegisterServicesFromAssemblyContaining(typeof(DependencyInjection));
-      options.AddOpenRequestPostProcessor(typeof(LoggingBehaviour<,>));
-      options.AutoRegisterRequestProcessors = false;
+      options.ServiceLifetime = ServiceLifetime.Scoped;
+      options.Assemblies = [typeof(DependencyInjection)];
+      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>)];
     });
 
     return services;

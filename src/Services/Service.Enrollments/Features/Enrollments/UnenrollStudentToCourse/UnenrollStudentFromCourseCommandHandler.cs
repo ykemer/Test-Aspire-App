@@ -17,7 +17,7 @@ public class UnenrollStudentFromCourseCommandHandler
     _dbContext = dbContext;
   }
 
-  public async Task<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
+  public async ValueTask<ErrorOr<Deleted>> Handle(UnenrollStudentFromCourseCommand command,
     CancellationToken cancellationToken)
   {
     var existingEnrollment = await _dbContext.Enrollments

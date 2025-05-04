@@ -8,7 +8,7 @@ public class GetCourseEnrollmentsRequestHandler : IRequestHandler<GetCourseEnrol
 
   public GetCourseEnrollmentsRequestHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
-  public async Task<ErrorOr<List<Enrollment>>> Handle(GetCourseEnrollmentsRequest request,
+  public async ValueTask<ErrorOr<List<Enrollment>>> Handle(GetCourseEnrollmentsRequest request,
     CancellationToken cancellationToken)
   {
     var enrollments = await _dbContext.Enrollments

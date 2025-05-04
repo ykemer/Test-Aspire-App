@@ -9,7 +9,7 @@ public class
 
   public ListEnrollmentsByCoursesQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
-  public async Task<ErrorOr<List<Enrollment>>> Handle(ListEnrollmentsByCoursesQuery request,
+  public async ValueTask<ErrorOr<List<Enrollment>>> Handle(ListEnrollmentsByCoursesQuery request,
     CancellationToken cancellationToken)
   {
     var query = _dbContext.Enrollments

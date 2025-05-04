@@ -18,7 +18,7 @@ public class DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEn
     _publishEndpoint = publishEndpoint;
   }
 
-  public async Task<ErrorOr<Deleted>> Handle(DeleteEnrollmentsByStudentCommand request,
+  public async ValueTask<ErrorOr<Deleted>> Handle(DeleteEnrollmentsByStudentCommand request,
     CancellationToken cancellationToken)
   {
     var events = await _dbContext.Enrollments
