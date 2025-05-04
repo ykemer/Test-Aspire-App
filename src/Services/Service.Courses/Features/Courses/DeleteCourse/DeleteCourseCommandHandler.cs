@@ -18,7 +18,7 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, E
     _publishEndpoint = publishEndpoint;
   }
 
-  public async Task<ErrorOr<Deleted>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Deleted>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
   {
     var course = await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
     if (course == null)
@@ -30,7 +30,7 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, E
 
     _dbContext.Courses.Remove(course);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _publishEndpoint.Publish(new CourseDeletedEvent { CourseId = course.Id });
+    await _publishEndpoint.Publish(new CourseDeletedEvent { CourseId = course.Id }, cancellationToken);
     _logger.Log(LogLevel.Information, "Course with id {RequestId} was deleted", request.Id);
     return Result.Deleted;
   }

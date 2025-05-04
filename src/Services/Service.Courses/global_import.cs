@@ -1,6 +1,6 @@
 ﻿global using ErrorOr;
 
-global using MediatR;
+global using Mediator;
 
 global using Microsoft.EntityFrameworkCore;
 

@@ -11,7 +11,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, E
     _logger = logger;
   }
 
-  public async Task<ErrorOr<Updated>> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Updated>> Handle(UpdateCourseCommand request, CancellationToken cancellationToken)
   {
     var existingCourse = await _dbContext.Courses.FindAsync(request.Id, cancellationToken);
     if (existingCourse is null)

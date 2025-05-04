@@ -13,7 +13,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, E
     _logger = logger;
   }
 
-  public async Task<ErrorOr<Course>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Course>> Handle(CreateCourseCommand request, CancellationToken cancellationToken)
   {
     var existingCourse =
       await _dbContext.Courses.FirstOrDefaultAsync(course => course.Name.ToLower() == request.Name.ToLower(),

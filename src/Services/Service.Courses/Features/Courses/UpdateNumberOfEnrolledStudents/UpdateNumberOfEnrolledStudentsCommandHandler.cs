@@ -13,7 +13,7 @@ public class
     _dbContext = dbContext;
   }
 
-  public async Task<ErrorOr<Updated>> Handle(UpdateNumberOfEnrolledStudentsCommand request,
+  public async ValueTask<ErrorOr<Updated>> Handle(UpdateNumberOfEnrolledStudentsCommand request,
     CancellationToken cancellationToken)
   {
     var existingCourse = await _dbContext.Courses

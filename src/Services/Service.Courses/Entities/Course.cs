@@ -8,7 +8,7 @@ public class Course
 
   [Required] public string Name { get; set; }
 
-  [Required] public string Description { get; set; }
+  [Required] public required string Description { get; set; }
 
   [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

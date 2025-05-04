@@ -10,7 +10,7 @@ public class ListCoursesRequestHandler : IRequestHandler<ListCoursesRequest, Err
 
   public ListCoursesRequestHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
-  public Task<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
+  public ValueTask<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
   {
     var query = _dbContext.Courses.AsQueryable();
     if (!string.IsNullOrWhiteSpace(request.Query))
@@ -31,6 +31,6 @@ public class ListCoursesRequestHandler : IRequestHandler<ListCoursesRequest, Err
 
 
     var output = PagedList<Course>.Create(query, request.PageNumber, request.PageSize);
-    return Task.FromResult<ErrorOr<PagedList<Course>>>(output);
+    return ValueTask.FromResult<ErrorOr<PagedList<Course>>>(output);
   }
 }

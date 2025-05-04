@@ -13,7 +13,7 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, ErrorOr<Cou
     _dbContext = dbContext;
   }
 
-  public async Task<ErrorOr<Course>> Handle(GetCourseQuery request, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Course>> Handle(GetCourseQuery request, CancellationToken cancellationToken)
   {
     var course = await _dbContext.Courses.AsNoTracking().FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
     if (course != null)
