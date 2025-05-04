@@ -8,7 +8,7 @@ using FizzWare.NBuilder;
 
 using Grpc.Core;
 
-using MediatR;
+using Mediator;
 
 using Microsoft.Extensions.Logging;
 
