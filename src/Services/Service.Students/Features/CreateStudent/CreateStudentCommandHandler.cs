@@ -13,7 +13,7 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
     _logger = logger;
   }
 
-  public async Task<ErrorOr<Created>> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
+  public async ValueTask<ErrorOr<Created>> Handle(CreateStudentCommand request, CancellationToken cancellationToken)
   {
     var existingStudent =
       await _dbContext.Students.FirstOrDefaultAsync(s => s.Email == request.Email, cancellationToken);

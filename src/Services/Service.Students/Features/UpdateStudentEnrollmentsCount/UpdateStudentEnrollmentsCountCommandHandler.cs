@@ -13,7 +13,7 @@ public class
     _dbContext = dbContext;
   }
 
-  public async Task<ErrorOr<Updated>> Handle(UpdateStudentEnrollmentsCountCommand request,
+  public async ValueTask<ErrorOr<Updated>> Handle(UpdateStudentEnrollmentsCountCommand request,
     CancellationToken cancellationToken)
   {
     _logger.LogInformation("Updating student {StudentId} enrollments count", request.StudentId);

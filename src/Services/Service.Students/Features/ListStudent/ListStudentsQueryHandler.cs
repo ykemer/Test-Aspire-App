@@ -10,10 +10,10 @@ public class ListStudentsQueryHandler : IRequestHandler<ListStudentsQuery, Error
 
   public ListStudentsQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
-  public Task<ErrorOr<PagedList<Student>>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
+  public ValueTask<ErrorOr<PagedList<Student>>> Handle(ListStudentsQuery request, CancellationToken cancellationToken)
   {
-    var students = _dbContext.Students.AsNoTracking().AsQueryable();
+    var students = _dbContext.Students.AsNoTracking().OrderBy(student => student.Id).AsQueryable();
     var pagedStudents = PagedList<Student>.Create(students, request.PageNumber, request.PageSize);
-    return Task.FromResult<ErrorOr<PagedList<Student>>>(pagedStudents);
+    return ValueTask.FromResult<ErrorOr<PagedList<Student>>>(pagedStudents);
   }
 }
