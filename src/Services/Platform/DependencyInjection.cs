@@ -40,6 +40,11 @@ public static class DependencyInjection
 
     services.AddMassTransit(configure =>
     {
+      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+      {
+        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+        o.UsePostgres();
+      });
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
 
@@ -58,8 +63,6 @@ public static class DependencyInjection
         var connectionString = configService.GetConnectionString("messaging");
 
         cfg.Host(connectionString);
-        cfg.UseInMemoryOutbox(context);
-
         cfg.ReceiveEndpoint("queue-platform", e =>
         {
           e.ConfigureConsumers(context);

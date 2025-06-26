@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
-using Platform.AsyncDataServices;
 using Platform.AsyncDataServices.StateMachines;
 using Platform.Entities;
 
@@ -19,6 +18,11 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
     builder.Entity<StudentEnrollmentsState>().HasIndex(x => x.CorrelationId);
     builder.Entity<StudentEnrollmentsState>().HasKey(x => x.EventId);
+    
+    
+    builder.AddInboxStateEntity();
+    builder.AddOutboxMessageEntity();
+    builder.AddOutboxStateEntity();
   }
 
   public DbSet<StudentEnrollmentsState> StudentEnrollmentStates { get; set; }
