@@ -1,30 +1,32 @@
+using Aspire_App.AppHost;
+
 using Projects;
+
+DotEnv.Load();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder.AddRedis("cache");
 
 #region Databases
+
 var postgres =
-  builder.AddPostgres("postgres").WithDataBindMount(@"C:\Volumes\postgres").WithPgWeb().WithPgAdmin();
+  builder.AddPostgres("postgres").WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUMES")}postgres")
+    .WithPgWeb().WithPgAdmin();
 
 // To avoid resource consumption, we add databases to a single postgres instance
 var mainDb = postgres.AddDatabase("mainDb");
 var coursesDb = postgres.AddDatabase("coursesDb");
 var enrollmentsDb = postgres.AddDatabase("enrollmentsDb");
 var studentsDb = postgres.AddDatabase("studentsDb");
+
 #endregion
 
 var rabbitmq = builder
   .AddRabbitMQ("messaging")
-  .WithDataBindMount(@"C:\Volumes\RabbitMQ")
+  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUMES")}RabbitMQ")
   .WithManagementPlugin();
 
-
-// var kafka = builder
-//   .AddKafka("kafka")
-//   .WithDataBindMount(@"C:\Volumes\kafka")
-//   .WithKafkaUI();
 
 #region main services
 
@@ -67,7 +69,7 @@ var platformService = builder
   .WithReference(studentsService)
   .WithHttpsEndpoint();
 
-builder.AddProject<Aspire_App_Web>("webfrontend")
+builder.AddProject<Aspire_App_Web>("webFrontend")
   .WithExternalHttpEndpoints()
   .WithReference(cache)
   .WithReference(platformService)
