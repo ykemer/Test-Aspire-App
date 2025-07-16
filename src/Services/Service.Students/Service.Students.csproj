@@ -9,9 +9,9 @@
     <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.3.1" />
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
-    <PackageReference Include="MassTransit" Version="8.5.0" />
-    <PackageReference Include="MassTransit.Kafka" Version="8.5.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+    <PackageReference Include="MassTransit" Version="8.5.1" />
+    <PackageReference Include="MassTransit.Kafka" Version="8.5.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.7">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
