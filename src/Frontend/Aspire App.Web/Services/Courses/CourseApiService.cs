@@ -74,7 +74,7 @@ public class CoursesApiService : ICoursesApiService
 
   public async Task LeaveCourse(Guid courseId, CancellationToken cancellationToken = default)
   {
-    var response = await _httpClient.PostAsJsonAsync("/api/courses/leave",
+    var response = await _httpClient.PostAsJsonAsync("/api/courses/unenroll",
       new ChangeCourseEnrollmentRequest { CourseId = courseId }, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
