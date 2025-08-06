@@ -7,6 +7,7 @@ using Library.Auth;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
+using Platform.Database;
 using Platform.Entities;
 using Platform.Services.JWT;
 
@@ -16,11 +17,14 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
 {
   private readonly IJwtService _jwtService;
   private readonly SignInManager<ApplicationUser> _signInManager;
+  private readonly ApplicationDbContext _db;
 
-  public UserLoginEndpoint(SignInManager<ApplicationUser> signInManager, IJwtService jwtService)
+  public UserLoginEndpoint(SignInManager<ApplicationUser> signInManager, IJwtService jwtService,
+    ApplicationDbContext db)
   {
     _signInManager = signInManager;
     _jwtService = jwtService;
+    _db = db;
   }
 
   public override void Configure()
@@ -42,15 +46,18 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
 
     var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
-    user.RefreshToken = Generators.GenerateToken();
-    user.RefreshTokenExpiry = DateTime.Now.AddMonths(1);
+    var refreshToken = new RefreshToken
+    {
+      Token = Generators.GenerateToken(), ExpiresAt = DateTime.Now.AddDays(7), UserId = user.Id
+    };
+
     await _signInManager.UserManager.UpdateAsync(user);
+    await _db.RefreshTokens.AddAsync(refreshToken, ct);
+    await _db.SaveChangesAsync(ct);
 
     return new AccessTokenResponse
     {
-      AccessToken = jwtTokenResponse.AccessToken,
-      ExpiresIn = jwtTokenResponse.ExpiresIn,
-      RefreshToken = user.RefreshToken ?? ""
+      AccessToken = jwtTokenResponse.AccessToken, ExpiresIn = jwtTokenResponse.ExpiresIn, RefreshToken = refreshToken.Token
     };
   }
 }

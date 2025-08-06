@@ -9,6 +9,7 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
+using Platform.Database;
 using Platform.Entities;
 using Platform.Middleware.Mappers;
 using Platform.Services.JWT;
@@ -21,14 +22,16 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   private readonly ILogger<UserRegisterEndpoint> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
   private readonly UserManager<ApplicationUser> _userManager;
+  private readonly ApplicationDbContext _db;
 
   public UserRegisterEndpoint(UserManager<ApplicationUser> signInManager, ILogger<UserRegisterEndpoint> logger,
-    IJwtService jwtService, IPublishEndpoint publishEndpoint)
+    IJwtService jwtService, IPublishEndpoint publishEndpoint, ApplicationDbContext db)
   {
     _userManager = signInManager;
     _logger = logger;
     _jwtService = jwtService;
     _publishEndpoint = publishEndpoint;
+    _db = db;
   }
 
   public override void Configure()
@@ -47,10 +50,7 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
       return Error.Conflict(description: "User already exists");
     }
 
-
-    var refreshToken = Generators.GenerateToken();
     var result = await _userManager.CreateAsync(request.ToApplicationUser(), request.Password);
-
 
     if (!result.Succeeded)
     {
@@ -69,9 +69,18 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
     _logger.LogInformation("User {UserName} registered", user.UserName);
     var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 
+    var refreshToken = new RefreshToken
+    {
+      Token = Generators.GenerateToken(), ExpiresAt = DateTime.Now.AddDays(7), UserId = user.Id
+    };
+
+    await _db.RefreshTokens.AddAsync(refreshToken, ct);
+    await _db.SaveChangesAsync(ct);
     return new AccessTokenResponse
     {
-      AccessToken = jwtTokenResponse.AccessToken, ExpiresIn = jwtTokenResponse.ExpiresIn, RefreshToken = refreshToken
+      AccessToken = jwtTokenResponse.AccessToken,
+      ExpiresIn = jwtTokenResponse.ExpiresIn,
+      RefreshToken = refreshToken.Token
     };
   }
 }

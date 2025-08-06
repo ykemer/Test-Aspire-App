@@ -3,7 +3,9 @@
 using FastEndpoints;
 
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
+using Platform.Database;
 using Platform.Entities;
 
 namespace Platform.Features.Auth.RefreshTokenRevoke;
@@ -11,8 +13,13 @@ namespace Platform.Features.Auth.RefreshTokenRevoke;
 public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, ErrorOr<Deleted>>
 {
   private readonly UserManager<ApplicationUser> _userManager;
+  private readonly ApplicationDbContext _db;
 
-  public RefreshTokenRevokeEndpoint(UserManager<ApplicationUser> userManager) => _userManager = userManager;
+  public RefreshTokenRevokeEndpoint(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
+  {
+    _userManager = userManager;
+    _db = db;
+  }
 
   public override void Configure()
   {
@@ -22,15 +29,15 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(RefreshAccessTokenRequest req, CancellationToken ct)
   {
-    var user = _userManager.Users.FirstOrDefault(i => i.RefreshToken == req.RefreshToken);
-    if (user == null || user.RefreshTokenExpiry <= DateTime.UtcNow)
+
+    var token =  await _db.RefreshTokens.FirstOrDefaultAsync(i => i.Token == req.RefreshToken, ct);
+    if (token == null || token.ExpiresAt <= DateTime.UtcNow)
     {
       return Error.Unauthorized(description: "Refresh token is not valid");
     }
 
-    user.SecurityStamp = Guid.NewGuid().ToString();
-    user.RefreshToken = null;
-    await _userManager.UpdateAsync(user);
+    _db.RefreshTokens.Remove(token);
+    await _db.SaveChangesAsync(ct);
     return Result.Deleted;
   }
 }
