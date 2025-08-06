@@ -11,7 +11,7 @@ var cache = builder.AddRedis("cache");
 #region Databases
 
 var postgres =
-  builder.AddPostgres("postgres").WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUMES")}postgres")
+  builder.AddPostgres("postgres").WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/postgres")
     .WithPgWeb().WithPgAdmin();
 
 // To avoid resource consumption, we add databases to a single postgres instance
@@ -24,7 +24,7 @@ var studentsDb = postgres.AddDatabase("studentsDb");
 
 var rabbitmq = builder
   .AddRabbitMQ("messaging")
-  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUMES")}RabbitMQ")
+  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/RabbitMQ")
   .WithManagementPlugin();
 
 
