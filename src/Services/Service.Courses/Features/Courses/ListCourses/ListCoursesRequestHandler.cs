@@ -12,7 +12,7 @@ public class ListCoursesRequestHandler : IRequestHandler<ListCoursesRequest, Err
 
   public ValueTask<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
   {
-    var query = _dbContext.Courses.AsQueryable();
+    var query = _dbContext.Courses.OrderBy(i => i.CreatedAt).AsQueryable();
     if (!string.IsNullOrWhiteSpace(request.Query))
     {
       query = query

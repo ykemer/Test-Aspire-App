@@ -7,6 +7,8 @@ using CoursesGRPCClient;
 
 using EnrollmentsGRPCClient;
 
+using Google.Protobuf.Collections;
+
 using StudentsGRPCClient;
 
 namespace Platform.Middleware.Mappers;
@@ -54,17 +56,21 @@ public static class GrpcExtensionMethods
       EnrollmentsCount = course.TotalStudents
     };
 
-  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course
-  ) =>
+  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course, List<GrpcEnrollmentResponse>? enrollments = null) =>
     new()
     {
       Items = course.Items.Select(i => new CourseListItemResponse
       {
-        Id = Guid.Parse(i.Id), Name = i.Name, Description = i.Description, EnrollmentsCount = i.TotalStudents
+        Id = Guid.Parse(i.Id),
+        Name = i.Name,
+        Description = i.Description,
+        EnrollmentsCount = i.TotalStudents,
+        IsUserEnrolled = enrollments?.Any(e => e.CourseId == i.Id) == true
       }).ToList(),
       CurrentPage = course.CurrentPage,
       TotalPages = course.TotalPages,
       PageSize = course.PageSize,
-      TotalCount = course.TotalCount
+      TotalCount = course.TotalCount,
+
     };
 }
