@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Threading.RateLimiting;
 
 using CoursesGRPCClient;
 
@@ -23,6 +24,8 @@ using Platform.Services.MailService;
 using Platform.Services.User;
 
 using StudentsGRPCClient;
+
+using ProblemDetails = Microsoft.AspNetCore.Mvc.ProblemDetails;
 
 namespace Platform;
 
@@ -70,8 +73,6 @@ public static class DependencyInjection
 
         cfg.ConfigureEndpoints(context);
       });
-
-
     });
 
     return services;
@@ -110,21 +111,20 @@ public static class DependencyInjection
         options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
         options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
       })
-      .AddJwtBearer(
-        o =>
+      .AddJwtBearer(o =>
+      {
+        o.TokenValidationParameters = new TokenValidationParameters
         {
-          o.TokenValidationParameters = new TokenValidationParameters
-          {
-            IssuerSigningKey =
-              new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SIGN_KEY")!)),
-            ClockSkew = TimeSpan.Zero,
-            ValidIssuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
-            ValidAudience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
-            ValidateIssuerSigningKey = true,
-            ValidateLifetime = true,
-          };
-        });
+          IssuerSigningKey =
+            new SymmetricSecurityKey(
+              Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("JWT_SIGN_KEY")!)),
+          ClockSkew = TimeSpan.Zero,
+          ValidIssuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
+          ValidAudience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
+          ValidateIssuerSigningKey = true,
+          ValidateLifetime = true,
+        };
+      });
 
     services.AddAuthorization(options =>
     {
@@ -172,6 +172,48 @@ public static class DependencyInjection
           .Tag("courses")
       );
     });
+    return services;
+  }
+
+  public static IServiceCollection AddRateLimiting(this IServiceCollection services)
+  {
+    services.AddRateLimiter(options =>
+    {
+      options.AddPolicy("fixed-per-user", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+          partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+          factory: _ => new FixedWindowRateLimiterOptions
+          {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+          }
+        )
+      );
+
+      // Custom rejection response
+      options.OnRejected = async (context, cancellationToken) =>
+      {
+        context.HttpContext.Response.StatusCode = 429;
+        context.HttpContext.Response.ContentType = "application/problem+json";
+        context.HttpContext.Response.Headers.Add("Retry-After", "60");
+
+        // Add remaining requests header (0 when rate limited)
+        context.HttpContext.Response.Headers.Add("X-RateLimit-Remaining", "0");
+        context.HttpContext.Response.Headers.Add("X-RateLimit-Limit", "10");
+        context.HttpContext.Response.Headers.Add("X-RateLimit-Reset", DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString());
+
+        var problemDetails = new ProblemDetails
+        {
+          Status = 429,
+          Title = "Too Many Requests",
+          Detail = "Rate limit exceeded. Please try again later.",
+          Type = "https://tools.ietf.org/html/rfc6585#section-4"
+        };
+
+        await context.HttpContext.Response.WriteAsJsonAsync(problemDetails, cancellationToken);
+      };
+    });
+
     return services;
   }
 }

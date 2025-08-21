@@ -28,11 +28,14 @@ builder.Services.AddAuthServices();
 builder.Services.AddMassTransitServices();
 builder.Services.AddApiServices();
 builder.Services.AddCaching();
+builder.Services.AddRateLimiting();
 
 var app = builder.Build();
 
 app.UseAuthentication()
   .UseAuthorization();
+
+app.UseRateLimiter();
 
 app.UseDefaultExceptionHandler()
   .UseOutputCache()

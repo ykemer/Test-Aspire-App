@@ -20,7 +20,7 @@ public class JwtService : IJwtService
 
   public async Task<JwtTokenServiceResponse> GenerateJwtToken(ApplicationUser user)
   {
-    var expiresAt = DateTime.UtcNow.AddMinutes(1);
+    var expiresAt = DateTime.UtcNow.AddMinutes(15);
     var roles = await _signInManager.UserManager.GetRolesAsync(user);
     var jwtToken = JwtBearer.CreateToken(
       o =>

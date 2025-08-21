@@ -43,6 +43,7 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     Claims("UserId");
     Claims(ClaimTypes.Role);
     ResponseCache(60);
+    Options(x => x.RequireRateLimiting("fixed-per-user"));
   }
 
   [OutputCache(PolicyName = "CoursesCache")]
