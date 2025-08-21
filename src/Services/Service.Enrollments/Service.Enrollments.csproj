@@ -3,10 +3,10 @@
     <Protobuf Include="Protos\enrollments.proto" GrpcServices="Server"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.4.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.0" />
-    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.4.0" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.4.0" />
+    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.4.1" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.1" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.4.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.4.1" />
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
     <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
     <PackageReference Include="MassTransit" Version="8.5.2" />

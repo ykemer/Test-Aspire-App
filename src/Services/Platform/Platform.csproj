@@ -15,16 +15,16 @@
     <Compile Include="Features\Auth\UserRegister\UserRegisterEndpoint.cs"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.4.0" />
-    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.0" />
-    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.4.0" />
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.4.0" />
+    <PackageReference Include="Aspire.Confluent.Kafka" Version="9.4.1" />
+    <PackageReference Include="Aspire.Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.4.1" />
+    <PackageReference Include="Aspire.RabbitMQ.Client" Version="9.4.1" />
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="9.4.1" />
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0"/>
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
     <PackageReference Include="FastEndpoints" Version="7.0.1" />
     <PackageReference Include="FastEndpoints.Security" Version="7.0.1" />
     <PackageReference Include="FastEndpoints.Swagger" Version="7.0.1" />
-    <PackageReference Include="Google.Protobuf" Version="3.31.1" />
+    <PackageReference Include="Google.Protobuf" Version="3.32.0" />
     <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
     <PackageReference Include="Grpc.Net.ClientFactory" Version="2.71.0" />
     <PackageReference Include="Grpc.Tools" Version="2.72.0">
