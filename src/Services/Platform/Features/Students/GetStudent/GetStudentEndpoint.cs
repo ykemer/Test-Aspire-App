@@ -3,7 +3,6 @@
 using FastEndpoints;
 
 using Platform.Middleware.Grpc;
-using Platform.Middleware.Mappers;
 
 using StudentsGRPCClient;
 

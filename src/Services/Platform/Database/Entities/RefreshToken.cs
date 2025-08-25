@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Platform.Entities;
+namespace Platform.Database.Entities;
 
 public class RefreshToken
 {
@@ -12,7 +12,7 @@ public class RefreshToken
   public string Token { get; set; } = string.Empty;
 
   [Required]
-  public string UserId { get; set; }
+  public required string UserId { get; set; }
 
   [ForeignKey(nameof(UserId))]
   public ApplicationUser User { get; set; } = null!;

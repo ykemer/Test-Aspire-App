@@ -1,6 +1,6 @@
-﻿using Contracts.Courses.Responses;
+﻿using ClassesGRPCClient;
 
-using CoursesGRPCClient;
+using Contracts.Courses.Responses;
 
 using EnrollmentsGRPCClient;
 
@@ -8,24 +8,24 @@ using FastEndpoints;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Features.Courses.CreateCourse;
+using Platform.Features.Classes.CreateClass;
 using Platform.Middleware.Grpc;
 using Platform.Services.User;
 
-namespace Platform.Features.Courses.GetCourse;
+namespace Platform.Features.Classes.GetClass;
 
-public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
+public class GetClassEndpoint : EndpointWithoutRequest<ErrorOr<ClassResponse>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
+  private readonly GrpcClassService.GrpcClassServiceClient _classesGrpcService;
   private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IUserService _userService;
 
-  public GetCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
+  public GetClassEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService,
     IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService,
     GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
   {
-    _coursesGrpcService = coursesGrpcService;
+    _classesGrpcService = classesGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _userService = userService;
     _enrollmentsGrpcService = enrollmentsGrpcService;
@@ -33,19 +33,20 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
 
   public override void Configure()
   {
-    Get("/api/courses/{CourseId}");
+    Get("/api/courses/{CourseId}/classes/{ClassId}");
     Policies("RequireUserRole");
   }
 
 
   [OutputCache(PolicyName = "CoursesCache")]
-  public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(
+  public override async Task<ErrorOr<ClassResponse>> ExecuteAsync(
     CancellationToken ct)
   {
-    var id = Route<Guid>("CourseId");
+    var courseId = Route<Guid>("CourseId");
+    var classId = Route<Guid>("ClassId");
 
 
-    var courseList = new List<string>();
+    var classList = new List<string>();
 
     if (!_userService.IsAdmin(User))
     {
@@ -62,16 +63,22 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
       }
 
       var enrollments = enrollmentsResult.Value.Items;
-      courseList = enrollments.Select(x => x.CourseId).ToList();
+      classList = enrollments.Select(x => x.CourseId).ToList();
     }
 
     var request =
-      _coursesGrpcService.GetCourseAsync(
-        new GrpcGetCourseRequest { Id = id.ToString(), EnrolledClasses = { courseList }, ShowAll =  _userService.IsAdmin(User)}, cancellationToken: ct);
+      _classesGrpcService.GetClassAsync(
+        new GrpcGetClassRequest
+        {
+          Id = classId.ToString(),
+          EnrolledClasses = { classList },
+          ShowAll = _userService.IsAdmin(User),
+          CourseId = courseId.ToString()
+        }, cancellationToken: ct);
 
     var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
-    return result.Match<ErrorOr<CourseResponse>>(
-      data => data.ToCourseResponse(),
+    return result.Match<ErrorOr<ClassResponse>>(
+      data => data.MapToClassResponse(),
       error => error);
   }
 }

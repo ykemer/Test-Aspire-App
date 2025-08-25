@@ -17,7 +17,7 @@ namespace Platform.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.6")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -328,6 +328,10 @@ namespace Platform.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
+                    b.Property<string>("ClassId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<Guid>("CorrelationId")
                         .HasColumnType("uuid");
 
@@ -366,7 +370,7 @@ namespace Platform.Migrations
                     b.ToTable("StudentEnrollmentStates");
                 });
 
-            modelBuilder.Entity("Platform.Entities.ApplicationUser", b =>
+            modelBuilder.Entity("Platform.Database.Entities.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -443,7 +447,7 @@ namespace Platform.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("Platform.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Platform.Database.Entities.RefreshToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -499,7 +503,7 @@ namespace Platform.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Platform.Entities.ApplicationUser", null)
+                    b.HasOne("Platform.Database.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -508,7 +512,7 @@ namespace Platform.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Platform.Entities.ApplicationUser", null)
+                    b.HasOne("Platform.Database.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -523,7 +527,7 @@ namespace Platform.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Platform.Entities.ApplicationUser", null)
+                    b.HasOne("Platform.Database.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -532,16 +536,16 @@ namespace Platform.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Platform.Entities.ApplicationUser", null)
+                    b.HasOne("Platform.Database.Entities.ApplicationUser", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Platform.Entities.RefreshToken", b =>
+            modelBuilder.Entity("Platform.Database.Entities.RefreshToken", b =>
                 {
-                    b.HasOne("Platform.Entities.ApplicationUser", "User")
+                    b.HasOne("Platform.Database.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

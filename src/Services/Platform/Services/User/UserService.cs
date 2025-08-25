@@ -3,8 +3,6 @@ using System.Security.Claims;
 
 using Microsoft.AspNetCore.Identity;
 
-using Platform.Entities;
-
 namespace Platform.Services.User;
 
 public class UserService : IUserService

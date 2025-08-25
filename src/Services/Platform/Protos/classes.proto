@@ -1,0 +1,83 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "ClassesGRPCClient";
+
+service GrpcClassService {
+  rpc GetClass (GrpcGetClassRequest) returns (GrpcClassResponse);
+  rpc ListClasses (GrpcListClassRequest) returns (GrpcListClassResponse);
+  rpc CreateClass (GrpcCreateClassRequest) returns (GrpcClassResponse);
+  rpc UpdateClass (GrpcUpdateClassRequest) returns (GrpcUpdatedClassResponse);
+  rpc DeleteClass (GrpcDeleteClassRequest) returns (GrpcUpdatedClassResponse);
+}
+
+
+// Requests
+message GrpcGetClassRequest {
+  string id = 1;
+  string courseId = 2;
+  repeated string enrolledClasses = 3;
+  bool showAll = 4;
+}
+
+message GrpcListClassRequest {
+  int32 page = 1;
+  int32 pageSize = 2;
+  string courseId = 3;
+  repeated string enrolledClasses = 4;
+  bool showAll = 5;
+}
+
+message GrpcDeleteClassRequest {
+  string id = 1;
+  string courseId = 2;
+}
+
+message GrpcCreateClassRequest {
+  string courseId = 1;
+  google.protobuf.Timestamp registrationDeadline = 2;
+  google.protobuf.Timestamp courseStartDate = 3;
+  google.protobuf.Timestamp courseEndDate = 4;
+  int32 maxStudents = 5;
+}
+
+message GrpcUpdateClassRequest {
+  string courseId = 1;
+  string id = 2;
+  google.protobuf.Timestamp registrationDeadline = 3;
+  google.protobuf.Timestamp courseStartDate = 4;
+  google.protobuf.Timestamp courseEndDate = 5;
+  int32 maxStudents = 6;
+}
+
+
+
+// Responses
+message GrpcClassResponse {
+  string id = 1;
+  string courseId = 2;
+  google.protobuf.Timestamp registrationDeadline = 3;
+  google.protobuf.Timestamp courseStartDate = 4;
+  google.protobuf.Timestamp courseEndDate = 5;
+  int32 totalStudents = 6;
+  int32 maxStudents = 7;
+}
+
+message GrpcListClassResponse {
+  repeated GrpcClassResponse items = 1;
+  int32 currentPage = 2;
+  int32 totalPages = 3;
+  int32 pageSize = 4;
+  int32 totalCount = 5;
+}
+
+message GrpcUpdatedClassResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+
+
+
+

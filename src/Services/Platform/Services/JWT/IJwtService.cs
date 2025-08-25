@@ -1,4 +1,4 @@
-﻿using Platform.Entities;
+﻿using Platform.Database.Entities;
 
 namespace Platform.Services.JWT;
 

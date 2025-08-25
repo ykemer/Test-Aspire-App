@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
 using Platform.Database;
-using Platform.Entities;
-using Platform.Middleware.Mappers;
+using Platform.Database.Entities;
 using Platform.Services.JWT;
 
 namespace Platform.Features.Auth.UserRegister;
@@ -63,6 +62,10 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
     }
 
     var user = await _userManager.FindByNameAsync(request.Email);
+    if (user is null)
+    {
+      return Error.Failure(description: "User not found");
+    }
     await _userManager.AddToRolesAsync(user, ["User"]);
 
     await _publishEndpoint.Publish(user.ToUserCreatedEvent(), ct);

@@ -1,4 +1,5 @@
 ﻿using Contracts.Courses.Requests;
+using Contracts.Courses.Requests.Enrollments;
 using Contracts.Enrollments.Events;
 
 using EnrollmentsGRPCClient;
@@ -36,7 +37,7 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
 
   public override void Configure()
   {
-    Post("/api/courses/unenroll");
+    Post("/api/courses/{CourseId}/classes/{ClassId}/unenroll");
     Policies("RequireUserRole");
     Claims("UserId");
   }
@@ -44,6 +45,9 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
+    var courseId = Route<Guid>("CourseId");
+    var classId = Route<Guid>("ClassId");
+
     var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
@@ -63,7 +67,9 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
     var unerollmentRequest =
       _enrollmentsGrpcService.DeleteEnrollmentAsync(new GrpcDeleteEnrollmentRequest
       {
-        CourseId = request.CourseId.ToString(), StudentId = userId.ToString()
+        CourseId = courseId.ToString(),
+        ClassId = classId.ToString(),
+        StudentId = userId.ToString()
       });
 
     var unenrollmentResponse =
@@ -77,7 +83,10 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
     await _publishEndpoint.Publish(
       new StudentEnrollmentCountChangedEvent
       {
-        StudentId = userId.ToString(), CourseId = request.CourseId.ToString(), IsIncrease = false
+        StudentId = userId.ToString(),
+        CourseId = courseId.ToString(),
+        ClassId = classId.ToString(),
+        IsIncrease = false
       }, ct);
 
     return Result.Deleted;

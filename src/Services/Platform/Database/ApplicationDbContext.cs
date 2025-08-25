@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Platform.AsyncDataServices.StateMachines;
-using Platform.Entities;
+using Platform.Database.Entities;
 
 namespace Platform.Database;
 

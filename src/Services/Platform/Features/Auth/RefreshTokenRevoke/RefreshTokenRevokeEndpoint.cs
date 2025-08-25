@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 using Platform.Database;
-using Platform.Entities;
+using Platform.Database.Entities;
 
 namespace Platform.Features.Auth.RefreshTokenRevoke;
 

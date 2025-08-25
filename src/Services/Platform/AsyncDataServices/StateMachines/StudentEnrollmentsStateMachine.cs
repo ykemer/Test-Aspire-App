@@ -12,8 +12,8 @@ public class StudentEnrollmentsStateMachine : MassTransitStateMachine<StudentEnr
   public Event<ChangeStudentEnrollmentsCountSuccessEvent> ChangeStudentEnrollmentsCountSuccess { get; set; }
   public Event<ChangeStudentEnrollmentsCountFailedEvent> ChangeStudentEnrollmentsCountFailed { get; set; }
 
-  public Event<ChangeCourseEnrollmentsCountFailedEvent> ChangeCourseEnrollmentsCountFailed { get; set; }
-  public Event<ChangeCourseEnrollmentsCountSuccessEvent> ChangeCourseEnrollmentsCountSuccess { get; set; }
+  public Event<ChangeClassEnrollmentsCountFailedEvent> ChangeCourseEnrollmentsCountFailed { get; set; }
+  public Event<ChangeClassEnrollmentsCountSuccessEvent> ChangeCourseEnrollmentsCountSuccess { get; set; }
 
 
   public State ChangingStudentEnrollmentsCount { get; set; }
@@ -38,18 +38,19 @@ public class StudentEnrollmentsStateMachine : MassTransitStateMachine<StudentEnr
       When(StudentEnrollmentCountChanged)
         .Then(context =>
         {
-          context.Instance.StudentId = context.Data.StudentId;
-          context.Instance.CourseId = context.Data.CourseId;
-          context.Instance.EventId = context.Data.EventId;
-          context.Instance.IsIncrease = context.Data.IsIncrease;
-          context.Instance.EnrolledDate = DateTime.Now;
+          context.Saga.StudentId = context.Message.StudentId;
+          context.Saga.CourseId = context.Message.CourseId;
+          context.Saga.ClassId = context.Message.ClassId;
+          context.Saga.EventId = context.Message.EventId;
+          context.Saga.IsIncrease = context.Message.IsIncrease;
+          context.Saga.EnrolledDate = DateTime.Now;
         })
         .TransitionTo(ChangingStudentEnrollmentsCount)
         .Publish(context => new ChangeStudentEnrollmentsCountEvent
         {
-          StudentId = context.Instance.StudentId,
-          EventId = context.Instance.EventId,
-          IsIncrease = context.Instance.IsIncrease
+          StudentId = context.Saga.StudentId,
+          EventId = context.Saga.EventId,
+          IsIncrease = context.Saga.IsIncrease
         })
     );
 
@@ -57,19 +58,20 @@ public class StudentEnrollmentsStateMachine : MassTransitStateMachine<StudentEnr
       When(ChangeStudentEnrollmentsCountSuccess)
         .Then(context =>
         {
-          context.Instance.IsStudentEnrollmentsUpdated = true;
+          context.Saga.IsStudentEnrollmentsUpdated = true;
         })
-        .Publish(context => new ChangeCourseEnrollmentsCountEvent
+        .Publish(context => new ChangeClassEnrollmentsCountEvent
         {
-          CourseId = context.Instance.CourseId,
-          EventId = context.Instance.EventId,
-          IsIncrease = context.Instance.IsIncrease
+          CourseId = context.Saga.CourseId,
+          ClassId = context.Saga.ClassId,
+          EventId = context.Saga.EventId,
+          IsIncrease = context.Saga.IsIncrease
         })
         .TransitionTo(ChangingCourseEnrollmentsCount),
       When(ChangeStudentEnrollmentsCountFailed)
         .Then(context =>
         {
-          context.Instance.FailureReason = $"Student enrollments count update failed: {context.Data.ErrorMessage}";
+          context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
         })
         .TransitionTo(Failed)
         .Finalize()
@@ -79,20 +81,20 @@ public class StudentEnrollmentsStateMachine : MassTransitStateMachine<StudentEnr
       When(ChangeCourseEnrollmentsCountSuccess)
         .Then(context =>
         {
-          context.Instance.IsCourseEnrollmentsUpdated = true;
+          context.Saga.IsCourseEnrollmentsUpdated = true;
         })
         .TransitionTo(Completed)
         .Finalize(),
       When(ChangeCourseEnrollmentsCountFailed)
         .Then(context =>
         {
-          context.Instance.FailureReason = $"Course enrollments count update failed: {context.Data.ErrorMessage}";
+          context.Saga.FailureReason = $"Course enrollments count update failed: {context.Message.ErrorMessage}";
         })
         .Publish(context => new ChangeStudentEnrollmentsCountEvent
         {
-          StudentId = context.Instance.StudentId,
-          EventId = context.Instance.EventId,
-          IsIncrease = !context.Instance.IsIncrease
+          StudentId = context.Saga.StudentId,
+          EventId = context.Saga.EventId,
+          IsIncrease = !context.Saga.IsIncrease
         })
         .TransitionTo(Failed)
         .Finalize()

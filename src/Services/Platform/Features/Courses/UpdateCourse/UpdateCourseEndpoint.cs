@@ -7,7 +7,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Middleware.Grpc;
-using Platform.Middleware.Mappers;
+
 
 namespace Platform.Features.Courses.UpdateCourse;
 
@@ -28,15 +28,17 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
 
   public override void Configure()
   {
-    Post("/api/courses/update");
+    Patch("/api/courses/{CourseId}");
     Policies("RequireAdministratorRole");
   }
 
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest updateCourseCommand,
     CancellationToken ct)
   {
+
+    var id = Route<Guid>("CourseId");
     var request =
-      _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(), cancellationToken: ct);
+      _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(id.ToString()), cancellationToken: ct);
 
     var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     await _outputCache.EvictByTagAsync("courses", ct);

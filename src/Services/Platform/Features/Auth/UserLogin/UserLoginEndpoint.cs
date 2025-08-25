@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
 using Platform.Database;
-using Platform.Entities;
+using Platform.Database.Entities;
 using Platform.Services.JWT;
 
 namespace Platform.Features.Auth.UserLogin;

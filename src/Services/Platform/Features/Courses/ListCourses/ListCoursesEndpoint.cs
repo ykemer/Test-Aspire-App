@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 
 using Contracts.Common;
-using Contracts.Courses.Requests;
+using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;
@@ -10,15 +10,12 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Google.Protobuf.Collections;
-
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Middleware.Grpc;
-using Platform.Middleware.Mappers;
 using Platform.Services.User;
 
-namespace Platform.Features.Courses.ListCourse;
+namespace Platform.Features.Courses.ListCourses;
 
 public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedList<CourseListItemResponse>>>
 {
@@ -51,8 +48,37 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   public override async Task<ErrorOr<PagedList<CourseListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
+
+    var enrolledClassesList = new List<string>();
+    var enrolledCoursesList = new List<string>();
+
+
+    var isAdmin = User.IsInRole("Administrator");
+
+    if (!isAdmin)
+    {
+      var request = new GrpcGetStudentEnrollmentsRequest
+      {
+        StudentId = _userService.GetUserId(User).ToString()
+      };
+
+      var enrollmentsRequest =
+        _enrollmentsGrpcService.GetStudentEnrollmentsAsync(request, cancellationToken: ct);
+
+      var enrollmentsResult =
+        await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
+      if (enrollmentsResult.IsError)
+      {
+        return enrollmentsResult.FirstError;
+      }
+
+      var enrollments = enrollmentsResult.Value.Items;
+      enrolledClassesList = enrollments.Select(x => x.ClassId).ToList();
+      enrolledCoursesList = enrollments.Select(x => x.CourseId).ToList();
+    }
+
     var coursesRequest =
-      _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(), cancellationToken: ct);
+      _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(enrolledClassesList, isAdmin), cancellationToken: ct);
 
     var coursesResult =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
@@ -63,29 +89,6 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     }
 
     var courses = coursesResult.Value;
-
-    if (_userService.IsAdmin(User))
-    {
-      return courses.ToCourseListItemResponse();
-    }
-
-    var request = new GrpcGetEnrollmentsByCoursesRequest
-    {
-      CourseIds = { courses.Items.Select(c => c.Id) }, StudentId = _userService.GetUserId(User).ToString()
-    };
-
-    var enrollmentsRequest =
-      _enrollmentsGrpcService.GetEnrollmentsByCoursesAsync(request, cancellationToken: ct);
-
-    var enrollmentsResult =
-      await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
-    if (enrollmentsResult.IsError)
-    {
-      return enrollmentsResult.FirstError;
-    }
-
-    var enrollments = enrollmentsResult.Value.Items;
-
-    return courses.ToCourseListItemResponse(enrollments.ToList());
+    return courses.ToCourseListItemResponse(enrolledCoursesList);
   }
 }

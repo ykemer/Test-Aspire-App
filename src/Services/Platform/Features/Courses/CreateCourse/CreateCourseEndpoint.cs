@@ -1,4 +1,5 @@
 ﻿using Contracts.Courses.Requests;
+using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;
@@ -8,7 +9,7 @@ using FastEndpoints;
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Middleware.Grpc;
-using Platform.Middleware.Mappers;
+
 
 namespace Platform.Features.Courses.CreateCourse;
 
@@ -29,7 +30,7 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
 
   public override void Configure()
   {
-    Post("/api/courses/create");
+    Post("/api/courses");
     Policies("RequireAdministratorRole");
   }
 

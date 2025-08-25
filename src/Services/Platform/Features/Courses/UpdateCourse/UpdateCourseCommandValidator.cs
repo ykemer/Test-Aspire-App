@@ -10,7 +10,6 @@ public class UpdateCourseCommandValidator : Validator<UpdateCourseRequest>
 {
   public UpdateCourseCommandValidator()
   {
-    RuleFor(course => course.Id).NotEmpty().WithMessage("Id can not be empty");
     RuleFor(course => course.Name).NotEmpty().WithMessage("Name can not be empty");
     RuleFor(course => course.Description).NotEmpty().WithMessage("Description can not be empty");
   }

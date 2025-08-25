@@ -2,7 +2,7 @@
 
 using Microsoft.AspNetCore.Identity;
 
-namespace Platform.Entities;
+namespace Platform.Database.Entities;
 
 public class ApplicationUser : IdentityUser
 {

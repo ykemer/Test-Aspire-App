@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-using Platform.Entities;
+using Platform.Database.Entities;
 
 namespace Platform.Services.MailService;
 

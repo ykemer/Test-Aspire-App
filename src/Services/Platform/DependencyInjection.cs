@@ -1,6 +1,8 @@
 ﻿using System.Text;
 using System.Threading.RateLimiting;
 
+using ClassesGRPCClient;
+
 using CoursesGRPCClient;
 
 using EnrollmentsGRPCClient;
@@ -17,7 +19,7 @@ using Microsoft.IdentityModel.Tokens;
 
 using Platform.AsyncDataServices.StateMachines;
 using Platform.Database;
-using Platform.Entities;
+using Platform.Database.Entities;
 using Platform.Middleware.Grpc;
 using Platform.Services.JWT;
 using Platform.Services.MailService;
@@ -83,6 +85,10 @@ public static class DependencyInjection
     services.AddScoped<IGrpcRequestMiddleware, GrpcRequestMiddleware>();
 
     services.AddGrpcClient<GrpcCoursesService.GrpcCoursesServiceClient>(options =>
+    {
+      options.Address = new Uri("https://coursesService");
+    });
+    services.AddGrpcClient<GrpcClassService.GrpcClassServiceClient>(options =>
     {
       options.Address = new Uri("https://coursesService");
     });
@@ -184,7 +190,7 @@ public static class DependencyInjection
           partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
           factory: _ => new FixedWindowRateLimiterOptions
           {
-            PermitLimit = 10,
+            PermitLimit = 60,
             Window = TimeSpan.FromMinutes(1),
           }
         )
@@ -195,12 +201,12 @@ public static class DependencyInjection
       {
         context.HttpContext.Response.StatusCode = 429;
         context.HttpContext.Response.ContentType = "application/problem+json";
-        context.HttpContext.Response.Headers.Add("Retry-After", "60");
+        context.HttpContext.Response.Headers.Append("Retry-After", "60");
 
         // Add remaining requests header (0 when rate limited)
-        context.HttpContext.Response.Headers.Add("X-RateLimit-Remaining", "0");
-        context.HttpContext.Response.Headers.Add("X-RateLimit-Limit", "10");
-        context.HttpContext.Response.Headers.Add("X-RateLimit-Reset", DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString());
+        context.HttpContext.Response.Headers.Append("X-RateLimit-Remaining", "0");
+        context.HttpContext.Response.Headers.Append("X-RateLimit-Limit", "10");
+        context.HttpContext.Response.Headers.Append("X-RateLimit-Reset", DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString());
 
         var problemDetails = new ProblemDetails
         {

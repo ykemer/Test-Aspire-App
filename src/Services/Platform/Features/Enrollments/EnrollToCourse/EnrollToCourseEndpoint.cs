@@ -1,4 +1,7 @@
-﻿using Contracts.Courses.Requests;
+﻿using ClassesGRPCClient;
+
+using Contracts.Courses.Requests;
+using Contracts.Courses.Requests.Enrollments;
 using Contracts.Enrollments.Events;
 
 using CoursesGRPCClient;
@@ -18,7 +21,7 @@ namespace Platform.Features.Enrollments.EnrollToCourse;
 
 public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Updated>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
+  private readonly GrpcClassService.GrpcClassServiceClient _classGrpcService;
   private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
@@ -28,23 +31,22 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
 
   public EnrollToCourseEndpoint(
     IUserService userService,
-    GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
     GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
     IGrpcRequestMiddleware grpcRequestMiddleware,
     GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    IPublishEndpoint publishEndpoint)
+    IPublishEndpoint publishEndpoint, GrpcClassService.GrpcClassServiceClient classGrpcService)
   {
     _userService = userService;
-    _coursesGrpcService = coursesGrpcService;
     _enrollmentsGrpcService = enrollmentsGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
     _publishEndpoint = publishEndpoint;
+    _classGrpcService = classGrpcService;
   }
 
   public override void Configure()
   {
-    Post("/api/courses/enroll");
+    Post("/api/courses/{CourseId}/classes/{ClassId}/enroll");
     Policies("RequireUserRole");
     Claims("UserId");
   }
@@ -52,6 +54,9 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
     CancellationToken ct)
   {
+    var courseId = Route<Guid>("CourseId");
+    var classId = Route<Guid>("ClassId");
+
     var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
     if (userId == Guid.Empty)
     {
@@ -70,20 +75,11 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
 
     var student = studentResponse.Value;
 
-    var courseRequest =
-      _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = request.CourseId.ToString() });
-
-    var courseResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(courseRequest, ct);
-    if (courseResponse.IsError)
-    {
-      return courseResponse.Errors[0];
-    }
-
-
     var enrollmentRequest =
       _enrollmentsGrpcService.EnrollStudentAsync(new GrpcEnrollStudentRequest
       {
-        CourseId = request.CourseId.ToString(),
+        CourseId = courseId.ToString(),
+        ClassId = classId.ToString(),
         StudentId = userId.ToString(),
         StudentFirstName = student.FirstName,
         StudentLastName = student.LastName
@@ -102,7 +98,8 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
       new StudentEnrollmentCountChangedEvent
       {
         StudentId = userId.ToString(),
-        CourseId = request.CourseId.ToString(),
+        CourseId = courseId.ToString(),
+        ClassId = classId.ToString(),
         IsIncrease = true
       }, ct);
 

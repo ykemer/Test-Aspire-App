@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using Platform.Entities;
+using Platform.Database.Entities;
 
 namespace Platform.Database;
 
@@ -72,10 +72,12 @@ public sealed class ApplicationDbContextInitializer : IApplicationDbContextIniti
 
     if (await _userManager.Users.AllAsync(u => u.UserName != administrator.UserName))
     {
-      await _userManager.CreateAsync(administrator, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!);
+
+      var password = Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!;
+      await _userManager.CreateAsync(administrator, password);
       await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name }!);
 
-      await _userManager.CreateAsync(student, Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!);
+      await _userManager.CreateAsync(student, password);
       await _userManager.AddToRolesAsync(student, new[] { userRole.Name }!);
     }
 

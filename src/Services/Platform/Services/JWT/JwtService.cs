@@ -7,7 +7,7 @@ using FastEndpoints.Security;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 
-using Platform.Entities;
+using Platform.Database.Entities;
 
 namespace Platform.Services.JWT;
 

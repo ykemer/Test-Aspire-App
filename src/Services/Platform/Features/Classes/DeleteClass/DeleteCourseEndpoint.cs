@@ -1,7 +1,6 @@
-﻿using Contracts.Courses.Events;
-using Contracts.Enrollments.Events;
+﻿using ClassesGRPCClient;
 
-using CoursesGRPCClient;
+using Contracts.Courses.Events;
 
 using FastEndpoints;
 
@@ -11,21 +10,20 @@ using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Middleware.Grpc;
 
+namespace Platform.Features.Classes.DeleteClass;
 
-namespace Platform.Features.Courses.DeleteCourse;
-
-public class DeleteCourseEndpoint : EndpointWithoutRequest<
+public class DeleteClassEndpoint : EndpointWithoutRequest<
   ErrorOr<Deleted>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
+  private readonly GrpcClassService.GrpcClassServiceClient _classGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IOutputCacheStore _outputCache;
   private readonly IPublishEndpoint _publishEndpoint;
 
-  public DeleteCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
+  public DeleteClassEndpoint(GrpcClassService.GrpcClassServiceClient classGrpcService,
     IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache, IPublishEndpoint publishEndpoint)
   {
-    _coursesGrpcService = coursesGrpcService;
+    _classGrpcService = classGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
     _publishEndpoint = publishEndpoint;
@@ -33,24 +31,26 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
 
   public override void Configure()
   {
-    Delete("/api/courses/{CourseId}");
+    Delete("/api/courses/{CourseId}/classes/{ClassId}");
     Policies("RequireAdministratorRole");
   }
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(
     CancellationToken ct)
   {
-    var id = Route<Guid>("CourseId");
+    var courseId = Route<Guid>("CourseId");
+    var classId = Route<Guid>("ClassId");
     var request =
-      _coursesGrpcService.DeleteCourseAsync(new GrpcDeleteCourseRequest { Id = id.ToString() }, cancellationToken: ct);
+      _classGrpcService.DeleteClassAsync(new GrpcDeleteClassRequest
+      {
+        Id = classId.ToString(),
+        CourseId = courseId.ToString()
+      }, cancellationToken: ct);
 
     var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
-    await _outputCache.EvictByTagAsync("courses", ct);
-
     await _publishEndpoint.Publish(
-      new CourseDeletedEvent() { CourseId = id.ToString() }, ct);
-
-
+      new ClassDeletedEvent() { CourseId = courseId.ToString(), ClassId = classId.ToString()}, ct);
+    await _outputCache.EvictByTagAsync("courses", ct);
     return output.Match<ErrorOr<Deleted>>(
       _ => Result.Deleted,
       error => error
