@@ -4,7 +4,8 @@ namespace Contracts.Enrollments.Events;
 
 public class StudentEnrollmentCountChangedEvent: Event
 {
-  public string CourseId { get; set; }
-  public string StudentId { get; set; }
-  public bool IsIncrease { get; set; }
+  public string CourseId { get; init; }
+  public string ClassId { get; init; }
+  public string StudentId { get; init; }
+  public bool IsIncrease { get; init; }
 }

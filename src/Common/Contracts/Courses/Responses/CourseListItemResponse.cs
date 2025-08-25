@@ -9,5 +9,5 @@ public class CourseListItemResponse
 
   public bool IsUserEnrolled { get; init; } = false;
 
-  public int EnrollmentsCount { get; init; } = 0;
+  public int TotalStudents { get; init; } = 0;
 }

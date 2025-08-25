@@ -1,7 +1,7 @@
-﻿namespace Contracts.Courses.Requests;
+namespace Contracts.Courses.Requests.Enrollments;
 
 public class ChangeCourseEnrollmentRequest
 {
-  public Guid CourseId { get; set; }
+
   public Guid StudentId { get; set; } = Guid.Empty;
 }

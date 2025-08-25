@@ -2,7 +2,9 @@
 
 namespace Contracts.Courses.Events.ChangeCourseEnrollmentsCount;
 
-public class ChangeCourseEnrollmentsCountSuccessEvent: Event
+public class ChangeClassEnrollmentsCountEvent: Event
 {
   public string CourseId { get; set; }
+  public string ClassId { get; set; }
+  public bool IsIncrease { get; set; }
 }
