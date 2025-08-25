@@ -1,4 +1,5 @@
-﻿using Service.Enrollments.Entities;
+﻿using Service.Enrollments.Database.Entities;
+using Service.Enrollments.Entities;
 
 namespace Service.Enrollments.Database;
 
@@ -46,16 +47,25 @@ public sealed class ApplicationDbContextInitializer
   {
     if (!await _context.Enrollments.AnyAsync())
     {
-      _context.Enrollments.Add(new Enrollment
+      try
       {
-        StudentId = "363fa2a4-70a8-4391-bc54-a8b5267fb68a",
-        CourseId = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
-        StudentFirstName = "Marry",
-        StudentLastName = "Doe",
-        EnrollmentDateTime = DateTime.Now
-      });
+        var sharpClass = new Class
+        {
+          CourseId = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
+          CourseStartDate = DateTime.Now.AddDays(3),
+          CourseEndDate = DateTime.Now.AddDays(15),
+          RegistrationDeadline = DateTime.Now.AddDays(5),
+          MaxStudents = 100,
+          Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"
+        };
 
-      await _context.SaveChangesAsync();
+        _context.Classes.Add(sharpClass);
+
+        await _context.SaveChangesAsync();
+      } catch (Exception ex)
+      {
+        _logger.LogError(ex, "An error occurred while seeding the database.");
+      }
     }
   }
 }

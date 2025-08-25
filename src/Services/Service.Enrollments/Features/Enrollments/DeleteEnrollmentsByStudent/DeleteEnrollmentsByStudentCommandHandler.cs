@@ -23,7 +23,7 @@ public class DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEn
   {
     var events = await _dbContext.Enrollments
       .Where(enrollment => enrollment.CourseId == request.StudentId)
-      .Select(enrollment => new ChangeCourseEnrollmentsCountEvent { CourseId = enrollment.CourseId , IsIncrease = false})
+      .Select(enrollment => new ChangeClassEnrollmentsCountEvent { CourseId = enrollment.CourseId, ClassId = enrollment.ClassId, IsIncrease = false})
       .ToListAsync(cancellationToken);
 
     _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment => enrollment.StudentId == request.StudentId));

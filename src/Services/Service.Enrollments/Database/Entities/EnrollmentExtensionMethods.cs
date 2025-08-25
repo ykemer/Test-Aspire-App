@@ -2,6 +2,8 @@
 
 using Google.Protobuf.WellKnownTypes;
 
+using Service.Enrollments.Database.Entities;
+
 namespace Service.Enrollments.Entities;
 
 public static class EnrollmentExtensionMethods
@@ -11,6 +13,7 @@ public static class EnrollmentExtensionMethods
     {
       Id = enrollment.Id,
       CourseId = enrollment.CourseId,
+      ClassId = enrollment.ClassId,
       StudentId = enrollment.StudentId,
       StudentLastName = enrollment.StudentLastName,
       StudentFirstName = enrollment.StudentFirstName,

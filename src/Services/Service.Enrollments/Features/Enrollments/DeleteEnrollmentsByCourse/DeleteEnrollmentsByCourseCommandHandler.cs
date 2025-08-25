@@ -27,8 +27,13 @@ public class DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnr
       .Select(enrollment => new ChangeStudentEnrollmentsCountEvent() { StudentId = enrollment.StudentId, IsIncrease = false})
       .ToListAsync(cancellationToken);
 
+
+
     _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment => enrollment.CourseId == request.CourseId));
+    _dbContext.RemoveRange(_dbContext.Classes.Where(course => course.CourseId == request.CourseId));
+
     await _dbContext.SaveChangesAsync(cancellationToken);
+
     _logger.LogInformation("Deleting enrollments for course {CourseId}", request.CourseId);
     if (events.Count > 0)
     {

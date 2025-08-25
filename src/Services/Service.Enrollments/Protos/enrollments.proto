@@ -5,15 +5,9 @@ option csharp_namespace = "EnrollmentsGRPC";
 
 
 service GrpcEnrollmentsService {
-  rpc GetEnrollment (GrpcGetEnrollmentRequest) returns (GrpcEnrollmentResponse);
-  rpc ListAllEnrollments (GrpcListAllEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
-
-  rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
+  rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
+  rpc GetClassEnrollments (GrpcGetClassEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
   rpc GetCourseEnrollments (GrpcGetCourseEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
-  rpc GetEnrollmentsByCourses (GrpcGetEnrollmentsByCoursesRequest) returns (GrpcListEnrollmentsResponse);
-
-  rpc CountCourseEnrollments (GrpcCountStudentEnrollmentsRequest) returns (GrpcCountResponse);
-  rpc CountStudentEnrollments (GrpcCountCourseEnrollmentsRequest) returns (GrpcCountResponse);
 
   rpc EnrollStudent (GrpcEnrollStudentRequest) returns (GrpcUpdateEnrollmentResponse);
   rpc DeleteEnrollment (GrpcDeleteEnrollmentRequest) returns (GrpcUpdateEnrollmentResponse);
@@ -21,65 +15,52 @@ service GrpcEnrollmentsService {
 
 
 // Requests
-message GrpcGetEnrollmentRequest {
-  string EnrollmentId = 1;
-}
-
 message GrpcGetStudentEnrollmentsRequest {
   string StudentId = 1;
+  oneof optional_id {
+    string CourseId = 2;
+  }
 }
 
 message GrpcGetCourseEnrollmentsRequest {
   string CourseId = 1;
 }
 
-message GrpcCountStudentEnrollmentsRequest {
-  string StudentId = 1;
-}
-
-message GrpcCountCourseEnrollmentsRequest {
+message GrpcGetClassEnrollmentsRequest {
   string CourseId = 1;
+  string ClassId = 2;
 }
 
-message GrpcListAllEnrollmentsRequest {
-  string StudentId = 1;
-  int32 Page = 2;
-  int32 PageSize = 3;
-}
 
 message GrpcEnrollStudentRequest {
   string CourseId = 1;
-  string StudentId = 2;
-  string StudentFirstName = 3;
-  string StudentLastName = 4;
+  string ClassId = 2;
+  string StudentId = 3;
+  string StudentFirstName = 4;
+  string StudentLastName = 5;
 }
 
 message GrpcDeleteEnrollmentRequest {
   string CourseId = 1;
-  string StudentId = 2;
-}
-
-message GrpcGetEnrollmentsByCoursesRequest {
-  repeated string CourseIds = 1;
-  oneof optional_id {
-    string StudentId = 2;
-  }
+  string ClassId = 2;
+  string StudentId = 3;
 }
 
 // Responses
 message GrpcEnrollmentResponse {
   string Id = 1;
   string CourseId = 2;
-  string StudentId = 3;
-  google.protobuf.Timestamp EnrollmentDateTime = 4;
-  string StudentFirstName = 5;
-  string StudentLastName = 6;
+  string ClassId = 3;
+  string StudentId = 4;
+  google.protobuf.Timestamp EnrollmentDateTime = 5;
+  string StudentFirstName = 6;
+  string StudentLastName = 7;
 }
 
 message GrpcListEnrollmentsResponse {
   repeated GrpcEnrollmentResponse Items = 1;
- 
 }
+
 message GrpcListEnrollmentsWithPaginationResponse {
   repeated GrpcEnrollmentResponse Items = 1;
   int32 CurrentPage = 2;
@@ -88,9 +69,6 @@ message GrpcListEnrollmentsWithPaginationResponse {
   int32 TotalCount = 5;
 }
 
-message GrpcCountResponse {
-  int32 Count = 1;
-}
 
 message GrpcUpdateEnrollmentResponse {
   bool success = 1;
