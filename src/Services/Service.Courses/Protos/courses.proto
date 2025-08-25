@@ -1,8 +1,11 @@
 syntax = "proto3";
 
+import "google/protobuf/timestamp.proto";
+
 option csharp_namespace = "CoursesGRPC";
 
 service GrpcCoursesService {
+  // Courses
   rpc GetCourse (GrpcGetCourseRequest) returns (GrpcCourseResponse);
   rpc ListCourses (GrpcListCoursesRequest) returns (GrpcListCoursesResponse);
   rpc CreateCourse (GrpcCreateCourseRequest) returns (GrpcCourseResponse);
@@ -10,20 +13,23 @@ service GrpcCoursesService {
   rpc DeleteCourse (GrpcDeleteCourseRequest) returns (GrpcUpdatedCourseResponse);
 }
 
-
 // Requests
 message GrpcGetCourseRequest {
   string id = 1;
-}
-
-message GrpcDeleteCourseRequest {
-  string id = 1;
+  repeated string EnrolledClasses = 2;
+  bool showAll = 3;
 }
 
 message GrpcListCoursesRequest {
   int32 page = 1;
   int32 pageSize = 2;
   optional string query = 3;
+  repeated string EnrolledClasses = 4;
+  bool showAll = 5;
+}
+
+message GrpcDeleteCourseRequest {
+  string id = 1;
 }
 
 message GrpcCreateCourseRequest {
@@ -36,8 +42,6 @@ message GrpcUpdateCourseRequest {
   string name = 2;
   string description = 3;
 }
-
-
 
 // Responses
 message GrpcCourseResponse {

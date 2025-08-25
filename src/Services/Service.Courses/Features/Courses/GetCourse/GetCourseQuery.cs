@@ -1,5 +1,5 @@
-﻿using Service.Courses.Entities;
+﻿using Service.Courses.Database.Entities;
 
 namespace Service.Courses.Features.Courses.GetCourse;
 
-public record GetCourseQuery(string Id) : IRequest<ErrorOr<Course>>;
+public record GetCourseQuery(string Id, List<string> EnrolledClasses, bool ShowAll) : IRequest<ErrorOr<Course>>;

@@ -1,18 +1,27 @@
 ﻿using Contracts.Common;
 
-using Service.Courses.Entities;
+using Service.Courses.Database.Entities;
 
 namespace Service.Courses.Features.Courses.ListCourses;
 
-public class ListCoursesRequestHandler : IRequestHandler<ListCoursesRequest, ErrorOr<PagedList<Course>>>
+public class ListCoursesQueryHandler : IRequestHandler<ListCoursesRequest, ErrorOr<PagedList<Course>>>
 {
   private readonly ApplicationDbContext _dbContext;
 
-  public ListCoursesRequestHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
+  public ListCoursesQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
   public ValueTask<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
   {
     var query = _dbContext.Courses.OrderBy(i => i.CreatedAt).AsQueryable();
+
+    if (!request.ShowAll)
+    {
+      query = query.Where(x => x.CourseClasses.Any(cs =>
+        request.EnrolledClasses.Contains(cs.Id) ||
+        (cs.RegistrationDeadline >= DateTime.UtcNow && cs.TotalStudents < cs.MaxStudents)
+      ));
+    }
+
     if (!string.IsNullOrWhiteSpace(request.Query))
     {
       query = query
@@ -21,7 +30,7 @@ public class ListCoursesRequestHandler : IRequestHandler<ListCoursesRequest, Err
         {
           CreatedAt = i.CreatedAt,
           Description = i.Description,
-          EnrollmentsCount = i.EnrollmentsCount,
+          TotalStudents = i.TotalStudents,
           Id = i.Id,
           Name = i.Name,
           Rank = EF.Functions.ToTsVector("english", i.Name + " " + i.Description).Rank(

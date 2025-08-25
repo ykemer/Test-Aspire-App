@@ -1,4 +1,4 @@
-﻿using Service.Courses.Entities;
+﻿using Service.Courses.Database.Entities;
 
 namespace Service.Courses.Features.Courses.GetCourse;
 
@@ -15,7 +15,19 @@ public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, ErrorOr<Cou
 
   public async ValueTask<ErrorOr<Course>> Handle(GetCourseQuery request, CancellationToken cancellationToken)
   {
-    var course = await _dbContext.Courses.AsNoTracking().FirstOrDefaultAsync(course => course.Id == request.Id, cancellationToken);
+    var course = await _dbContext.Courses
+      .Include(x => x.CourseClasses)
+      .AsSplitQuery()
+      .AsNoTracking()
+      .Where(x => x.Id == request.Id &&
+                  (request.ShowAll || x.CourseClasses.Any(cs =>
+                    request.EnrolledClasses.Contains(cs.Id) ||
+                    (cs.RegistrationDeadline >= DateTime.UtcNow && cs.TotalStudents < cs.MaxStudents)
+                  ))
+      )
+      .FirstOrDefaultAsync(cancellationToken);
+
+
     if (course != null)
     {
       return course;

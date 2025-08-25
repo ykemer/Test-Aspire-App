@@ -1,4 +1,6 @@
-﻿using Library.Middleware;
+﻿using _Application._Common.Behaviours;
+
+using Library.Middleware;
 
 namespace Service.Courses;
 
@@ -11,8 +13,11 @@ public static class DependencyInjection
     services.AddMediator(options =>
     {
       options.ServiceLifetime = ServiceLifetime.Scoped;
-      options.Assemblies = [typeof(DependencyInjection)];
-      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>)];
+      options.Assemblies = [typeof(DependencyInjection).Assembly];
+      options.PipelineBehaviors = [
+        typeof(ValidationBehavior<,>),
+        typeof(LoggingBehaviour<,>)
+      ];
     });
 
     return services;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Service.Courses.Entities;
+using Service.Courses.Database.Entities;
 
 namespace Service.Courses.Database.Configurations;
 

@@ -1,6 +1,7 @@
 using Library.Infrastructure;
 
 using Service.Courses;
+using Service.Courses.Features.Classes;
 using Service.Courses.Features.Courses;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +17,7 @@ builder.Services.AddServices();
 var app = builder.Build();
 // Configure the HTTP request pipeline.
 app.MapGrpcService<CoursesService>();
+app.MapGrpcService<ClassesService>();
 
 
 app.MapGet("/",

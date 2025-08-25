@@ -20,8 +20,7 @@ public class UpdateCourseCommandHandler : IRequestHandler<UpdateCourseCommand, E
       return Error.NotFound("course_service.update_course.course.not_found", $"Course {request.Id} not found");
     }
 
-    existingCourse.Name = request.Name;
-    existingCourse.Description = request.Description;
+    existingCourse.AddCommandValues(request);
     await _dbContext.SaveChangesAsync(cancellationToken);
     return Result.Updated;
   }

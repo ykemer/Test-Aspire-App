@@ -1,4 +1,4 @@
-﻿using Service.Courses.Entities;
+﻿using Service.Courses.Database.Entities;
 
 namespace Service.Courses.Features.Courses.CreateCourse;
 
@@ -24,7 +24,7 @@ public class CreateCourseCommandHandler : IRequestHandler<CreateCourseCommand, E
       return Error.Conflict("courses_service.create_course.already_exists", $"Course {request.Name} already exists");
     }
 
-    Course? course = new() { Description = request.Description, Name = request.Name, EnrollmentsCount = 0 };
+    var course = request.MapToCourse();
 
     await _dbContext.Courses.AddAsync(course, cancellationToken);
     await _dbContext.SaveChangesAsync(cancellationToken);
