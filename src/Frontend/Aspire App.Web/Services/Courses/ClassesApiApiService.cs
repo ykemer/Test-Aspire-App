@@ -1,11 +1,8 @@
-using System.Text.Json;
-
 using Aspire_App.Web.Helpers;
 
 using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Requests.Classes;
-using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 
@@ -24,47 +21,21 @@ public class ClassesApiApiService : IClassesApiService
   public async Task<PagedList<ClassListItemResponse>> GetClassListAsync(string courseId, int page, int pageSize = 10,
     CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-    var response =
-      await _httpClient.GetAsync($"{CoursesUri}/{courseId}/classes?page={page}&pageSize={pageSize}", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching class lists");
-    }
-
-    return await response.Content.ReadFromJsonAsync<PagedList<ClassListItemResponse>>(options);
+    var response = await _httpClient.GetAsync($"{CoursesUri}/{courseId}/classes?page={page}&pageSize={pageSize}", cancellationToken);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<ClassListItemResponse>>(response, "Classes not found");
   }
 
   public async Task<ClassResponse> GetClass(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
     var response = await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching class");
-    }
-
-    return await response.Content.ReadFromJsonAsync<ClassResponse>(options);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<ClassResponse>(response, "Class not found");
   }
 
   public async Task<List<EnrollmentResponse>> GetClassEnrollments(Guid courseId, Guid classId,
     CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
-    var response =
-      await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}/enrollments", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching enrollments");
-    }
-
-    return await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+    var response = await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}/enrollments", cancellationToken);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
   }
 
   public async Task CreateClass(Guid courseId, CreateClassRequest createClassRequest,

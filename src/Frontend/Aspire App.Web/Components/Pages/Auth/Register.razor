@@ -9,60 +9,75 @@
 @inject IAuthenticationService AuthenticationService;
 @inject NavigationManager NavigationManager;
 
-<h3>Registration</h3>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-7">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h3 class="card-title mb-4 text-center">Registration</h3>
 
-<fieldset>
-  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="registerForm">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
+          @if (_errorMessage is not null)
+          {
+            <div class="alert alert-danger" role="alert">@_errorMessage</div>
+          }
 
-    <div class="form-group">
-      <label for="Firstname">FirstName:</label>
-      <InputText id="Firstname" class="form-control" @bind-Value="registerForm.FirstName"/>
-      <ValidationMessage For="@(() => registerForm.FirstName)"/>
+          @if (_successMessage is not null)
+          {
+            <div class="alert alert-success" role="alert">@_successMessage</div>
+          }
 
+          <fieldset disabled="@_isSubmitting">
+            <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="registerForm">
+              <DataAnnotationsValidator/>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="Firstname" class="form-label">First name</label>
+                  <InputText id="Firstname" class="form-control" @bind-Value="registerForm.FirstName"/>
+                  <ValidationMessage For="@(() => registerForm.FirstName)"/>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="LastName" class="form-label">Last name</label>
+                  <InputText id="LastName" class="form-control" @bind-Value="registerForm.LastName"/>
+                  <ValidationMessage For="@(() => registerForm.LastName)"/>
+                </div>
+
+                <div class="col-12">
+                  <label for="Email" class="form-label">Email</label>
+                  <InputText id="Email" type="email" autocomplete="email" class="form-control" @bind-Value="registerForm.Email"/>
+                  <ValidationMessage For="@(() => registerForm.Email)"/>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="Password" class="form-label">Password</label>
+                  <InputText id="Password" type="password" autocomplete="new-password" class="form-control" @bind-Value="registerForm.Password"/>
+                  <ValidationMessage For="@(() => registerForm.Password)"/>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="RepeatPassword" class="form-label">Repeat password</label>
+                  <InputText id="RepeatPassword" type="password" autocomplete="new-password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
+                  <ValidationMessage For="@(() => registerForm.RepeatPassword)"/>
+                </div>
+
+                <div class="col-md-6">
+                  <label for="DateOfBirth" class="form-label">Date of birth</label>
+                  <InputDate id="DateOfBirth" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
+                  <ValidationMessage For="@(() => registerForm.DateOfBirth)"/>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100 mt-4" disabled="@_isSubmitting">
+                @(_isSubmitting ? "Creating account..." : "Register")
+              </button>
+            </EditForm>
+          </fieldset>
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="LastName">LastName:</label>
-      <InputText id="LastName" class="form-control" @bind-Value="registerForm.LastName"/>
-      <ValidationMessage For="@(() => registerForm.LastName)"/>
-    </div>
-    <div class="form-group">
-      <label for="Email">Email:</label>
-      <InputText id="Email" class="form-control" @bind-Value="registerForm.Email"/>
-      <ValidationMessage For="@(() => registerForm.Email)"/>
-    </div>
-    <div class="form-group">
-      <label for="Password">Password:</label>
-      <InputText id="Password" type="password" class="form-control" @bind-Value="registerForm.Password"/>
-      <ValidationMessage For="@(() => registerForm.Password)"/>
-    </div>
-    <div class="form-group">
-      <label for="RepeatPassword">RepeatPassword:</label>
-      <InputText id="RepeatPassword" type="password" class="form-control" @bind-Value="registerForm.RepeatPassword"/>
-      <ValidationMessage For="@(() => registerForm.RepeatPassword)"/>
-    </div>
-    <div class="form-group">
-      <label for="DateOfBirth">DateOfBirth:</label>
-      <InputDate id="DateOfBirth" class="form-control" @bind-Value="registerForm.DateOfBirth"/>
-      <ValidationMessage For="@(() => registerForm.DateOfBirth)"/>
-    </div>
-    <br/>
-    <button type="submit" class="btn btn-primary">Register</button>
-  </EditForm>
-</fieldset>
-
-
-@if (_errorMessage is not null)
-{
-  <p class="error">@_errorMessage</p>
-}
-
-@if (_successMessage is not null)
-{
-  <p class="error">@_successMessage</p>
-}
-
+  </div>
+</div>
 
 @code {
 
@@ -73,7 +88,7 @@
 
   private string? _errorMessage;
   private string? _successMessage;
-
+  private bool _isSubmitting;
 
   protected override void OnInitialized()
   {
@@ -85,6 +100,9 @@
 
   private async Task SubmitAsync()
   {
+    _isSubmitting = true;
+    _errorMessage = null;
+    _successMessage = null;
     try
     {
       await AuthenticationService.RegisterAsync(registerForm);
@@ -111,6 +129,11 @@
     {
       _errorMessage = ex.Message;
     }
+    finally
+    {
+      _isSubmitting = false;
+      StateHasChanged();
+    }
   }
 
   protected override Task OnAfterRenderAsync(bool firstRender)
@@ -125,9 +148,8 @@
 
   private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
   {
-    // Clear the validation messages for the field that changed
-    _messageStore.Clear(e.FieldIdentifier);
-    // Optionally notify that validation state has changed
+    // Clear all validation messages when any field changes to allow re-submission
+    _messageStore.Clear();
     _editContext.NotifyValidationStateChanged();
   }
 

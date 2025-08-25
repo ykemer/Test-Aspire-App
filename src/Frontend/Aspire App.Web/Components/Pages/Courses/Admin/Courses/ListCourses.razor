@@ -13,72 +13,78 @@
 @inject ICoursesApiService CoursesApiService
 <PageTitle>Courses</PageTitle>
 
-<h1>Courses</h1>
-
-
-@if (_courses == null)
-{
-  <p>
-    <em>Loading...</em>
-  </p>
-}
-else if (_courses.Items.Count == 0)
-{
-  <div>
-    <NavLink href="/admin/courses/create" class="btn btn-primary ml-auto">Create Course</NavLink>
-    <p>
-      <em>No courses found.</em>
-    </p>
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h3 mb-0">Courses</h1>
+    <NavLink href="/admin/courses/create" class="btn btn-primary">
+      + Create Course
+    </NavLink>
   </div>
-}
-else
-{
-  <div>
-    <NavLink href="/admin/courses/create" class="btn btn-primary ml-auto">Create Course</NavLink>
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Enrolled Students</th>
-        <th></th>
-        <th></th>
-        <th></th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      @foreach (var course in _courses.Items)
+
+  @if (_courses == null)
+  {
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading courses"></div>
+      <span class="ms-2 text-muted">Loading courses...</span>
+    </div>
+  }
+  else if (_courses.Items.Count == 0)
+  {
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <p class="text-muted mb-3">No courses found.</p>
+        <NavLink href="/admin/courses/create" class="btn btn-primary">
+          Create your first course
+        </NavLink>
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th style="width:45%">Name</th>
+              <th style="width:15%">Enrolled Students</th>
+              <th class="text-end" style="width:40%">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var course in _courses.Items)
+            {
+              <tr>
+                <td class="fw-semibold">@course.Name</td>
+                <td>
+                  <span class="badge text-bg-secondary">@course.TotalStudents</span>
+                </td>
+                <td class="text-end">
+                  <div class="btn-group" role="group" aria-label="Actions for @course.Name">
+                    <NavLink href="@($"/admin/courses/{course.Id}/enrollments")" class="btn btn-outline-info btn-sm">Students</NavLink>
+                    <NavLink href="@($"/admin/courses/{course.Id}")" class="btn btn-outline-secondary btn-sm">Edit</NavLink>
+                    <NavLink href="@($"/admin/courses/{course.Id}/classes")" class="btn btn-outline-primary btn-sm">Classes</NavLink>
+                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete</button>
+                  </div>
+                </td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      @if (_courses.TotalPages > 1)
       {
-        <tr>
-          <td>@course.Name</td>
-          <td>@course.TotalStudents</td>
-          <td>
-            <NavLink href="@($"/admin/courses/{course.Id}/enrollments")" class="btn btn-primary">
-              Students
-            </NavLink>
-          </td>
-          <td>
-            <NavLink href="@($"/admin/courses/{course.Id}")" class="btn btn-primary">Edit</NavLink>
-          </td>
-          <td>
-            <NavLink href="@($"/admin/courses/{course.Id}/classes")" class="btn btn-primary">Classes</NavLink>
-          </td>
-          <td>
-            <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">
-              Delete
-            </button>
-          </td>
-        </tr>
+        <div class="card-footer bg-white">
+          <div class="d-flex justify-content-center">
+            <Pager records="_courses" ChangePage="GetStudents"/>
+          </div>
+        </div>
       }
-      </tbody>
-    </table>
-
-    @if (_courses.TotalPages > 1)
-    {
-      <Pager records="_courses" ChangePage="GetStudents"/>
-    }
-  </div>
-}
+    </div>
+  }
+</div>
 
 @if (_showDeleteConfirmation)
 {

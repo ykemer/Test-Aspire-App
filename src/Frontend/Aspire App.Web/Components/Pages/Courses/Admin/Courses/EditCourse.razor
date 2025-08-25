@@ -8,42 +8,66 @@
 @inject ICoursesApiService CoursesApiService
 @inject NavigationManager NavigationManager;
 
-<h3>Update course</h3>
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h3 class="card-title mb-3">Update course</h3>
 
-@if (loading)
-{
-  <p>
-    <em>Loading...</em>
-  </p>
-}
-else
-{
-  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="updateCourseForm">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
+          @if (loading)
+          {
+            <div class="d-flex justify-content-center align-items-center py-5">
+              <div class="spinner-border text-primary" role="status" aria-label="Loading course"></div>
+              <span class="ms-2 text-muted">Loading course...</span>
+            </div>
+          }
+          else
+          {
+            @if (_successMessage is not null)
+            {
+              <div class="alert alert-success" role="alert">@_successMessage</div>
+            }
 
-    <div class="form-group">
-      <label for="Name">Name:</label>
-      <InputText id="Name" class="form-control" @bind-Value="updateCourseForm.Name"/>
-      <ValidationMessage For="@(() => updateCourseForm.Name)"/>
+            @if (_errorMessage is not null)
+            {
+              <div class="alert alert-danger" role="alert">@_errorMessage</div>
+            }
+
+            <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="updateCourseForm">
+              <DataAnnotationsValidator/>
+              <ValidationSummary/>
+
+              <div class="row g-3">
+                <div class="col-12">
+                  <label for="Name" class="form-label">Name</label>
+                  <InputText id="Name" class="form-control" @bind-Value="updateCourseForm.Name"/>
+                  <ValidationMessage For="@(() => updateCourseForm.Name)"/>
+                </div>
+                <div class="col-12">
+                  <label for="Description" class="form-label">Description</label>
+                  <InputText id="Description" class="form-control" @bind-Value="updateCourseForm.Description"/>
+                  <ValidationMessage For="@(() => updateCourseForm.Description)"/>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary mt-4">Update</button>
+            </EditForm>
+          }
+        </div>
+      </div>
     </div>
-    <div class="form-group">
-      <label for="Name">Description:</label>
-      <InputText id="Description" class="form-control" @bind-Value="updateCourseForm.Description"/>
-      <ValidationMessage For="@(() => updateCourseForm.Description)"/>
-    </div>
-    <br/>
-    <button type="submit" class="btn btn-primary">Update</button>
-  </EditForm>
-}
+  </div>
+</div>
+
 @if (_successMessage is not null)
 {
-  <p>@_successMessage</p>
+  <!-- success already shown above inside card -->
 }
 
 @if (_errorMessage is not null)
 {
-  <p class="error">@_errorMessage</p>
+  <!-- error already shown above inside card -->
 }
 
 @code {
@@ -55,6 +79,7 @@ else
   private string? _errorMessage;
   private string? _successMessage;
   private bool loading = true;
+  private bool _redirectTo404;
 
   protected override async Task OnInitializedAsync()
   {
@@ -73,8 +98,19 @@ else
     }
     catch
     {
-      NavigationManager.NavigateTo("/404");
+      _redirectTo404 = true;
     }
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (_redirectTo404)
+    {
+      _redirectTo404 = false;
+      NavigationManager.NavigateTo("/404", replace: true);
+    }
+    if (firstRender) StateHasChanged();
+    return Task.CompletedTask;
   }
 
 
@@ -92,14 +128,12 @@ else
     {
       _messageStore.Clear();
 
-      // Add server-side validation errors to the ValidationMessageStore
       foreach (var error in ex.Errors)
       {
         var fieldIdentifier = new FieldIdentifier(updateCourseForm, FrontendHelper.ToPascalCase(error.Key));
         _messageStore.Add(fieldIdentifier, error.Value);
       }
 
-      // Notify the EditContext that the validation state has changed
       _editContext.NotifyValidationStateChanged();
     }
     catch (Exception ex)
@@ -109,17 +143,10 @@ else
     }
   }
 
-  protected override Task OnAfterRenderAsync(bool firstRender)
-  {
-    if (firstRender) StateHasChanged();
-    return Task.CompletedTask;
-  }
 
   private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
   {
-    // Clear the validation messages for the field that changed
     _messageStore.Clear(e.FieldIdentifier);
-    // Optionally notify that validation state has changed
     _editContext.NotifyValidationStateChanged();
   }
 

@@ -16,100 +16,103 @@
 
 <PageTitle>Course "@(_course is not null ? _course.Name : "")" classes</PageTitle>
 
-@if (_course != null)
-{
-  <Breadcrumb>
-    <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
-    <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
-  </Breadcrumb>
-}
-
-
-@if (_course != null)
-{
-  <h1>
-    Course "@_course.Name" classes
-  </h1>
-}
-
-
-@if (_classes == null)
-{
-  <p>
-    <em>Loading...</em>
-  </p>
-}
-else if (_classes.Items.Count == 0)
-{
-  <p>
-    <em>No courses found.</em>
-  </p>
-}
-else
-{
-  <table class="table">
-    <thead>
-    <tr>
-      <th>Registration deadline</th>
-      <th>Start Date</th>
-      <th>End date</th>
-      <th></th>
-    </tr>
-    </thead>
-    <tbody>
-    @foreach (var courseClass in _classes.Items)
-    {
-      var isLoading = _loadingClassId == courseClass.Id;
-      <tr>
-        <td>@courseClass.RegistrationDeadline.ToString("dd.MM.yyyy")</td>
-        <td>@courseClass.CourseStartDate.ToString("dd.MM.yyyy")</td>
-        <td>@courseClass.CourseEndDate.ToString("dd.MM.yyyy")</td>
-        <td>
-          @if (courseClass.IsUserEnrolled)
-          {
-            <button class="btn btn-danger" disabled="@isLoading" @onclick="() => LeaveCourse(courseClass.Id)">
-              @if (isLoading)
-              {
-                <div>
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  Leaving...
-                </div>
-              }
-              else
-              {
-                <div>
-                  Leave
-                </div>
-              }
-            </button>
-          }
-          else
-          {
-            <button class="btn btn-primary" disabled="@isLoading" @onclick="() => EnrollCourse(courseClass.Id)">
-              @if (isLoading)
-              {
-                <div>
-                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                  Enrolling...
-                </div>
-              }
-              else
-              {
-                <div>Enroll</div>
-              }
-            </button>
-          }
-        </td>
-      </tr>
-    }
-    </tbody>
-  </table>
-
-  @if (_classes.TotalPages > 1)
+<div class="container my-4">
+  @if (_course != null)
   {
-    <Pager records="_classes" ChangePage="GetClasses"/>
+    <div class="mb-3">
+      <Breadcrumb>
+        <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
+        <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
+      </Breadcrumb>
+    </div>
   }
-}
+
+  <h1 class="h4 mb-3">@(_course != null ? $"Course \"{_course.Name}\" classes" : "Classes")</h1>
+
+  @if (_classes == null)
+  {
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading classes"></div>
+      <span class="ms-2 text-muted">Loading classes...</span>
+    </div>
+  }
+  else if (_classes.Items.Count == 0)
+  {
+    <div class="card shadow-sm">
+      <div class="card-body text-center py-5">
+        <p class="text-muted mb-0">No classes found.</p>
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="card shadow-sm">
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-striped table-hover align-middle mb-0">
+            <thead class="table-light">
+            <tr>
+              <th style="width:25%">Registration deadline</th>
+              <th style="width:25%">Start Date</th>
+              <th style="width:25%">End date</th>
+              <th class="text-end" style="width:25%">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var courseClass in _classes.Items)
+            {
+              var isLoading = _loadingClassId == courseClass.Id;
+              <tr>
+                <td>@courseClass.RegistrationDeadline.ToString("dd.MM.yyyy")</td>
+                <td>@courseClass.CourseStartDate.ToString("dd.MM.yyyy")</td>
+                <td>@courseClass.CourseEndDate.ToString("dd.MM.yyyy")</td>
+                <td class="text-end">
+                  @if (courseClass.IsUserEnrolled)
+                  {
+                    <button class="btn btn-outline-danger btn-sm" disabled="@isLoading" @onclick="() => LeaveCourse(courseClass.Id)">
+                      @if (isLoading)
+                      {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ms-1">Leaving...</span>
+                      }
+                      else
+                      {
+                        <span>Leave</span>
+                      }
+                    </button>
+                  }
+                  else
+                  {
+                    <button class="btn btn-outline-primary btn-sm" disabled="@isLoading" @onclick="() => EnrollCourse(courseClass.Id)">
+                      @if (isLoading)
+                      {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ms-1">Enrolling...</span>
+                      }
+                      else
+                      {
+                        <span>Enroll</span>
+                      }
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+            </tbody>
+          </table>
+        </div>
+      </div>
+      @if (_classes.TotalPages > 1)
+      {
+        <div class="card-footer bg-white">
+          <div class="d-flex justify-content-center">
+            <Pager records="_classes" ChangePage="GetClasses"/>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
 
 
 @code {

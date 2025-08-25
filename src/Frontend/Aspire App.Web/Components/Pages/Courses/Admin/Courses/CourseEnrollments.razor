@@ -1,5 +1,6 @@
 ﻿@page "/admin/courses/{courseId:guid}/enrollments"
 @using Aspire_App.Web.Services.Courses
+@using Aspire_App.Web.Exceptions
 @using Contracts.Courses.Responses
 @using Contracts.Enrollments.Responses
 @attribute [Authorize]
@@ -10,73 +11,110 @@
 @attribute [OutputCache(Duration = 5)]
 
 @inject ICoursesApiService CoursesApiService
-<PageTitle>Courses</PageTitle>
+@inject NavigationManager NavigationManager;
+<PageTitle>Course enrollments</PageTitle>
 
-<h1>Courses</h1>
+<div class="container my-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="h4 mb-0">Course enrollments</h1>
+    <NavLink href="/admin/courses" class="btn btn-outline-secondary btn-sm">Back to courses</NavLink>
+  </div>
 
-
-@if (_course == null)
-{
-  <p>
-    <em>Loading...</em>
-  </p>
-}
-else
-{
-  <h3>@_course.Name</h3>
-  <h4>@_course.Description</h4>
-  if (_course.TotalStudents == 0)
+  @if (_course == null)
   {
-    <p>
-      <em>No students enrolled.</em>
-    </p>
-  }
-  else if (_enrollments == null)
-  {
-    <p>
-      <em>Loading...</em>
-    </p>
+    <div class="d-flex justify-content-center align-items-center py-5">
+      <div class="spinner-border text-primary" role="status" aria-label="Loading course"></div>
+      <span class="ms-2 text-muted">Loading course...</span>
+    </div>
   }
   else
   {
-    <table class="table">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Enrolled</th>
-        <th></th>
-      </tr>
-      </thead>
-      <tbody>
-      @foreach (var student in _enrollments)
-      {
-        <tr>
-          <td>@student.FirstName @student.LastName</td>
-          <td>@student.EnrollmentDateTime.ToString("dd/MM/yyyy hh:mm")</td>
-        </tr>
-      }
-      </tbody>
-    </table>
-  }
-}
+    <div class="card shadow-sm mb-3">
+      <div class="card-body">
+        <h3 class="h5 mb-1">@_course.Name</h3>
+        <p class="text-muted mb-0">@_course.Description</p>
+      </div>
+    </div>
 
+    @if (_course.TotalStudents == 0)
+    {
+      <div class="card shadow-sm">
+        <div class="card-body text-center py-5">
+          <p class="text-muted mb-0">No students enrolled.</p>
+        </div>
+      </div>
+    }
+    else if (_enrollments == null)
+    {
+      <div class="d-flex justify-content-center align-items-center py-5">
+        <div class="spinner-border text-primary" role="status" aria-label="Loading enrollments"></div>
+        <span class="ms-2 text-muted">Loading enrollments...</span>
+      </div>
+    }
+    else
+    {
+      <div class="card shadow-sm">
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-striped table-hover align-middle mb-0">
+              <thead class="table-light">
+              <tr>
+                <th style="width:60%">Student</th>
+                <th style="width:40%">Enrolled</th>
+              </tr>
+              </thead>
+              <tbody>
+              @foreach (var student in _enrollments)
+              {
+                <tr>
+                  <td>@student.FirstName @student.LastName</td>
+                  <td>@student.EnrollmentDateTime.ToString("dd/MM/yyyy HH:mm")</td>
+                </tr>
+              }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
 
 @code {
   [Parameter] public Guid CourseId { get; set; }
   private CourseResponse? _course;
   private List<EnrollmentResponse>? _enrollments;
+  private bool _redirectTo404;
 
   protected override async Task OnInitializedAsync()
   {
     await GetCourses();
   }
 
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (_redirectTo404)
+    {
+      _redirectTo404 = false;
+      NavigationManager.NavigateTo("/404", replace: true);
+    }
+    return Task.CompletedTask;
+  }
+
   private async Task GetCourses()
   {
-    _course = await CoursesApiService.GetCourse(CourseId);
-    if (_course.TotalStudents > 0)
+    try
     {
-      _enrollments = await CoursesApiService.GetCourseEnrollments(CourseId);
+      _course = await CoursesApiService.GetCourse(CourseId);
+      if (_course.TotalStudents > 0)
+      {
+        _enrollments = await CoursesApiService.GetCourseEnrollments(CourseId);
+      }
+    }
+    catch (NotFoundException)
+    {
+      _redirectTo404 = true;
+      StateHasChanged();
     }
   }
 }

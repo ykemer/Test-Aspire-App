@@ -10,58 +10,79 @@
 @inject IClassesApiService ClassesApiService
 @inject NavigationManager NavigationManager;
 
-@if (_course is not null && updateClassForm is not null)
-{
-  <h1>Edit class for @_course.Name   </h1>
-}
+<div class="container my-4">
+  <div class="row justify-content-center">
+    <div class="col-12 col-lg-8">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          @if (_course is not null && updateClassForm is not null)
+          {
+            <h3 class="card-title mb-3">Edit class for @_course.Name</h3>
+          }
 
-@if (loading)
-{
-  <p>
-    <em>Loading...</em>
-  </p>
-}
-else
-{
-  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="updateClassForm">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
+          @if (loading)
+          {
+            <div class="d-flex justify-content-center align-items-center py-5">
+              <div class="spinner-border text-primary" role="status" aria-label="Loading class"></div>
+              <span class="ms-2 text-muted">Loading class...</span>
+            </div>
+          }
+          else
+          {
+            @if (_successMessage is not null)
+            {
+              <div class="alert alert-success" role="alert">@_successMessage</div>
+            }
 
-    <div class="form-group">
-      <label for="RegistrationDeadline">Registration Deadline:</label>
-      <InputDate id="RegistrationDeadline" class="form-control" @bind-Value="updateClassForm.RegistrationDeadline"/>
-      <ValidationMessage For="@(() => updateClassForm.RegistrationDeadline)"/>
+            @if (_errorMessage is not null)
+            {
+              <div class="alert alert-danger" role="alert">@_errorMessage</div>
+            }
+
+            <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="updateClassForm">
+              <DataAnnotationsValidator/>
+              <ValidationSummary/>
+
+              <div class="row g-3">
+                <div class="col-md-6">
+                  <label for="RegistrationDeadline" class="form-label">Registration Deadline</label>
+                  <InputDate id="RegistrationDeadline" class="form-control" @bind-Value="updateClassForm.RegistrationDeadline"/>
+                  <ValidationMessage For="@(() => updateClassForm.RegistrationDeadline)"/>
+                </div>
+                <div class="col-md-6">
+                  <label for="CourseStartDate" class="form-label">Start Date</label>
+                  <InputDate id="CourseStartDate" class="form-control" @bind-Value="updateClassForm.CourseStartDate"/>
+                  <ValidationMessage For="@(() => updateClassForm.CourseStartDate)"/>
+                </div>
+                <div class="col-md-6">
+                  <label for="CourseEndDate" class="form-label">End Date</label>
+                  <InputDate id="CourseEndDate" class="form-control" @bind-Value="updateClassForm.CourseEndDate"/>
+                  <ValidationMessage For="@(() => updateClassForm.CourseEndDate)"/>
+                </div>
+                <div class="col-md-6">
+                  <label for="MaxStudents" class="form-label">Max Students</label>
+                  <InputNumber id="MaxStudents" class="form-control" @bind-Value="updateClassForm.MaxStudents"/>
+                  <ValidationMessage For="@(() => updateClassForm.MaxStudents)"/>
+                </div>
+              </div>
+
+              <button type="submit" class="btn btn-primary mt-4">Update</button>
+            </EditForm>
+          }
+        </div>
+      </div>
     </div>
-    <br/>
-    <div class="form-group">
-      <label for="CourseStartDate">Start Date:</label>
-      <InputDate id="CourseStartDate" class="form-control" @bind-Value="updateClassForm.CourseStartDate"/>
-      <ValidationMessage For="@(() => updateClassForm.CourseStartDate)"/>
-    </div>
-    <br/>
-    <div class="form-group">
-      <label for="CourseEndDate">End Date:</label>
-      <InputDate id="CourseEndDate" class="form-control" @bind-Value="updateClassForm.CourseEndDate"/>
-      <ValidationMessage For="@(() => updateClassForm.CourseEndDate)"/>
-    </div>
-    <br/>
-    <div class="form-group">
-      <label for="MaxStudents">Max Students:</label>
-      <InputNumber id="MaxStudents" class="form-control" @bind-Value="updateClassForm.MaxStudents"/>
-      <ValidationMessage For="@(() => updateClassForm.MaxStudents)"/>
-    </div>
-    <br/>
-    <button type="submit" class="btn btn-primary">Update</button>
-  </EditForm>
-}
+  </div>
+</div>
+
 @if (_successMessage is not null)
 {
-  <p>@_successMessage</p>
+  <!-- success already shown above inside card -->
 }
 
 @if (_errorMessage is not null)
 {
-  <p class="error">@_errorMessage</p>
+  <!-- error already shown above inside card -->
 }
 
 @code {
@@ -76,6 +97,7 @@ else
   private string? _errorMessage;
   private string? _successMessage;
   private bool loading = true;
+  private bool _redirectTo404;
 
   protected override async Task OnInitializedAsync()
   {
@@ -83,6 +105,7 @@ else
     {
       var course = await CoursesApiService.GetCourse(CourseId);
       var existingClass = await ClassesApiService.GetClass(CourseId, ClassId);
+      _course = course;
       updateClassForm = new UpdateClassRequest
       {
         RegistrationDeadline = existingClass.RegistrationDeadline.ToLocalTime(),
@@ -97,8 +120,19 @@ else
     }
     catch
     {
-      NavigationManager.NavigateTo("/404");
+      _redirectTo404 = true;
     }
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (_redirectTo404)
+    {
+      _redirectTo404 = false;
+      NavigationManager.NavigateTo("/404", replace: true);
+    }
+    if (firstRender) StateHasChanged();
+    return Task.CompletedTask;
   }
 
 
@@ -115,14 +149,12 @@ else
     {
       _messageStore.Clear();
 
-      // Add server-side validation errors to the ValidationMessageStore
       foreach (var error in ex.Errors)
       {
         var fieldIdentifier = new FieldIdentifier(updateClassForm, FrontendHelper.ToPascalCase(error.Key));
         _messageStore.Add(fieldIdentifier, error.Value);
       }
 
-      // Notify the EditContext that the validation state has changed
       _editContext.NotifyValidationStateChanged();
     }
     catch (Exception ex)
@@ -132,17 +164,10 @@ else
     }
   }
 
-  protected override Task OnAfterRenderAsync(bool firstRender)
-  {
-    if (firstRender) StateHasChanged();
-    return Task.CompletedTask;
-  }
 
   private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
   {
-    // Clear the validation messages for the field that changed
     _messageStore.Clear(e.FieldIdentifier);
-    // Optionally notify that validation state has changed
     _editContext.NotifyValidationStateChanged();
   }
 

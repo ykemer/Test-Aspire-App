@@ -1,5 +1,3 @@
-using System.Text.Json;
-
 using Aspire_App.Web.Helpers;
 
 using Contracts.Common;
@@ -21,45 +19,21 @@ public class CoursesApiService : ICoursesApiService
   public async Task<PagedList<CourseListItemResponse>> GetCoursesListAsync(int page, int pageSize = 10,
     CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-    var response =
-      await _httpClient.GetAsync($"{CoursesUri}?page={page}&pageSize={pageSize}", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching course lists");
-    }
-
-    return await response.Content.ReadFromJsonAsync<PagedList<CourseListItemResponse>>(options);
+    var response = await _httpClient.GetAsync($"{CoursesUri}?page={page}&pageSize={pageSize}", cancellationToken);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<CourseListItemResponse>>(response, "Courses not found");
   }
 
   public async Task<CourseResponse> GetCourse(Guid guid, CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
     var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching course");
-    }
-
-    return await response.Content.ReadFromJsonAsync<CourseResponse>(options);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<CourseResponse>(response, "Course not found");
   }
 
   public async Task<List<EnrollmentResponse>> GetCourseEnrollments(Guid guid,
     CancellationToken cancellationToken = default)
   {
-    var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-
     var response = await _httpClient.GetAsync($"/api/courses/{guid}/enrollments", cancellationToken);
-
-    if (!response.IsSuccessStatusCode)
-    {
-      throw new ArgumentException("Error fetching enrollments");
-    }
-
-    return await response.Content.ReadFromJsonAsync<List<EnrollmentResponse>>(options);
+    return await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
   }
 
 

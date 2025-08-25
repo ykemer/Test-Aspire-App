@@ -8,38 +8,50 @@
 @inject IAuthenticationService AuthenticationService;
 @inject NavigationManager NavigationManager;
 
-<h3>Login</h3>
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm-10 col-md-8 col-lg-6">
+      <div class="card shadow-sm">
+        <div class="card-body p-4">
+          <h3 class="card-title mb-4 text-center">Login</h3>
 
-<fieldset disabled="@(_expiration is not null)">
-  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="loginForm">
-    <DataAnnotationsValidator/>
-    <ValidationSummary/>
+          @if (_errorMessage is not null)
+          {
+            <div class="alert alert-danger" role="alert">@_errorMessage</div>
+          }
 
-    <div class="form-group">
-      <label for="Email">Email:</label>
-      <InputText id="Email" class="form-control" @bind-Value="loginForm.Email"/>
-      <ValidationMessage For="@(() => loginForm.Email)"/>
+          @if (_expiration is not null)
+          {
+            <div class="alert alert-success" role="alert">You are logged in until @_expiration?.ToLongTimeString()</div>
+          }
+
+          <fieldset disabled="@_isSubmitting">
+            <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="loginForm">
+              <DataAnnotationsValidator/>
+              <ValidationSummary/>
+
+              <div class="mb-3">
+                <label for="Email" class="form-label">Email</label>
+                <InputText id="Email" type="email" autocomplete="username" class="form-control" @bind-Value="loginForm.Email"/>
+                <ValidationMessage For="@(() => loginForm.Email)"/>
+              </div>
+
+              <div class="mb-3">
+                <label for="Password" class="form-label">Password</label>
+                <InputText id="Password" type="password" autocomplete="current-password" class="form-control" @bind-Value="loginForm.Password"/>
+                <ValidationMessage For="@(() => loginForm.Password)"/>
+              </div>
+
+              <button type="submit" class="btn btn-primary w-100" disabled="@_isSubmitting">
+                @(_isSubmitting ? "Signing in..." : "Login")
+              </button>
+            </EditForm>
+          </fieldset>
+        </div>
+      </div>
     </div>
-
-    <div class="form-group">
-      <label for="Password">Password:</label>
-      <InputText id="Password" type="password" class="form-control" @bind-Value="loginForm.Password"/>
-      <ValidationMessage For="@(() => loginForm.Email)"/>
-    </div>
-    <br/>
-    <button type="submit" class="btn btn-primary">Login</button>
-  </EditForm>
-</fieldset>
-
-@if (_expiration is not null)
-{
-  <p>You are logged in until @_expiration?.ToLongTimeString()</p>
-}
-
-@if (_errorMessage is not null)
-{
-  <p class="error">@_errorMessage</p>
-}
+  </div>
+</div>
 
 @code {
 
@@ -47,6 +59,7 @@
 
   private DateTime? _expiration;
   private string? _errorMessage;
+  private bool _isSubmitting;
 
   private EditContext _editContext;
   private ValidationMessageStore _messageStore;
@@ -62,6 +75,8 @@
 
   private async Task SubmitAsync()
   {
+    _isSubmitting = true;
+    _errorMessage = null;
     try
     {
       _expiration = await AuthenticationService.LoginAsync(loginForm);
@@ -72,14 +87,12 @@
     {
       _messageStore.Clear();
 
-      // Add server-side validation errors to the ValidationMessageStore
       foreach (var error in ex.Errors)
       {
         var fieldIdentifier = new FieldIdentifier(loginForm, FrontendHelper.ToPascalCase(error.Key));
         _messageStore.Add(fieldIdentifier, error.Value);
       }
 
-      // Notify the EditContext that the validation state has changed
       _editContext.NotifyValidationStateChanged();
     }
     catch (Exception ex)
@@ -87,13 +100,17 @@
       _expiration = null;
       _errorMessage = ex.Message;
     }
+    finally
+    {
+      _isSubmitting = false;
+      StateHasChanged();
+    }
   }
 
   private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
   {
-    // Clear the validation messages for the field that changed
-    _messageStore.Clear(e.FieldIdentifier);
-    // Optionally notify that validation state has changed
+    // Clear all validation messages when any field changes to allow re-submission
+    _messageStore.Clear();
     _editContext.NotifyValidationStateChanged();
   }
 
