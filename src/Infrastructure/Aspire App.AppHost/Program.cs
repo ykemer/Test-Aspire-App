@@ -6,7 +6,10 @@ DotEnv.Load();
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-var cache = builder.AddRedis("cache");
+var cache = builder
+  .AddRedis("cache")
+  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/cache")
+  ;
 
 #region Databases
 
