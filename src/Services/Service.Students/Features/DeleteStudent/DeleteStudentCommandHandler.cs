@@ -30,7 +30,7 @@ public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand,
 
     _dbContext.Remove(student);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _publishEndpoint.Publish(new StudentDeletedEvent { StudentId = request.StudentId });
+    await _publishEndpoint.Publish(new StudentDeletedEvent { StudentId = request.StudentId }, cancellationToken);
     return Result.Deleted;
   }
 }

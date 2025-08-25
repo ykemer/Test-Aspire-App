@@ -1,5 +1,5 @@
 ﻿using Service.Students.Database.Configurations;
-using Service.Students.Entities;
+using Service.Students.Database.Entities;
 
 namespace Service.Students.Database;
 

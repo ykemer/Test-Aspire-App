@@ -1,4 +1,4 @@
-﻿using Service.Students.Entities;
+﻿using Service.Students.Database.Entities;
 
 namespace Service.Students.Database;
 
@@ -53,7 +53,7 @@ public sealed class ApplicationDbContextInitializer
         FirstName = "Marry",
         LastName = "Doe",
         DateOfBirth = DateTime.Now.AddYears(-25),
-        EnrollmentsCount = 1
+        EnrollmentsCount = 0
       });
 
       await _context.SaveChangesAsync();

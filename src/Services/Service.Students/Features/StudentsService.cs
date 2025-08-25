@@ -2,8 +2,9 @@ using Grpc.Core;
 
 using Library.GRPC;
 
-using Service.Students.Entities;
-using Service.Students.Middleware;
+using Service.Students.Features.DeleteStudent;
+using Service.Students.Features.GetStudent;
+using Service.Students.Features.ListStudent;
 
 using StudentsGRPC;
 

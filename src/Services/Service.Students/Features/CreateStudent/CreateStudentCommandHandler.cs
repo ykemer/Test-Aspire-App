@@ -1,6 +1,4 @@
-﻿using Service.Students.Entities;
-
-namespace Service.Students.Features.CreateStudent;
+﻿namespace Service.Students.Features.CreateStudent;
 
 public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, ErrorOr<Created>>
 {
@@ -24,14 +22,7 @@ public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand,
         $"Student with email {request.Email} already exists");
     }
 
-    Student? student = new()
-    {
-      Id = request.Id,
-      FirstName = request.FirstName,
-      LastName = request.LastName,
-      Email = request.Email,
-      DateOfBirth = request.DateOfBirth
-    };
+    var student = request.MapToStudent();
     await _dbContext.Students.AddAsync(student, cancellationToken);
     await _dbContext.SaveChangesAsync(cancellationToken);
     return Result.Created;

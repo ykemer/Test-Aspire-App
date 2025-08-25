@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Service.Students.Entities;
+using Service.Students.Database.Entities;
 
 namespace Service.Students.Database.Configurations;
 

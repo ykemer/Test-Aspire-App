@@ -2,9 +2,11 @@
 
 using Google.Protobuf.WellKnownTypes;
 
+using Service.Students.Database.Entities;
+
 using StudentsGRPC;
 
-namespace Service.Students.Entities;
+namespace Service.Students.Features;
 
 public static class StudentExtensionMethods
 {

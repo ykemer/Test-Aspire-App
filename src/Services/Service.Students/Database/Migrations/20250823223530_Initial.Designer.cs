@@ -12,20 +12,20 @@ using Service.Students.Database;
 namespace Service.Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250227192647_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250823223530_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.2")
+                .HasAnnotation("ProductVersion", "9.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Service.Students.Entities.Student", b =>
+            modelBuilder.Entity("Service.Students.Database.Entities.Student", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("text");
@@ -35,18 +35,21 @@ namespace Service.Students.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("EnrollmentsCount")
                         .HasColumnType("integer");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<string>("LastName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("Id");
 
