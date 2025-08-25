@@ -1,0 +1,151 @@
+﻿@page "/courses/{courseId:guid}/classes"
+@using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Services.Courses
+@using Contracts.Common
+@using Contracts.Courses.Responses
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@attribute [StreamRendering]
+@attribute [OutputCache(Duration = 5)]
+
+@inject ICoursesApiService CoursesApiService
+@inject IClassesApiService ClassesApiService
+@inject IEnrollmentApiService EnrollmentApiService
+
+<PageTitle>Course "@(_course is not null ? _course.Name : "")" classes</PageTitle>
+
+@if (_course != null)
+{
+  <Breadcrumb>
+    <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
+    <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
+  </Breadcrumb>
+}
+
+
+@if (_course != null)
+{
+  <h1>
+    Course "@_course.Name" classes
+  </h1>
+}
+
+
+@if (_classes == null)
+{
+  <p>
+    <em>Loading...</em>
+  </p>
+}
+else if (_classes.Items.Count == 0)
+{
+  <p>
+    <em>No courses found.</em>
+  </p>
+}
+else
+{
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Registration deadline</th>
+      <th>Start Date</th>
+      <th>End date</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var courseClass in _classes.Items)
+    {
+      var isLoading = _loadingClassId == courseClass.Id;
+      <tr>
+        <td>@courseClass.RegistrationDeadline.ToString("dd.MM.yyyy")</td>
+        <td>@courseClass.CourseStartDate.ToString("dd.MM.yyyy")</td>
+        <td>@courseClass.CourseEndDate.ToString("dd.MM.yyyy")</td>
+        <td>
+          @if (courseClass.IsUserEnrolled)
+          {
+            <button class="btn btn-danger" disabled="@isLoading" @onclick="() => LeaveCourse(courseClass.Id)">
+              @if (isLoading)
+              {
+                <div>
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Leaving...
+                </div>
+              }
+              else
+              {
+                <div>
+                  Leave
+                </div>
+              }
+            </button>
+          }
+          else
+          {
+            <button class="btn btn-primary" disabled="@isLoading" @onclick="() => EnrollCourse(courseClass.Id)">
+              @if (isLoading)
+              {
+                <div>
+                  <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                  Enrolling...
+                </div>
+              }
+              else
+              {
+                <div>Enroll</div>
+              }
+            </button>
+          }
+        </td>
+      </tr>
+    }
+    </tbody>
+  </table>
+
+  @if (_classes.TotalPages > 1)
+  {
+    <Pager records="_classes" ChangePage="GetClasses"/>
+  }
+}
+
+
+@code {
+  [Parameter] public Guid CourseId { get; set; }
+  private PagedList<ClassListItemResponse>? _classes;
+  private int Page { get; set; }
+  private Guid? _loadingClassId;
+  private CourseResponse? _course;
+
+  protected override async Task OnInitializedAsync()
+  {
+    _course = await CoursesApiService.GetCourse(CourseId);
+    await GetClasses();
+  }
+
+  protected async Task GetClasses(int page = 1)
+  {
+    Page = page;
+    _classes = null;
+    _classes = await ClassesApiService.GetClassListAsync(CourseId.ToString(), page);
+  }
+
+  private async Task EnrollCourse(Guid classId)
+  {
+    _loadingClassId = classId;
+    await EnrollmentApiService.EnrollToCourse(CourseId, classId);
+    await GetClasses(Page);
+    _loadingClassId = null;
+  }
+
+  private async Task LeaveCourse(Guid classId)
+  {
+    _loadingClassId = classId;
+    await EnrollmentApiService.LeaveCourse(CourseId, classId);
+    await GetClasses(Page);
+    _loadingClassId = null;
+  }
+
+}

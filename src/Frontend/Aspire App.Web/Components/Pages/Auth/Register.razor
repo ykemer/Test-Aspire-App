@@ -66,7 +66,7 @@
 
 @code {
 
-  //[SupplyParameterFromForm] 
+  //[SupplyParameterFromForm]
   public UserRegisterRequest registerForm { get; set; }
   private EditContext _editContext;
   private ValidationMessageStore _messageStore;
@@ -131,4 +131,8 @@
     _editContext.NotifyValidationStateChanged();
   }
 
+  public void Dispose()
+  {
+    _editContext.OnFieldChanged -= EditContext_OnFieldChanged;
+  }
 }

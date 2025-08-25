@@ -24,9 +24,12 @@
 }
 else if (_courses.Items.Count == 0)
 {
-  <p>
-    <em>No courses found.</em>
-  </p>
+  <div>
+    <NavLink href="/admin/courses/create" class="btn btn-primary ml-auto">Create Course</NavLink>
+    <p>
+      <em>No courses found.</em>
+    </p>
+  </div>
 }
 else
 {
@@ -40,6 +43,7 @@ else
         <th></th>
         <th></th>
         <th></th>
+        <th></th>
       </tr>
       </thead>
       <tbody>
@@ -47,18 +51,21 @@ else
       {
         <tr>
           <td>@course.Name</td>
-          <td>@course.EnrollmentsCount</td>
+          <td>@course.TotalStudents</td>
           <td>
-            <NavLink href="@($"/admin/course/enrollments/{course.Id}")" class="btn btn-primary">Enrolled
+            <NavLink href="@($"/admin/courses/{course.Id}/enrollments")" class="btn btn-primary">
               Students
             </NavLink>
           </td>
           <td>
-            <NavLink href="@($"/admin/course/edit/{course.Id}")" class="btn btn-primary">Edit
-            </NavLink>
+            <NavLink href="@($"/admin/courses/{course.Id}")" class="btn btn-primary">Edit</NavLink>
           </td>
           <td>
-            <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete
+            <NavLink href="@($"/admin/courses/{course.Id}/classes")" class="btn btn-primary">Classes</NavLink>
+          </td>
+          <td>
+            <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(course.Id)">
+              Delete
             </button>
           </td>
         </tr>

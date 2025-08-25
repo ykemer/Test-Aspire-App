@@ -107,4 +107,9 @@
     return Task.CompletedTask;
   }
 
+  public void Dispose()
+  {
+    _editContext.OnFieldChanged -= EditContext_OnFieldChanged;
+  }
+
 }

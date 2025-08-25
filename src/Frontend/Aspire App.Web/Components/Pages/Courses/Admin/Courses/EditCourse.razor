@@ -1,4 +1,4 @@
-﻿@page "/admin/course/edit/{courseId:guid}"
+﻿@page "/admin/courses/{courseId:guid}"
 @using Aspire_App.Web.Exceptions
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
@@ -33,7 +33,7 @@ else
       <ValidationMessage For="@(() => updateCourseForm.Description)"/>
     </div>
     <br/>
-    <button type="submit" class="btn btn-primary">Login</button>
+    <button type="submit" class="btn btn-primary">Update</button>
   </EditForm>
 }
 @if (_successMessage is not null)
@@ -63,7 +63,6 @@ else
       var existingCourse = await CoursesApiService.GetCourse(CourseId);
       updateCourseForm = new UpdateCourseRequest
       {
-        Id = CourseId.ToString(),
         Name = existingCourse.Name,
         Description = existingCourse.Description
       };
@@ -83,7 +82,7 @@ else
   {
     try
     {
-      await CoursesApiService.UpdateCourse(updateCourseForm);
+      await CoursesApiService.UpdateCourse(CourseId, updateCourseForm);
       updateCourseForm = new UpdateCourseRequest();
       _errorMessage = null;
       _successMessage = "Course updated successfully!";
@@ -122,6 +121,11 @@ else
     _messageStore.Clear(e.FieldIdentifier);
     // Optionally notify that validation state has changed
     _editContext.NotifyValidationStateChanged();
+  }
+
+  public void Dispose()
+  {
+    _editContext.OnFieldChanged -= EditContext_OnFieldChanged;
   }
 
 }

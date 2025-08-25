@@ -1,6 +1,7 @@
-﻿@page "/admin/course/enrollments/{courseId:guid}"
+﻿@page "/admin/courses/{courseId:guid}/classes/{classId:guid}/enrollments"
 @using Aspire_App.Web.Services.Courses
 @using Contracts.Courses.Requests
+@using Contracts.Courses.Requests.Enrollments
 @using Contracts.Courses.Responses
 @using Contracts.Enrollments.Responses
 @attribute [Authorize]
@@ -11,9 +12,21 @@
 @attribute [OutputCache(Duration = 5)]
 
 @inject ICoursesApiService CoursesApiService
-<PageTitle>Courses</PageTitle>
+@inject IClassesApiService ClassesApiService
 
-<h1>Courses</h1>
+@if (_course is not null && _class is not null)
+{
+  <PageTitle>
+    Course "@_course.Name" @_class.CourseStartDate enrollments
+  </PageTitle>
+}
+
+@if (_course is not null && _class is not null)
+{
+  <h1>
+    Course "@_course.Name" @_class.CourseStartDate enrollments
+  </h1>
+}
 
 
 @if (_course == null)
@@ -26,7 +39,7 @@ else
 {
   <h3>@_course.Name</h3>
   <h4>@_course.Description</h4>
-  if (_course.EnrollmentsCount == 0)
+  if (_course.TotalStudents == 0)
   {
     <p>
       <em>No students enrolled.</em>
@@ -54,9 +67,6 @@ else
         <tr>
           <td>@student.FirstName @student.LastName</td>
           <td>@student.EnrollmentDateTime.ToString("dd/MM/yyyy hh:mm")</td>
-          <td>
-            <button class="btn btn-primary" @onclick="() => LeaveCourse(student.StudentId)">Remove</button>
-          </td>
         </tr>
       }
       </tbody>
@@ -67,7 +77,9 @@ else
 
 @code {
   [Parameter] public Guid CourseId { get; set; }
+  [Parameter] public Guid ClassId { get; set; }
   private CourseResponse? _course;
+  private ClassResponse? _class;
   private List<EnrollmentResponse>? _enrollments;
 
   protected override async Task OnInitializedAsync()
@@ -78,22 +90,11 @@ else
   private async Task GetCourses()
   {
     _course = await CoursesApiService.GetCourse(CourseId);
-    if (_course.EnrollmentsCount > 0)
+    _class = await ClassesApiService.GetClass(CourseId, ClassId);
+    if (_course.TotalStudents > 0)
     {
-      _enrollments = await CoursesApiService.GetCourseEnrollments(CourseId);
+      _enrollments = await ClassesApiService.GetClassEnrollments(CourseId, ClassId);
+      _enrollments = await ClassesApiService.GetClassEnrollments(CourseId, ClassId);
     }
   }
-
-  private async Task LeaveCourse(string studentId)
-
-  {
-    await CoursesApiService.LeaveCourseByAdmin(new ChangeCourseEnrollmentAdminRequest
-    {
-      CourseId = CourseId,
-      StudentId = studentId
-    });
-    await GetCourses();
-  }
-
-
 }

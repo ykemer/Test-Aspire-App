@@ -1,0 +1,81 @@
+﻿@page "/courses"
+@using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Services.Courses
+@using Contracts.Common
+@using Contracts.Courses.Responses
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@attribute [StreamRendering]
+@attribute [OutputCache(Duration = 5)]
+
+@inject ICoursesApiService CoursesApiService
+<PageTitle>Courses</PageTitle>
+
+<h1>Courses</h1>
+
+
+@if (_courses == null)
+{
+  <p>
+    <em>Loading...</em>
+  </p>
+}
+else if (_courses.Items.Count == 0)
+{
+  <p>
+    <em>No courses found.</em>
+  </p>
+}
+else
+{
+  <table class="table">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+    </tr>
+    </thead>
+    <tbody>
+    @foreach (var course in _courses.Items)
+    {
+      <tr>
+        <td>@course.Name</td>
+        <td>@course.Description</td>
+        <td>
+          <NavLink href="@($"/courses/{course.Id}/classes")" class="btn btn-primary">
+            Classes
+          </NavLink>
+        </td>
+      </tr>
+    }
+    </tbody>
+  </table>
+
+  @if (_courses.TotalPages > 1)
+  {
+    <Pager records="_courses" ChangePage="GetCourses"/>
+  }
+}
+
+
+@code {
+  private PagedList<CourseListItemResponse>? _courses;
+  private int Page { get; set; }
+  private Guid? _loadingCourseId = null;
+
+  protected override async Task OnInitializedAsync()
+  {
+    await GetCourses();
+  }
+
+  protected async Task GetCourses(int page = 1)
+  {
+    Page = page;
+    _courses = null;
+    _courses = await CoursesApiService.GetCoursesListAsync(page);
+  }
+
+}

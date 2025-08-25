@@ -1,5 +1,6 @@
 ﻿using Contracts.Common;
 using Contracts.Courses.Requests;
+using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 
@@ -12,15 +13,15 @@ public interface ICoursesApiService
 
   Task<CourseResponse> GetCourse(Guid guid, CancellationToken cancellationToken = default);
   Task<List<EnrollmentResponse>> GetCourseEnrollments(Guid guid, CancellationToken cancellationToken = default);
-  Task EnrollToCourse(Guid courseId, CancellationToken cancellationToken = default);
-  Task LeaveCourse(Guid courseId, CancellationToken cancellationToken = default);
+
   Task CreateCourse(CreateCourseRequest createCourseRequest, CancellationToken cancellationToken = default);
   Task DeleteCourse(Guid id, CancellationToken cancellationToken = default);
-  Task UpdateCourse(UpdateCourseRequest updateCourseRequest, CancellationToken cancellationToken = default);
+  Task UpdateCourse(Guid courseId, UpdateCourseRequest updateCourseRequest, CancellationToken cancellationToken = default);
 
-  Task LeaveCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest,
-    CancellationToken cancellationToken = default);
 
-  Task EnrollToCourseByAdmin(ChangeCourseEnrollmentAdminRequest adminRequest,
-    CancellationToken cancellationToken = default);
+
+
+
+
+
 }

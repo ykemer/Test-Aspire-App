@@ -1,0 +1,154 @@
+﻿@page "/admin/courses/{courseId:guid}/classes/{classId:guid}"
+@using Aspire_App.Web.Exceptions
+@using Aspire_App.Web.Helpers
+@using Aspire_App.Web.Services.Courses
+@using Contracts.Courses.Requests
+@using Contracts.Courses.Responses
+@rendermode InteractiveServer
+
+@inject ICoursesApiService CoursesApiService
+@inject IClassesApiService ClassesApiService
+@inject NavigationManager NavigationManager;
+
+@if (_course is not null && updateClassForm is not null)
+{
+  <h1>Edit class for @_course.Name   </h1>
+}
+
+@if (loading)
+{
+  <p>
+    <em>Loading...</em>
+  </p>
+}
+else
+{
+  <EditForm EditContext="_editContext" OnValidSubmit="SubmitAsync" FormName="updateClassForm">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+
+    <div class="form-group">
+      <label for="RegistrationDeadline">Registration Deadline:</label>
+      <InputDate id="RegistrationDeadline" class="form-control" @bind-Value="updateClassForm.RegistrationDeadline"/>
+      <ValidationMessage For="@(() => updateClassForm.RegistrationDeadline)"/>
+    </div>
+    <br/>
+    <div class="form-group">
+      <label for="CourseStartDate">Start Date:</label>
+      <InputDate id="CourseStartDate" class="form-control" @bind-Value="updateClassForm.CourseStartDate"/>
+      <ValidationMessage For="@(() => updateClassForm.CourseStartDate)"/>
+    </div>
+    <br/>
+    <div class="form-group">
+      <label for="CourseEndDate">End Date:</label>
+      <InputDate id="CourseEndDate" class="form-control" @bind-Value="updateClassForm.CourseEndDate"/>
+      <ValidationMessage For="@(() => updateClassForm.CourseEndDate)"/>
+    </div>
+    <br/>
+    <div class="form-group">
+      <label for="MaxStudents">Max Students:</label>
+      <InputNumber id="MaxStudents" class="form-control" @bind-Value="updateClassForm.MaxStudents"/>
+      <ValidationMessage For="@(() => updateClassForm.MaxStudents)"/>
+    </div>
+    <br/>
+    <button type="submit" class="btn btn-primary">Update</button>
+  </EditForm>
+}
+@if (_successMessage is not null)
+{
+  <p>@_successMessage</p>
+}
+
+@if (_errorMessage is not null)
+{
+  <p class="error">@_errorMessage</p>
+}
+
+@code {
+  [Parameter] public Guid CourseId { get; set; }
+  [Parameter] public Guid ClassId { get; set; }
+
+  private CourseResponse? _course;
+  public UpdateClassRequest updateClassForm;
+  private EditContext _editContext;
+  private ValidationMessageStore _messageStore;
+
+  private string? _errorMessage;
+  private string? _successMessage;
+  private bool loading = true;
+
+  protected override async Task OnInitializedAsync()
+  {
+    try
+    {
+      var course = await CoursesApiService.GetCourse(CourseId);
+      var existingClass = await ClassesApiService.GetClass(CourseId, ClassId);
+      updateClassForm = new UpdateClassRequest
+      {
+        RegistrationDeadline = existingClass.RegistrationDeadline.ToLocalTime(),
+        CourseStartDate = existingClass.CourseStartDate.ToLocalTime(),
+        CourseEndDate = existingClass.CourseEndDate.ToLocalTime(),
+        MaxStudents = existingClass.MaxStudents
+      };
+      _editContext = new EditContext(updateClassForm);
+      _messageStore = new ValidationMessageStore(_editContext);
+      _editContext.OnFieldChanged += EditContext_OnFieldChanged;
+      loading = false;
+    }
+    catch
+    {
+      NavigationManager.NavigateTo("/404");
+    }
+  }
+
+
+  private async Task SubmitAsync()
+  {
+    try
+    {
+      await ClassesApiService.UpdateClass(CourseId, ClassId, updateClassForm);
+      _errorMessage = null;
+      _successMessage = "Course updated successfully!";
+      NavigationManager.NavigateTo($"/admin/courses/{CourseId}/classes");
+    }
+    catch (ValidationException ex)
+    {
+      _messageStore.Clear();
+
+      // Add server-side validation errors to the ValidationMessageStore
+      foreach (var error in ex.Errors)
+      {
+        var fieldIdentifier = new FieldIdentifier(updateClassForm, FrontendHelper.ToPascalCase(error.Key));
+        _messageStore.Add(fieldIdentifier, error.Value);
+      }
+
+      // Notify the EditContext that the validation state has changed
+      _editContext.NotifyValidationStateChanged();
+    }
+    catch (Exception ex)
+    {
+      _successMessage = null;
+      _errorMessage = ex.Message;
+    }
+  }
+
+  protected override Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender) StateHasChanged();
+    return Task.CompletedTask;
+  }
+
+  private void EditContext_OnFieldChanged(object? sender, FieldChangedEventArgs e)
+  {
+    // Clear the validation messages for the field that changed
+    _messageStore.Clear(e.FieldIdentifier);
+    // Optionally notify that validation state has changed
+    _editContext.NotifyValidationStateChanged();
+  }
+
+  public void Dispose()
+  {
+    _editContext.OnFieldChanged -= EditContext_OnFieldChanged;
+  }
+
+}

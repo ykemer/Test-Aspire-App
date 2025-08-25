@@ -1,0 +1,150 @@
+﻿@page "/admin/courses/{courseId:guid}/classes"
+@using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Services.Courses
+@using Contracts.Common
+@using Contracts.Courses.Responses
+@attribute [Authorize]
+
+@rendermode InteractiveServer
+
+@attribute [StreamRendering]
+@attribute [OutputCache(Duration = 5)]
+
+@inject ICoursesApiService CoursesApiService
+@inject IClassesApiService ClassesApiService
+
+<PageTitle>Course "@(_course is not null ? _course.Name : "")" classes</PageTitle>
+
+@if (_course != null)
+{
+  <Breadcrumb>
+    <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
+    <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
+  </Breadcrumb>
+}
+
+
+@if (_course != null)
+{
+  <h1>
+    Course "@_course.Name" classes
+  </h1>
+}
+
+
+@if (_classes == null)
+{
+  <p>
+    <em>Loading...</em>
+  </p>
+}
+else if (_classes.Items.Count == 0)
+{
+  <div>
+    <NavLink href="@($"/admin/courses/{CourseId}/classes/create")" class="btn btn-primary ml-auto">Create class</NavLink>
+    <p>
+      <em>No classes found.</em>
+    </p>
+  </div>
+}
+else
+{
+  <div>
+    <NavLink href="@($"/admin/courses/{CourseId}/classes/create")" class="btn btn-primary ml-auto">Create class</NavLink>
+    <table class="table">
+      <thead>
+      <tr>
+        <th>Registration deadline</th>
+        <th>Start Date</th>
+        <th>End date</th>
+        <th>Max Students</th>
+        <th>Enrolled Students</th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+      </thead>
+      <tbody>
+      @foreach (var courseClass in _classes.Items)
+      {
+        <tr>
+          <td>@courseClass.RegistrationDeadline.ToString("dd.MM.yyyy")</td>
+          <td>@courseClass.CourseStartDate.ToString("dd.MM.yyyy")</td>
+          <td>@courseClass.CourseEndDate.ToString("dd.MM.yyyy")</td>
+          <td>@courseClass.MaxStudents</td>
+          <td>@courseClass.EnrollmentsCount</td>
+          <td>
+            <NavLink href="@($"/admin/courses/{CourseId}/classes/{courseClass.Id}/enrollments")"
+                     class="btn btn-primary">
+              Students
+            </NavLink>
+          </td>
+          <td>
+            <NavLink href="@($"/admin/courses/{courseClass.CourseId}/classes/{courseClass.Id}")"
+                     class="btn btn-primary">Edit
+            </NavLink>
+          </td>
+          <td>
+            <button class="btn btn-primary" @onclick="() => ShowDeleteConfirmation(courseClass.Id)">
+              Delete
+            </button>
+          </td>
+        </tr>
+      }
+      </tbody>
+    </table>
+
+    @if (_classes.TotalPages > 1)
+    {
+      <Pager records="_classes" ChangePage="GetClasses"/>
+    }
+  </div>
+}
+
+@if (_showDeleteConfirmation)
+{
+  <Modal Title="Confirm Delete" OnConfirm="ConfirmDelete" OnCancel="CancelDelete">
+    <p>Do you really want to delete this class?</p>
+  </Modal>
+}
+
+@code {
+  [Parameter] public Guid CourseId { get; set; }
+  private PagedList<ClassListItemResponse>? _classes;
+  private int Page { get; set; }
+  private CourseResponse? _course;
+  private bool _showDeleteConfirmation;
+  private Guid _courseIdToDelete;
+
+  protected override async Task OnInitializedAsync()
+  {
+    _course = await CoursesApiService.GetCourse(CourseId);
+    await GetClasses();
+  }
+
+  protected async Task GetClasses(int page = 1)
+  {
+    Page = page;
+    _classes = null;
+    _classes = await ClassesApiService.GetClassListAsync(CourseId.ToString(), page);
+  }
+
+  private void ShowDeleteConfirmation(Guid courseId)
+  {
+    _courseIdToDelete = courseId;
+    _showDeleteConfirmation = true;
+  }
+
+  private async Task ConfirmDelete()
+  {
+    _showDeleteConfirmation = false;
+    await ClassesApiService.DeleteClass(CourseId, _courseIdToDelete);
+    await GetClasses();
+  }
+
+  private void CancelDelete()
+  {
+    _showDeleteConfirmation = false;
+  }
+
+}
