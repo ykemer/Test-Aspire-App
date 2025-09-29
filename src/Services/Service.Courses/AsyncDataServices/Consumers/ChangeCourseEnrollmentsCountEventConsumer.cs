@@ -9,12 +9,10 @@ namespace Service.Courses.AsyncDataServices.Consumers;
 public class ChangeCourseEnrollmentsCountEventConsumer : IConsumer<ChangeClassEnrollmentsCountEvent>
 {
   private readonly IMediator _mediator;
-  private readonly IPublishEndpoint _publishEndpoint;
 
-  public ChangeCourseEnrollmentsCountEventConsumer(IMediator mediator, IPublishEndpoint publishEndpoint)
+  public ChangeCourseEnrollmentsCountEventConsumer(IMediator mediator)
   {
     _mediator = mediator;
-    _publishEndpoint = publishEndpoint;
   }
 
   public async Task Consume(ConsumeContext<ChangeClassEnrollmentsCountEvent> context)
@@ -22,7 +20,7 @@ public class ChangeCourseEnrollmentsCountEventConsumer : IConsumer<ChangeClassEn
     var result = await _mediator.Send(new UpdateNumberOfEnrolledStudentsCommand(context.Message.CourseId, context.Message.ClassId, context.Message.IsIncrease));
     if (result.IsError)
     {
-      await _publishEndpoint.Publish(new ChangeClassEnrollmentsCountFailedEvent
+      await context.Publish(new ChangeClassEnrollmentsCountFailedEvent
       {
         CourseId = context.Message.CourseId,
         EventId = context.Message.EventId,
@@ -31,7 +29,7 @@ public class ChangeCourseEnrollmentsCountEventConsumer : IConsumer<ChangeClassEn
     }
     else
     {
-      await _publishEndpoint.Publish(new ChangeClassEnrollmentsCountSuccessEvent
+      await context.Publish(new ChangeClassEnrollmentsCountSuccessEvent
       {
         CourseId = context.Message.CourseId,
         EventId = context.Message.EventId,

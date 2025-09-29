@@ -45,13 +45,22 @@ public static class DependencyInjection
 
     services.AddMassTransit(configure =>
     {
+      configure.SetKebabCaseEndpointNameFormatter();
+      configure.AddConsumers(assembly);
+
+      configure.SetEntityFrameworkSagaRepositoryProvider(r =>
+      {
+        r.ExistingDbContext<ApplicationDbContext>();
+        r.UsePostgres();
+      });
+
       configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
       {
         o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
         o.UsePostgres();
+        o.UseBusOutbox();
       });
-      configure.SetKebabCaseEndpointNameFormatter();
-      configure.AddConsumers(assembly);
+
 
       configure
         .AddSagaStateMachine<StudentEnrollmentsStateMachine, StudentEnrollmentsState>()
@@ -188,11 +197,7 @@ public static class DependencyInjection
       options.AddPolicy("fixed-per-user", context =>
         RateLimitPartition.GetFixedWindowLimiter(
           partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-          factory: _ => new FixedWindowRateLimiterOptions
-          {
-            PermitLimit = 60,
-            Window = TimeSpan.FromMinutes(1),
-          }
+          factory: _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), }
         )
       );
 
@@ -206,7 +211,8 @@ public static class DependencyInjection
         // Add remaining requests header (0 when rate limited)
         context.HttpContext.Response.Headers.Append("X-RateLimit-Remaining", "0");
         context.HttpContext.Response.Headers.Append("X-RateLimit-Limit", "10");
-        context.HttpContext.Response.Headers.Append("X-RateLimit-Reset", DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString());
+        context.HttpContext.Response.Headers.Append("X-RateLimit-Reset",
+          DateTimeOffset.UtcNow.AddMinutes(1).ToUnixTimeSeconds().ToString());
 
         var problemDetails = new ProblemDetails
         {
