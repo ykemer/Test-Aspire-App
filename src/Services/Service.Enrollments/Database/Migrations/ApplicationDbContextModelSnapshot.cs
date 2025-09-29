@@ -17,7 +17,7 @@ namespace Service.Enrollments.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -53,9 +53,8 @@ namespace Service.Enrollments.Migrations
 
             modelBuilder.Entity("Service.Enrollments.Database.Entities.Enrollment", b =>
                 {
-                    b.Property<string>("StudentId")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
 
                     b.Property<string>("ClassId")
                         .IsRequired()
@@ -70,10 +69,12 @@ namespace Service.Enrollments.Migrations
                     b.Property<DateTime>("EnrollmentDateTime")
                         .HasColumnType("timestamp without time zone");
 
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
                     b.Property<string>("StudentFirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<string>("StudentId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
@@ -83,7 +84,7 @@ namespace Service.Enrollments.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.HasKey("StudentId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ClassId");
 

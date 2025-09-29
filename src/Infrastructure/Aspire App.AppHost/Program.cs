@@ -8,8 +8,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder
   .AddRedis("cache")
-  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/cache")
-  ;
+  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/cache") ;
 
 #region Databases
 
@@ -77,7 +76,7 @@ builder.AddProject<Aspire_App_Web>("webFrontend")
   .WithReference(cache)
   .WithReference(platformService)
   .WaitFor(platformService)
-  .WithHttpsEndpoint();
+  .WithHttpsEndpoint(name: "web-https");
 
 
 await builder.Build().RunAsync();

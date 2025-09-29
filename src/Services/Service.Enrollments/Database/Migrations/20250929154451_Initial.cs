@@ -31,17 +31,17 @@ namespace Service.Enrollments.Migrations
                 name: "Enrollments",
                 columns: table => new
                 {
-                    StudentId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Id = table.Column<string>(type: "text", nullable: true),
+                    Id = table.Column<string>(type: "text", nullable: false),
                     EnrollmentDateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     CourseId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     ClassId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    StudentId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     StudentFirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     StudentLastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Enrollments", x => x.StudentId);
+                    table.PrimaryKey("PK_Enrollments", x => x.Id);
                     table.ForeignKey(
                         name: "FK_Enrollments_Classes",
                         column: x => x.ClassId,

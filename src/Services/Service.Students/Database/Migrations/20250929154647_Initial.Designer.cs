@@ -12,7 +12,7 @@ using Service.Students.Database;
 namespace Service.Students.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250823223530_Initial")]
+    [Migration("20250929154647_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Service.Students.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.8")
+                .HasAnnotation("ProductVersion", "9.0.9")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
