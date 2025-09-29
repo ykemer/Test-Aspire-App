@@ -58,7 +58,7 @@ public static class DependencyInjection
       {
         o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
         o.UsePostgres();
-        o.UseBusOutbox();
+        //o.UseBusOutbox(); TODO: remove outbox from this project since it doesn't use database
       });
 
 

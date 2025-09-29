@@ -56,4 +56,7 @@
     <Protobuf Include="Protos\enrollments.proto" GrpcServices="Client"/>
     <Protobuf Include="Protos\students.proto" GrpcServices="Client"/>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Database\Configuration\" />
+  </ItemGroup>
 </Project>

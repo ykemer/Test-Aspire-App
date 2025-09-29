@@ -5,11 +5,6 @@
 @using Contracts.Students.Responses
 @attribute [Authorize]
 
-@rendermode InteractiveServer
-
-@attribute [StreamRendering]
-@attribute [OutputCache(Duration = 5)]
-
 @inject IStudentApiService StudentsApi
 <PageTitle>Students</PageTitle>
 

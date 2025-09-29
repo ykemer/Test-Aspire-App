@@ -11,7 +11,7 @@ builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
 var assembly = typeof(Program).Assembly;
-builder.Services.AddMassTransitServices(assembly, "queue-courses");
+// builder.Services.AddMassTransitServices(assembly, "queue-courses");
 builder.Services.AddServices();
 
 var app = builder.Build();
