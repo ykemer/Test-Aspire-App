@@ -1,3 +1,4 @@
+using Service.Enrollments.Common.Database;
 using Service.Enrollments.Features.Classes.CreateClass;
 
 namespace Service.Enrollments.Features.Classes.UpdateClass;

@@ -2,6 +2,8 @@
 
 using MassTransit;
 
+using Service.Enrollments.Common.Database;
+
 namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByStudent;
 
 public class DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEnrollmentsByStudentCommand, ErrorOr<Deleted>>

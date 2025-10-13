@@ -4,7 +4,7 @@ using Grpc.Core;
 
 using Library.GRPC;
 
-using Service.Enrollments.Entities;
+using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 using Service.Enrollments.Features.Enrollments.GetClassEnrollments;
 using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;

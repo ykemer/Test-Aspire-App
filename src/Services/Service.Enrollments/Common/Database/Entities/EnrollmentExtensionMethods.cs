@@ -2,9 +2,7 @@
 
 using Google.Protobuf.WellKnownTypes;
 
-using Service.Enrollments.Database.Entities;
-
-namespace Service.Enrollments.Entities;
+namespace Service.Enrollments.Common.Database.Entities;
 
 public static class EnrollmentExtensionMethods
 {

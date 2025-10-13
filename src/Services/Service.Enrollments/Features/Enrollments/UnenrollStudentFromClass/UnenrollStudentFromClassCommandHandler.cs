@@ -1,4 +1,6 @@
-﻿namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
+﻿using Service.Enrollments.Common.Database;
+
+namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 public class UnenrollStudentFromClassCommandHandler
   : IRequestHandler<UnenrollStudentFromClassCommand, ErrorOr<Deleted>>

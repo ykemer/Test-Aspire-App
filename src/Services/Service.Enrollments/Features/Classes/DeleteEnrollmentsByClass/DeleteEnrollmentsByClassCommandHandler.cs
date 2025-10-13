@@ -2,6 +2,7 @@
 
 using MassTransit;
 
+using Service.Enrollments.Common.Database;
 using Service.Enrollments.Features.Classes.DeleteEnrollmentsByClass;
 using Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
 

@@ -1,5 +1,4 @@
-﻿using Service.Enrollments.Database.Entities;
-using Service.Enrollments.Entities;
+﻿using Service.Enrollments.Common.Database.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 

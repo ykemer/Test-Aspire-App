@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Service.Enrollments.Database.Entities;
+namespace Service.Enrollments.Common.Database.Entities;
 
 [Index(nameof(StudentId))]
 [Index(nameof(CourseId))]

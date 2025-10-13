@@ -1,8 +1,9 @@
-﻿using Service.Enrollments.Database.Configurations;
-using Service.Enrollments.Database.Entities;
-using Service.Enrollments.Entities;
+﻿using MassTransit;
 
-namespace Service.Enrollments.Database;
+using Service.Enrollments.Common.Database.Configurations;
+using Service.Enrollments.Common.Database.Entities;
+
+namespace Service.Enrollments.Common.Database;
 
 public class ApplicationDbContext : DbContext
 {
@@ -10,11 +11,17 @@ public class ApplicationDbContext : DbContext
     // For postgresql timestamp without time zone
     AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
-  public virtual DbSet<Enrollment> Enrollments { get; set; }
-  public virtual DbSet<Class> Classes { get; set; }
+  public DbSet<Enrollment> Enrollments { get; set; }
+  public DbSet<Class> Classes { get; set; }
 
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
+    base.OnModelCreating(modelBuilder);
+
+    modelBuilder.AddInboxStateEntity();
+    modelBuilder.AddOutboxMessageEntity();
+    modelBuilder.AddOutboxStateEntity();
+
     modelBuilder.ApplyConfiguration(new CourseClassesConfiguration());
     modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
   }

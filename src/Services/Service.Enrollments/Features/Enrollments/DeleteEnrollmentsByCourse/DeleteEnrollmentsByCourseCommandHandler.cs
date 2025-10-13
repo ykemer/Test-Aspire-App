@@ -3,6 +3,8 @@
 
 using MassTransit;
 
+using Service.Enrollments.Common.Database;
+
 namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
 
 public class DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnrollmentsByCourseCommand, ErrorOr<Deleted>>

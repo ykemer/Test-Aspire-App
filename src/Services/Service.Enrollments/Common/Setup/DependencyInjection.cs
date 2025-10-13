@@ -1,6 +1,8 @@
 ﻿using Library.Middleware;
 
-namespace Service.Enrollments;
+using Service.Enrollments.Common.Database;
+
+namespace Service.Enrollments.Common.Setup;
 
 public static class DependencyInjection
 {
@@ -11,8 +13,8 @@ public static class DependencyInjection
     services.AddMediator(options =>
     {
       options.ServiceLifetime = ServiceLifetime.Scoped;
-      options.Assemblies = [typeof(DependencyInjection)];
-      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>)];
+      options.Assemblies = [typeof(DependencyInjection).Assembly];
+      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>), typeof(ValidationBehavior<,>), typeof(ExceptionHandlingBehaviour<,>)];
     });
 
     return services;

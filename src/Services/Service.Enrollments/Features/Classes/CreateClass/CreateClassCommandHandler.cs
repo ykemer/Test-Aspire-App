@@ -1,3 +1,5 @@
+using Service.Enrollments.Common.Database;
+
 namespace Service.Enrollments.Features.Classes.CreateClass;
 
 public class CreateClassCommandHandler: IRequestHandler<CreateClassCommand, ErrorOr<Created>>

@@ -1,6 +1,6 @@
 using Contracts.Courses.Events;
 
-using Service.Enrollments.Database.Entities;
+using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Classes.CreateClass;
 
 namespace Service.Enrollments.Features.Classes.UpdateClass;

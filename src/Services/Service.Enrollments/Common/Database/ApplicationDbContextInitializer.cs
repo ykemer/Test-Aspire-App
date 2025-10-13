@@ -1,7 +1,6 @@
-﻿using Service.Enrollments.Database.Entities;
-using Service.Enrollments.Entities;
+﻿using Service.Enrollments.Common.Database.Entities;
 
-namespace Service.Enrollments.Database;
+namespace Service.Enrollments.Common.Database;
 
 public sealed class ApplicationDbContextInitializer
 {
