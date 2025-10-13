@@ -56,6 +56,12 @@ public static class Extensions
           // Uncomment the following line to enable gRPC instrumentation (requires the OpenTelemetry.Instrumentation.GrpcNetClient package)
           //.AddGrpcClientInstrumentation()
           .AddHttpClientInstrumentation();
+
+        // Capture MassTransit activity spans emitted by MassTransit
+        tracing.AddSource("MassTransit");
+
+        // If using RabbitMQ transport, also add the RabbitMQ source
+        tracing.AddSource("MassTransit.RabbitMq");
       });
 
     builder.AddOpenTelemetryExporters();
