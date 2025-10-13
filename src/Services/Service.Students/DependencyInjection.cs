@@ -11,8 +11,8 @@ public static class DependencyInjection
     services.AddMediator(options =>
     {
       options.ServiceLifetime = ServiceLifetime.Scoped;
-      options.Assemblies = [typeof(DependencyInjection)];
-      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>)];
+      options.Assemblies = [typeof(DependencyInjection).Assembly];
+      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>), typeof(ValidationBehavior<,>), typeof(ExceptionHandlingBehaviour<,>)];
     });
 
     return services;

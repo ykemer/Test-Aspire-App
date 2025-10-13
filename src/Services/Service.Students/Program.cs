@@ -5,20 +5,16 @@ using Service.Students.Features;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("studentsDb");
 builder.AddRedisDistributedCache("cache");
 
-// Add services to the container.
 var assembly = typeof(Program).Assembly;
-builder.Services.AddGrpc();
 builder.Services.AddMassTransitServices(assembly, "queue-students");
 builder.Services.AddServices();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 app.MapGrpcService<StudentsService>();
 app.MapGet("/",
   () =>
