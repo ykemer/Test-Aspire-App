@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Courses.Features.Classes.UpdateNumberOfEnrolledStudents;
-
-namespace Service.Courses.Common.AsyncDataServices.Consumers;
+namespace Service.Courses.Features.Classes.UpdateNumberOfEnrolledStudents;
 
 public class ChangeCourseEnrollmentsCountEventConsumer : IConsumer<ChangeClassEnrollmentsCountEvent>
 {
