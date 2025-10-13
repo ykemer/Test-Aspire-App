@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Students.Database.Entities;
+using Service.Students.Common.Database.Entities;
 using Service.Students.Features;
 using Service.Students.Features.DeleteStudent;
 using Service.Students.Features.GetStudent;

@@ -4,8 +4,8 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Students.Database;
-using Service.Students.Database.Entities;
+using Service.Students.Common.Database;
+using Service.Students.Common.Database.Entities;
 using Service.Students.Features.GetStudent;
 
 using Test.Students.Application.Setup;

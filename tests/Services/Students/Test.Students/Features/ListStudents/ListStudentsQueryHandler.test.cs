@@ -1,7 +1,7 @@
 ﻿using FizzWare.NBuilder;
 
-using Service.Students.Database;
-using Service.Students.Database.Entities;
+using Service.Students.Common.Database;
+using Service.Students.Common.Database.Entities;
 using Service.Students.Features.ListStudent;
 
 using Test.Students.Application.Setup;

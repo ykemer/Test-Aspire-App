@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Service.Students.Database;
+using Service.Students.Common.Database;
 
 namespace Test.Students.Application.Setup;
 
