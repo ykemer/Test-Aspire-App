@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Enrollments.Features.Classes.CreateClass;
-
-namespace Service.Enrollments.Common.AsyncDataServices.Consumers;
+namespace Service.Enrollments.Features.Classes.CreateClass;
 
 public class ClassCreatedEventConsumer : IConsumer<ClassCreatedEvent>
 {
@@ -20,6 +18,6 @@ public class ClassCreatedEventConsumer : IConsumer<ClassCreatedEvent>
       CourseStartDate = context.Message.CourseStartDate,
       RegistrationDeadline = context.Message.RegistrationDeadline,
       CourseId = context.Message.CourseId,
-      Id = context.Message.Id,
+      Id = context.Message.Id
     });
 }

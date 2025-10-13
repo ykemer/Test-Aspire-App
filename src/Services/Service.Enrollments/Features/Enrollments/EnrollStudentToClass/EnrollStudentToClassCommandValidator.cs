@@ -31,7 +31,4 @@ public class EnrollStudentToClassCommandValidator : AbstractValidator<EnrollStud
       .NotEmpty()
       .MaximumLength(100);
   }
-
-
 }
-

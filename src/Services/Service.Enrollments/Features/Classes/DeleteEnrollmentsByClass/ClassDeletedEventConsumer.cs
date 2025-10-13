@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Enrollments.Features.Classes.DeleteEnrollmentsByClass;
-
-namespace Service.Enrollments.Common.AsyncDataServices.Consumers;
+namespace Service.Enrollments.Features.Classes.DeleteEnrollmentsByClass;
 
 public class ClassDeletedEventConsumer : IConsumer<ClassDeletedEvent>
 {

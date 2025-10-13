@@ -1,6 +1,6 @@
 namespace Service.Enrollments.Features.Classes.CreateClass;
 
-public sealed class CreateClassCommand: IRequest<ErrorOr<Created>>
+public sealed class CreateClassCommand : IRequest<ErrorOr<Created>>
 {
   public required string Id { get; init; }
   public required string CourseId { get; init; }

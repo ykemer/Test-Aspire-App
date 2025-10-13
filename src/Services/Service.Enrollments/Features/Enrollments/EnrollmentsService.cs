@@ -5,11 +5,9 @@ using Grpc.Core;
 using Library.GRPC;
 
 using Service.Enrollments.Common.Database.Entities;
-using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 using Service.Enrollments.Features.Enrollments.GetClassEnrollments;
 using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 using Service.Enrollments.Features.Enrollments.GetStudentEnrollments;
-using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 namespace Service.Enrollments.Features.Enrollments;
 
@@ -42,7 +40,8 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 
-  public override async Task<GrpcListEnrollmentsResponse> GetStudentEnrollments(GrpcGetStudentEnrollmentsRequest request,
+  public override async Task<GrpcListEnrollmentsResponse> GetStudentEnrollments(
+    GrpcGetStudentEnrollmentsRequest request,
     ServerCallContext context)
   {
     var result = await _mediator.Send(request.MapToGetStudentEnrollmentsQuery());

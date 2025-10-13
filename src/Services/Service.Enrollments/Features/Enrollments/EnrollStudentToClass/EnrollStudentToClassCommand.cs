@@ -1,6 +1,6 @@
 ﻿namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
-public class EnrollStudentToClassCommand: IRequest<ErrorOr<Created>>
+public class EnrollStudentToClassCommand : IRequest<ErrorOr<Created>>
 {
   public required string CourseId { get; init; }
 

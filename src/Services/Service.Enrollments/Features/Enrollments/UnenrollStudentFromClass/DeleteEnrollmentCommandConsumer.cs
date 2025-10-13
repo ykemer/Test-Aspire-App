@@ -3,18 +3,13 @@ using Contracts.Enrollments.Events;
 
 using MassTransit;
 
-using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
+namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
-namespace Service.Enrollments.Common.AsyncDataServices.Consumers;
-
-public class DeleteEnrollmentCommandConsumer: IConsumer<DeleteEnrollmentCommand>
+public class DeleteEnrollmentCommandConsumer : IConsumer<DeleteEnrollmentCommand>
 {
   private readonly IMediator _mediator;
 
-  public DeleteEnrollmentCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public DeleteEnrollmentCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<DeleteEnrollmentCommand> context)
   {
@@ -34,9 +29,7 @@ public class DeleteEnrollmentCommandConsumer: IConsumer<DeleteEnrollmentCommand>
     {
       await context.Publish(new EnrollmentDeletedEvent
       {
-        CourseId = context.Message.CourseId,
-        ClassId = context.Message.ClassId,
-        StudentId = context.Message.StudentId,
+        CourseId = context.Message.CourseId, ClassId = context.Message.ClassId, StudentId = context.Message.StudentId
       });
     }
   }

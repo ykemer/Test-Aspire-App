@@ -1,7 +1,5 @@
 using Contracts.Enrollments.Commands;
 
-using EnrollmentsGRPC;
-
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 public static class UnenrollStudentFromClassMapper

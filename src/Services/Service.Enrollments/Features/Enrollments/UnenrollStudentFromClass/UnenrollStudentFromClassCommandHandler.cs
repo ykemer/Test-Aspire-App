@@ -18,8 +18,6 @@ public class UnenrollStudentFromClassCommandHandler
   public async ValueTask<ErrorOr<Deleted>> Handle(UnenrollStudentFromClassCommand command,
     CancellationToken cancellationToken)
   {
-
-
     var existingClass = await _dbContext.Classes.FirstOrDefaultAsync(c => c.Id == command.ClassId, cancellationToken);
     if (existingClass is null)
     {
@@ -41,9 +39,7 @@ public class UnenrollStudentFromClassCommandHandler
         $"Student {command.StudentId} is not enrolled to course {command.CourseId}");
     }
 
-
-
-    if(existingClass.CourseStartDate <= DateTime.UtcNow)
+    if (existingClass.CourseStartDate <= DateTime.UtcNow)
     {
       _logger.LogWarning("Cannot unenroll student {StudentId} from class {ClassId} as the class has already started",
         command.StudentId, command.ClassId);

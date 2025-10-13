@@ -1,6 +1,6 @@
 namespace Service.Enrollments.Features.Classes.UpdateClass;
 
-public sealed class UpdateClassCommand: IRequest<ErrorOr<Updated>>
+public sealed class UpdateClassCommand : IRequest<ErrorOr<Updated>>
 {
   public required string Id { get; init; }
   public required string CourseId { get; init; }

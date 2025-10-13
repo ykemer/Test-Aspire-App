@@ -1,7 +1,5 @@
 using Contracts.Enrollments.Commands;
 
-using EnrollmentsGRPC;
-
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
 public static class EnrollStudentToClassMapper

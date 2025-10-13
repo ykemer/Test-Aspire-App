@@ -1,7 +1,8 @@
 ﻿using MassTransit;
 
-using Service.Enrollments.Common.AsyncDataServices.Consumers;
 using Service.Enrollments.Common.Database;
+using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
+using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 namespace Service.Enrollments.Common.Setup;
 

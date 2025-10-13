@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Enrollments.Features.Classes.UpdateClass;
-
-namespace Service.Enrollments.Common.AsyncDataServices.Consumers;
+namespace Service.Enrollments.Features.Classes.UpdateClass;
 
 public class ClassUpdatedEventConsumer : IConsumer<ClassUpdatedEvent>
 {
@@ -20,6 +18,6 @@ public class ClassUpdatedEventConsumer : IConsumer<ClassUpdatedEvent>
       CourseStartDate = context.Message.CourseStartDate,
       RegistrationDeadline = context.Message.RegistrationDeadline,
       CourseId = context.Message.CourseId,
-      Id = context.Message.Id,
+      Id = context.Message.Id
     });
 }

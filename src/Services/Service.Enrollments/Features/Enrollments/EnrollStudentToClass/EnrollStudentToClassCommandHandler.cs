@@ -51,7 +51,7 @@ public class EnrollStudentToClassCommandHandler : IRequestHandler<EnrollStudentT
         $"Class with id {command.ClassId} registration deadline has passed for course {command.CourseId}");
     }
 
-    if (existingClass.MaxStudents  < existingClass.Enrollments.Count + 1)
+    if (existingClass.MaxStudents < existingClass.Enrollments.Count + 1)
     {
       _logger.LogWarning("Class with id {ClassId} is full for course {CourseId}", command.ClassId,
         command.CourseId);
@@ -59,7 +59,7 @@ public class EnrollStudentToClassCommandHandler : IRequestHandler<EnrollStudentT
         $"Class with id {command.ClassId} is full for course {command.CourseId}");
     }
 
-    var enrollment = new Enrollment()
+    var enrollment = new Enrollment
     {
       CourseId = command.CourseId,
       ClassId = command.ClassId,

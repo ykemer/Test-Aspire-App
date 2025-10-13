@@ -3,10 +3,9 @@
 using MassTransit;
 
 using Service.Enrollments.Common.Database;
-using Service.Enrollments.Features.Classes.DeleteEnrollmentsByClass;
 using Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
 
-namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByClass;
+namespace Service.Enrollments.Features.Classes.DeleteEnrollmentsByClass;
 
 public class DeleteEnrollmentsByClassCommandHandler : IRequestHandler<DeleteEnrollmentsByClassCommand, ErrorOr<Deleted>>
 {
@@ -28,7 +27,7 @@ public class DeleteEnrollmentsByClassCommandHandler : IRequestHandler<DeleteEnro
     var events = await _dbContext.Enrollments
       .Where(enrollment => enrollment.CourseId == request.CourseId && enrollment.ClassId == request.ClassId)
       .Select(enrollment =>
-        new ChangeStudentEnrollmentsCountEvent() { StudentId = enrollment.StudentId, IsIncrease = false })
+        new ChangeStudentEnrollmentsCountEvent { StudentId = enrollment.StudentId, IsIncrease = false })
       .ToListAsync(cancellationToken);
 
 

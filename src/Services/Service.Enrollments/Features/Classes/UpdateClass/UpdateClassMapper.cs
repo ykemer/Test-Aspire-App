@@ -1,7 +1,6 @@
 using Contracts.Courses.Events;
 
 using Service.Enrollments.Common.Database.Entities;
-using Service.Enrollments.Features.Classes.CreateClass;
 
 namespace Service.Enrollments.Features.Classes.UpdateClass;
 
@@ -15,16 +14,14 @@ public static class UpdateClassMapper
     entity.CourseEndDate = command.CourseEndDate;
   }
 
-  public static UpdateClassCommand MapToCreateClassCommand(this ClassUpdatedEvent updatedEvent)
-  {
-    return new UpdateClassCommand
+  public static UpdateClassCommand MapToCreateClassCommand(this ClassUpdatedEvent updatedEvent) =>
+    new()
     {
       Id = updatedEvent.Id,
       CourseId = updatedEvent.CourseId,
       MaxStudents = updatedEvent.MaxStudents,
       RegistrationDeadline = updatedEvent.RegistrationDeadline,
       CourseStartDate = updatedEvent.CourseStartDate,
-      CourseEndDate = updatedEvent.CourseEndDate,
+      CourseEndDate = updatedEvent.CourseEndDate
     };
-  }
 }
