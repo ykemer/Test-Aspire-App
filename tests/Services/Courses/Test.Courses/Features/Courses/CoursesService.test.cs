@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.CreateCourse;
 using Service.Courses.Features.Courses.DeleteCourse;

@@ -2,8 +2,8 @@ using Courses.Application.Setup;
 
 using FizzWare.NBuilder;
 
-using Service.Courses.Database;
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes.ListClasses;
 
 namespace Courses.Application.Features.Classes.ListClasses;

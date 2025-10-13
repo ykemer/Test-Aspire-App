@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Service.Courses.Database;
+using Service.Courses.Common.Database;
 
 namespace Courses.Application.Setup;
 

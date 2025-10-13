@@ -4,7 +4,7 @@ using FizzWare.NBuilder;
 
 using Google.Protobuf.WellKnownTypes;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes.UpdateClass;
 
 namespace Courses.Application.Features.Classes.UpdateClass;

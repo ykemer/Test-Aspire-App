@@ -7,8 +7,8 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Courses.Database;
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses.UpdateCourse;
 
 namespace Courses.Application.Features.Courses.UpdateCourse;

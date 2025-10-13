@@ -12,7 +12,7 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes;
 using Service.Courses.Features.Classes.CreateClass;
 using Service.Courses.Features.Classes.DeleteClass;

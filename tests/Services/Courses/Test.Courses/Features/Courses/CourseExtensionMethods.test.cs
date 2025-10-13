@@ -1,6 +1,6 @@
 using FizzWare.NBuilder;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses;
 
 namespace Courses.Application.Features.Courses;
