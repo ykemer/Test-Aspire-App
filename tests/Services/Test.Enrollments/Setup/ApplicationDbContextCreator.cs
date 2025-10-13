@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-using Service.Enrollments.Database;
+using Service.Enrollments.Common.Database;
 
 namespace Test.Enrollments.Setup;
 

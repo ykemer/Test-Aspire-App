@@ -1,7 +1,7 @@
 using FizzWare.NBuilder;
 
-using Service.Enrollments.Database;
-using Service.Enrollments.Database.Entities;
+using Service.Enrollments.Common.Database;
+using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 
 using Test.Enrollments.Setup;

@@ -5,8 +5,8 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Service.Enrollments.Database;
-using Service.Enrollments.Database.Entities;
+using Service.Enrollments.Common.Database;
+using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 using Test.Enrollments.Setup;
