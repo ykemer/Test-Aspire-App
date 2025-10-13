@@ -5,17 +5,17 @@ using Service.Courses.Features.Classes;
 using Service.Courses.Features.Courses;
 
 var builder = WebApplication.CreateBuilder(args);
+
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
 
-// Add services to the container.
 var assembly = typeof(Program).Assembly;
-// builder.Services.AddMassTransitServices(assembly, "queue-courses");
+builder.Services.AddMassTransitServices(assembly, "queue-courses");
 builder.Services.AddServices();
 
 var app = builder.Build();
-// Configure the HTTP request pipeline.
+
 app.MapGrpcService<CoursesService>();
 app.MapGrpcService<ClassesService>();
 

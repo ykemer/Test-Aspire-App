@@ -23,6 +23,7 @@ public class ChangeCourseEnrollmentsCountEventConsumer : IConsumer<ChangeClassEn
       await context.Publish(new ChangeClassEnrollmentsCountFailedEvent
       {
         CourseId = context.Message.CourseId,
+        ClassId = context.Message.ClassId,
         EventId = context.Message.EventId,
         ErrorMessage = result.Errors.FirstOrDefault().Description,
       });
