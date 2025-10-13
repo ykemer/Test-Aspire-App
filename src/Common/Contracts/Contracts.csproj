@@ -4,4 +4,7 @@
       <HintPath>C:\Program Files\dotnet\shared\Microsoft.AspNetCore.App\9.0.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Courses\Command\" />
+  </ItemGroup>
 </Project>
