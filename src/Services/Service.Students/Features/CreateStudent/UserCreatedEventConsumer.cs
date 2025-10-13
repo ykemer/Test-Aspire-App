@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Students.Features.CreateStudent;
-
-namespace Service.Students.AsyncDataServices.Consumers;
+namespace Service.Students.Features.CreateStudent;
 
 public class UserCreatedEventConsumer : IConsumer<UserCreatedEvent>
 {

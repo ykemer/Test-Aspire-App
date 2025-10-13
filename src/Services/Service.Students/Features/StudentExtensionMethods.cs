@@ -2,7 +2,7 @@
 
 using Google.Protobuf.WellKnownTypes;
 
-using Service.Students.Database.Entities;
+using Service.Students.Common.Database.Entities;
 
 using StudentsGRPC;
 

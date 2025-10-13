@@ -1,4 +1,6 @@
-﻿namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
+﻿using Service.Students.Common.Database;
+
+namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
 public class
   UpdateStudentEnrollmentsCountCommandHandler : IRequestHandler<UpdateStudentEnrollmentsCountCommand, ErrorOr<Updated>>

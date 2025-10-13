@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Service.Students.Database.Entities;
+namespace Service.Students.Common.Database.Entities;
 
 public class Student
 {

@@ -1,6 +1,7 @@
 using Library.Infrastructure;
 
 using Service.Students;
+using Service.Students.Common.Database;
 using Service.Students.Features;
 
 var builder = WebApplication.CreateBuilder(args);

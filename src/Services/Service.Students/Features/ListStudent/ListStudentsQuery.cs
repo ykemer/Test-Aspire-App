@@ -1,6 +1,6 @@
 ﻿using Contracts.Common;
 
-using Service.Students.Database.Entities;
+using Service.Students.Common.Database.Entities;
 
 namespace Service.Students.Features.ListStudent;
 

@@ -1,4 +1,6 @@
-﻿namespace Service.Students.Features.CreateStudent;
+﻿using Service.Students.Common.Database;
+
+namespace Service.Students.Features.CreateStudent;
 
 public class CreateStudentCommandHandler : IRequestHandler<CreateStudentCommand, ErrorOr<Created>>
 {

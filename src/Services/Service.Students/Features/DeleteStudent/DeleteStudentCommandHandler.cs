@@ -2,6 +2,8 @@
 
 using MassTransit;
 
+using Service.Students.Common.Database;
+
 namespace Service.Students.Features.DeleteStudent;
 
 public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand, ErrorOr<Deleted>>

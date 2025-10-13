@@ -1,5 +1,7 @@
 ﻿using Library.Middleware;
 
+using Service.Students.Common.Database;
+
 namespace Service.Students;
 
 public static class DependencyInjection
