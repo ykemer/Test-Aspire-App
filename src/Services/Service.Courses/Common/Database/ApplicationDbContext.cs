@@ -1,9 +1,9 @@
 ﻿using MassTransit;
 
-using Service.Courses.Database.Configurations;
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Configurations;
+using Service.Courses.Common.Database.Entities;
 
-namespace Service.Courses.Database;
+namespace Service.Courses.Common.Database;
 
 public class ApplicationDbContext : DbContext
 {

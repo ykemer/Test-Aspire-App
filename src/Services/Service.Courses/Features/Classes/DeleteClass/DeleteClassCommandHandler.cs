@@ -2,6 +2,8 @@
 
 using MassTransit;
 
+using Service.Courses.Common.Database;
+
 namespace Service.Courses.Features.Classes.DeleteClass;
 
 public class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, ErrorOr<Deleted>>

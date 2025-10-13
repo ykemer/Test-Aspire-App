@@ -27,4 +27,7 @@
     <ProjectReference Include="..\..\Common\Library\Library.csproj"/>
     <ProjectReference Include="..\..\Infrastructure\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common\" />
+  </ItemGroup>
 </Project>

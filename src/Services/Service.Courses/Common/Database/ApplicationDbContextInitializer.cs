@@ -1,6 +1,6 @@
-﻿using Service.Courses.Database.Entities;
+﻿using Service.Courses.Common.Database.Entities;
 
-namespace Service.Courses.Database;
+namespace Service.Courses.Common.Database;
 
 public sealed class ApplicationDbContextInitializer
 {

@@ -2,6 +2,8 @@
 
 using MassTransit;
 
+using Service.Courses.Common.Database;
+
 namespace Service.Courses.Features.Courses.DeleteCourse;
 
 public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, ErrorOr<Deleted>>

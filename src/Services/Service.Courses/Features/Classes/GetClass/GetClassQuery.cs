@@ -1,4 +1,4 @@
-﻿using Service.Courses.Database.Entities;
+﻿using Service.Courses.Common.Database.Entities;
 
 namespace Service.Courses.Features.Classes.GetClass;
 

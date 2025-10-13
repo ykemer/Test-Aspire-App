@@ -1,4 +1,6 @@
-﻿namespace Service.Courses.Features.Classes.UpdateClass;
+﻿using Service.Courses.Common.Database;
+
+namespace Service.Courses.Features.Classes.UpdateClass;
 
 public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, ErrorOr<Updated>>
 {

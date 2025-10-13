@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 
-namespace Service.Courses.Database.Configurations;
+namespace Service.Courses.Common.Database.Configurations;
 
 public class CourseClassesConfiguration : IEntityTypeConfiguration<Class>
 {

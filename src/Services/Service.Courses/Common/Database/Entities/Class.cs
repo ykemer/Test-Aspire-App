@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Service.Courses.Database.Entities;
+namespace Service.Courses.Common.Database.Entities;
 
 
 [Index(nameof(CourseId))]

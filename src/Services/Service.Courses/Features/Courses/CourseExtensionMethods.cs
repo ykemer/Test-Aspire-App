@@ -6,7 +6,7 @@ using CoursesGRPC;
 
 using Google.Protobuf.WellKnownTypes;
 
-using Service.Courses.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 
 namespace Service.Courses.Features.Courses;
 

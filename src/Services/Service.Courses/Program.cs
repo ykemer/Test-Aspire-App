@@ -1,6 +1,7 @@
 using Library.Infrastructure;
 
 using Service.Courses;
+using Service.Courses.Common.Database;
 using Service.Courses.Features.Classes;
 using Service.Courses.Features.Courses;
 
