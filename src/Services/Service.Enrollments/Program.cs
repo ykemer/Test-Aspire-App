@@ -1,6 +1,8 @@
 using Library.Infrastructure;
 
 using Service.Enrollments;
+using Service.Enrollments.Common.Database;
+using Service.Enrollments.Common.Setup;
 using Service.Enrollments.Features.Enrollments;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,11 +12,8 @@ builder.AddRedisDistributedCache("cache");
 
 
 // Add services to the container.
-var assembly = typeof(Program).Assembly;
-
-builder.Services.AddGrpc();
-builder.Services.AddMassTransitServices(assembly, "queue-enrollments");
 builder.Services.AddServices();
+builder.Services.AddMassTransitServices();
 
 
 var app = builder.Build();
