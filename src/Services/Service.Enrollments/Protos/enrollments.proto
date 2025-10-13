@@ -8,9 +8,6 @@ service GrpcEnrollmentsService {
   rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
   rpc GetClassEnrollments (GrpcGetClassEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
   rpc GetCourseEnrollments (GrpcGetCourseEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
-
-  rpc EnrollStudent (GrpcEnrollStudentRequest) returns (GrpcUpdateEnrollmentResponse);
-  rpc DeleteEnrollment (GrpcDeleteEnrollmentRequest) returns (GrpcUpdateEnrollmentResponse);
 }
 
 
@@ -29,21 +26,6 @@ message GrpcGetCourseEnrollmentsRequest {
 message GrpcGetClassEnrollmentsRequest {
   string CourseId = 1;
   string ClassId = 2;
-}
-
-
-message GrpcEnrollStudentRequest {
-  string CourseId = 1;
-  string ClassId = 2;
-  string StudentId = 3;
-  string StudentFirstName = 4;
-  string StudentLastName = 5;
-}
-
-message GrpcDeleteEnrollmentRequest {
-  string CourseId = 1;
-  string ClassId = 2;
-  string StudentId = 3;
 }
 
 // Responses
@@ -67,11 +49,5 @@ message GrpcListEnrollmentsWithPaginationResponse {
   int32 TotalPages = 3;
   int32 PageSize = 4;
   int32 TotalCount = 5;
-}
-
-
-message GrpcUpdateEnrollmentResponse {
-  bool success = 1;
-  string message = 2;
 }
 
