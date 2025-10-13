@@ -36,17 +36,18 @@ public static class FrontendHelper
 
   public static async Task<T?> ReadJsonOrThrowForErrors<T>(HttpResponseMessage response, string notFoundMessage)
   {
-    if (!response.IsSuccessStatusCode)
+    if (response.IsSuccessStatusCode)
     {
-      if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
-      {
-        throw new NotFoundException(notFoundMessage);
-      }
-
-      await ProcessValidationDetails(response);
-      throw new ArgumentException($"Error fetching resource: {notFoundMessage}");
+      return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
     }
 
-    return await response.Content.ReadFromJsonAsync<T>(JsonOptions);
+    if (response.StatusCode == System.Net.HttpStatusCode.NotFound)
+    {
+      throw new NotFoundException(notFoundMessage);
+    }
+
+    await ProcessValidationDetails(response);
+    throw new ArgumentException($"Error fetching resource: {notFoundMessage}");
+
   }
 }
