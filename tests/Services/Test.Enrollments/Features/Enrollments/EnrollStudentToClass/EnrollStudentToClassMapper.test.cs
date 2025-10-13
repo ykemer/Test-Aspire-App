@@ -1,3 +1,5 @@
+using Contracts.Enrollments.Commands;
+
 using EnrollmentsGRPC;
 
 using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
@@ -10,13 +12,13 @@ public class EnrollStudentToClassMapperTests
   [Test]
   public void MapToEnrollStudentToClassCommand_MapsAllFields()
   {
-    var req = new GrpcEnrollStudentRequest
+    var req = new CreateEnrollmentCommand
     {
       CourseId = "course-1",
       ClassId = "class-1",
       StudentId = "student-1",
-      StudentFirstName = "John",
-      StudentLastName = "Doe"
+      FirstName = "John",
+      LastName = "Doe"
     };
 
     var cmd = req.MapToEnrollStudentToClassCommand();

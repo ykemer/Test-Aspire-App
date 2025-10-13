@@ -32,11 +32,19 @@ public static class DependencyInjectionMassTransit
         o.UseBusOutbox();
       });
 
+      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
+      {
+        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+      });
+
       configure.UsingRabbitMq((context, cfg) =>
       {
         var configService = context.GetRequiredService<IConfiguration>();
         var connectionString = configService.GetConnectionString("messaging");
         cfg.Host(connectionString);
+
+
+
         cfg.ReceiveEndpoint(queue, e =>
         {
           e.ConfigureConsumers(context);

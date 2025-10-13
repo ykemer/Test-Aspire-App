@@ -21,15 +21,16 @@
 <PageTitle>Course "@(_course is not null ? _course.Name : "")" classes</PageTitle>
 
 <div class="container my-4">
-  @if (_course is not null)
-  {
-    <h3 class="card-title mb-3">Create class for @_course.Name</h3>
-  }
-
   @if (_successMessage is not null)
   {
     <div class="alert alert-success" role="alert">@_successMessage</div>
   }
+
+  @if (_errorMessage is not null)
+  {
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+  }
+
   @if (_course != null)
   {
     <div class="mb-3">

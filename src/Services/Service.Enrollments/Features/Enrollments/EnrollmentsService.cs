@@ -50,22 +50,4 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
       enrollments => enrollments.MapToGrpcListEnrollmentsResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
-
-  public override async Task<GrpcUpdateEnrollmentResponse> EnrollStudent(GrpcEnrollStudentRequest request,
-    ServerCallContext context)
-  {
-    var result = await _mediator.Send(request.MapToEnrollStudentToClassCommand());
-    return result.Match(
-      _ => new GrpcUpdateEnrollmentResponse { Success = true, Message = "Student enrolled successfully" },
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
-  }
-
-  public override async Task<GrpcUpdateEnrollmentResponse> DeleteEnrollment(GrpcDeleteEnrollmentRequest request,
-    ServerCallContext context)
-  {
-    var result = await _mediator.Send(request.MapToUnenrollStudentFromClassCommand());
-    return result.Match(
-      _ => new GrpcUpdateEnrollmentResponse { Success = true, Message = "Student enrolled successfully" },
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
-  }
 }
