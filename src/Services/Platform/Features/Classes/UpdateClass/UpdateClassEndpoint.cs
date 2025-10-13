@@ -9,7 +9,7 @@ using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Middleware.Grpc;
+using Platform.Common.Middleware.Grpc;
 
 namespace Platform.Features.Classes.UpdateClass;
 

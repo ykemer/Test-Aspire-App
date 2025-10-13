@@ -12,8 +12,8 @@ using FastEndpoints;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Middleware.Grpc;
-using Platform.Services.User;
+using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Classes.ListClasses;
 

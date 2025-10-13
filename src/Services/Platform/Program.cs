@@ -4,8 +4,9 @@ using FastEndpoints.Swagger;
 using Library.Infrastructure;
 
 using Platform;
-using Platform.Database;
-using Platform.Middleware.Responses;
+using Platform.Common.Database;
+using Platform.Common.Hubs;
+using Platform.Common.Middleware.Responses;
 
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
@@ -19,7 +20,6 @@ builder.AddNpgsqlDbContext<ApplicationDbContext>("mainDb");
 
 // Add service defaults & Aspire components.
 builder.AddServiceDefaults();
-builder.AddRabbitMQClient("messaging");
 builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
@@ -77,6 +77,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseMiddleware<ProblemDetailsMiddleware>();
+app.MapHub<EnrollmentHub>("/enrollmentHub");
 await app.RunAsync();
 
 // TODO error handling
@@ -86,3 +87,8 @@ await app.RunAsync();
 // TODO password recovery
 // TODO RPC errors handling
 // TODO remove mediators
+
+
+// TODO add tests
+// TODO add fail handler - send message via SignalR
+

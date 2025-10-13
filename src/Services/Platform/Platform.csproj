@@ -30,12 +30,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MassTransit" Version="8.5.3" />
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.3" />
     <PackageReference Include="MassTransit.Redis" Version="8.5.3" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="9.0.9" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -55,8 +54,5 @@
     <Protobuf Include="Protos\courses.proto" GrpcServices="Client"/>
     <Protobuf Include="Protos\enrollments.proto" GrpcServices="Client"/>
     <Protobuf Include="Protos\students.proto" GrpcServices="Client"/>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Database\Configuration\" />
   </ItemGroup>
 </Project>

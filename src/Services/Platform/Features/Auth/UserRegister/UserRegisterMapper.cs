@@ -1,7 +1,7 @@
 using Contracts.Users.Events;
 using Contracts.Users.Requests;
 
-using Platform.Database.Entities;
+using Platform.Common.Database.Entities;
 
 namespace Platform.Features.Auth.UserRegister;
 

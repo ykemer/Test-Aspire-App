@@ -8,9 +8,9 @@ using FastEndpoints;
 
 using Microsoft.AspNetCore.OutputCaching;
 
+using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 using Platform.Features.Classes.CreateClass;
-using Platform.Middleware.Grpc;
-using Platform.Services.User;
 
 namespace Platform.Features.Classes.GetClass;
 

@@ -15,15 +15,17 @@ using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.IdentityModel.Tokens;
 
-using Platform.AsyncDataServices.StateMachines;
-using Platform.Database;
-using Platform.Database.Entities;
-using Platform.Middleware.Grpc;
-using Platform.Services.JWT;
-using Platform.Services.MailService;
-using Platform.Services.User;
+using Platform.Common.Database;
+using Platform.Common.Database.Entities;
+using Platform.Common.Middleware.Grpc;
+using Platform.Common.Providers;
+using Platform.Common.Services.JWT;
+using Platform.Common.Services.MailService;
+using Platform.Common.Services.User;
+using Platform.Common.StateMachines;
 
 using StudentsGRPCClient;
 
@@ -48,25 +50,20 @@ public static class DependencyInjection
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
 
-      configure.SetEntityFrameworkSagaRepositoryProvider(r =>
-      {
-        r.ExistingDbContext<ApplicationDbContext>();
-        r.UsePostgres();
-      });
-
-      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
-      {
-        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-        o.UsePostgres();
-        //o.UseBusOutbox(); TODO: remove outbox from this project since it doesn't use database
-      });
-
-
       configure
-        .AddSagaStateMachine<StudentEnrollmentsStateMachine, StudentEnrollmentsState>()
+        .AddSagaStateMachine<StudentEnrollStateMachine, StudentEnrollState>()
         .EntityFrameworkRepository(r =>
         {
-          r.ConcurrencyMode = ConcurrencyMode.Pessimistic;
+          r.ConcurrencyMode = ConcurrencyMode.Optimistic;
+          r.ExistingDbContext<ApplicationDbContext>();
+          r.UsePostgres();
+        });
+
+      configure
+        .AddSagaStateMachine<StudentUnenrollStateMachine, StudentUnenrollState>()
+        .EntityFrameworkRepository(r =>
+        {
+          r.ConcurrencyMode = ConcurrencyMode.Optimistic;
           r.ExistingDbContext<ApplicationDbContext>();
           r.UsePostgres();
         });
@@ -77,12 +74,22 @@ public static class DependencyInjection
         var connectionString = configService.GetConnectionString("messaging");
 
         cfg.Host(connectionString);
-        cfg.ReceiveEndpoint("queue-platform", e =>
+
+        cfg.ReceiveEndpoint("queue-platform-consumers", e =>
         {
           e.ConfigureConsumers(context);
         });
 
-        cfg.ConfigureEndpoints(context);
+
+        cfg.ReceiveEndpoint("saga-enroll-state", e =>
+        {
+          e.ConfigureSaga<StudentEnrollState>(context);
+        });
+
+        cfg.ReceiveEndpoint("saga-unenroll-state", e =>
+        {
+          e.ConfigureSaga<StudentUnenrollState>(context);
+        });
       });
     });
 
@@ -170,6 +177,9 @@ public static class DependencyInjection
           s.Version = "v1";
         };
       });
+
+    services.AddSignalR();
+    services.AddSingleton<IUserIdProvider, UserIdProvider>();
 
     return services;
   }

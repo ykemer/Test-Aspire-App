@@ -5,8 +5,8 @@ using FastEndpoints;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using Platform.Database;
-using Platform.Database.Entities;
+using Platform.Common.Database;
+using Platform.Common.Database.Entities;
 
 namespace Platform.Features.Auth.RefreshTokenRevoke;
 

@@ -8,9 +8,9 @@ using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
-using Platform.Database;
-using Platform.Database.Entities;
-using Platform.Services.JWT;
+using Platform.Common.Database;
+using Platform.Common.Database.Entities;
+using Platform.Common.Services.JWT;
 
 namespace Platform.Features.Auth.RefreshAccessToken;
 

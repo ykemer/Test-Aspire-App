@@ -1,5 +1,6 @@
 ﻿using Contracts.Courses.Requests;
 using Contracts.Courses.Requests.Enrollments;
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Events;
 
 using EnrollmentsGRPCClient;
@@ -8,8 +9,8 @@ using FastEndpoints;
 
 using MassTransit;
 
-using Platform.Middleware.Grpc;
-using Platform.Services.User;
+using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 using StudentsGRPCClient;
 
@@ -18,21 +19,20 @@ namespace Platform.Features.Enrollments.UnenrollFromCourse;
 public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest,
   ErrorOr<Deleted>>
 {
-  private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
   private readonly IUserService _userService;
-  private readonly IPublishEndpoint _publishEndpoint;
+
+  private readonly ISendEndpointProvider _sendEndpointProvider;
 
   public UnenrollFromCourseEndpoint(IUserService userService,
-    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService, IPublishEndpoint publishEndpoint)
+    IGrpcRequestMiddleware grpcRequestMiddleware, GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
+    ISendEndpointProvider sendEndpointProvider)
   {
     _userService = userService;
-    _enrollmentsGrpcService = enrollmentsGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
-    _publishEndpoint = publishEndpoint;
+    _sendEndpointProvider = sendEndpointProvider;
   }
 
   public override void Configure()
@@ -64,30 +64,15 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
       return studentResponse.Errors[0];
     }
 
-    var unerollmentRequest =
-      _enrollmentsGrpcService.DeleteEnrollmentAsync(new GrpcDeleteEnrollmentRequest
-      {
-        CourseId = courseId.ToString(),
-        ClassId = classId.ToString(),
-        StudentId = userId.ToString()
-      });
 
-    var unenrollmentResponse =
-      await _grpcRequestMiddleware.SendGrpcRequestAsync(unerollmentRequest, ct);
+    var sendUri = new Uri("queue:delete-enrollment-command");
 
-    if (unenrollmentResponse.IsError)
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
+
+    await endpoint.Send(new DeleteEnrollmentCommand()
     {
-      return unenrollmentResponse.Errors[0];
-    }
-
-    await _publishEndpoint.Publish(
-      new StudentEnrollmentCountChangedEvent
-      {
-        StudentId = userId.ToString(),
-        CourseId = courseId.ToString(),
-        ClassId = classId.ToString(),
-        IsIncrease = false
-      }, ct);
+      CourseId = courseId.ToString(), ClassId = classId.ToString(), StudentId = userId.ToString(),
+    });
 
     return Result.Deleted;
   }

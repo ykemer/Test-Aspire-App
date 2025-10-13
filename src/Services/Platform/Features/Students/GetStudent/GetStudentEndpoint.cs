@@ -2,7 +2,7 @@
 
 using FastEndpoints;
 
-using Platform.Middleware.Grpc;
+using Platform.Common.Middleware.Grpc;
 
 using StudentsGRPCClient;
 

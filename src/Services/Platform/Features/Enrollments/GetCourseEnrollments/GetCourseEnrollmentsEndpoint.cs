@@ -6,7 +6,7 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Platform.Middleware.Grpc;
+using Platform.Common.Middleware.Grpc;
 
 namespace Platform.Features.Enrollments.GetCourseEnrollments;
 
