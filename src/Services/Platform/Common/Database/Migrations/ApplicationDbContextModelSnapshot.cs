@@ -460,10 +460,7 @@ namespace Platform.Common.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCourseEnrollmentsUpdated")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsIncrease")
+                    b.Property<bool>("IsClassEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsStudentEnrollmentsUpdated")
@@ -508,10 +505,7 @@ namespace Platform.Common.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCourseEnrollmentsUpdated")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsIncrease")
+                    b.Property<bool>("IsClassEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsStudentEnrollmentsUpdated")

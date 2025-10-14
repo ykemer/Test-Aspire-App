@@ -1,8 +1,8 @@
 ﻿using Library.Middleware;
 
-using Service.Students.Common.Database;
+using Service.Courses.Common.Database;
 
-namespace Service.Students;
+namespace Service.Courses.Common.Setup;
 
 public static class DependencyInjection
 {

@@ -1,7 +1,7 @@
-﻿using Contracts.Courses.Events.ChangeCourseEnrollmentsCount;
+﻿using Contracts.Courses.Events.IncreaseClassEnrollmentsCount;
 using Contracts.Enrollments.Events;
 using Contracts.Hub;
-using Contracts.Students.Events.ChangeStudentEnrollmentsCount;
+using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
 
 using MassTransit;
 
@@ -17,15 +17,15 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
 
   public Event<EnrollmentCreatedEvent> EnrollmentCreated { get; set; }
   public Event<StudentEnrollmentCountChangedEvent> StudentEnrollmentCountChanged { get; set; }
-  public Event<ChangeStudentEnrollmentsCountSuccessEvent> ChangeStudentEnrollmentsCountSuccess { get; set; }
-  public Event<ChangeStudentEnrollmentsCountFailedEvent> ChangeStudentEnrollmentsCountFailed { get; set; }
+  public Event<IncreaseStudentEnrollmentsCountSuccessEvent> IncreaseStudentEnrollmentsCountSuccess { get; set; }
+  public Event<IncreaseStudentEnrollmentsCountFailedEvent> IncreaseStudentEnrollmentsCountFailed { get; set; }
 
-  public Event<ChangeClassEnrollmentsCountFailedEvent> ChangeCourseEnrollmentsCountFailed { get; set; }
-  public Event<ChangeClassEnrollmentsCountSuccessEvent> ChangeCourseEnrollmentsCountSuccess { get; set; }
+  public Event<IncreaseClassEnrollmentsCountFailedEvent> IncreaseClassEnrollmentsCountFailed { get; set; }
+  public Event<IncreaseClassEnrollmentsCountSuccessEvent> IncreaseClassEnrollmentsCountSuccess { get; set; }
 
 
   public State ChangingStudentEnrollmentsCount { get; set; }
-  public State ChangingCourseEnrollmentsCount { get; set; }
+  public State ChangingClassEnrollmentsCount { get; set; }
   public State Completed { get; set; }
   public State Failed { get; set; }
 
@@ -41,11 +41,11 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
     Event(() => EnrollmentCreated, x => x.CorrelateById(m => m.Message.EventId));
     Event(() => StudentEnrollmentCountChanged, x => x.CorrelateById(m => m.Message.EventId));
 
-    Event(() => ChangeStudentEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => ChangeStudentEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => IncreaseStudentEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => IncreaseStudentEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
 
-    Event(() => ChangeCourseEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => ChangeCourseEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => IncreaseClassEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => IncreaseClassEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
 
 
     Initially(
@@ -56,67 +56,64 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
           context.Saga.CourseId = context.Message.CourseId;
           context.Saga.ClassId = context.Message.ClassId;
           context.Saga.EventId = context.Message.EventId;
-          context.Saga.IsIncrease = true;
           context.Saga.EnrolledDate = DateTime.Now;
         })
         .TransitionTo(ChangingStudentEnrollmentsCount)
-        .Publish(context => new ChangeStudentEnrollmentsCountEvent
+        .Publish(context => new IncreaseStudentEnrollmentsCountEvent
         {
           StudentId = context.Saga.StudentId,
-          IsIncrease = context.Saga.IsIncrease,
           EventId = context.Saga.EventId,
         })
     );
 
 
     During(ChangingStudentEnrollmentsCount,
-      When(ChangeStudentEnrollmentsCountSuccess)
+      When(IncreaseStudentEnrollmentsCountSuccess)
         .Then(context =>
         {
           context.Saga.IsStudentEnrollmentsUpdated = true;
         })
-        .Publish(context => new ChangeClassEnrollmentsCountEvent
+        .Publish(context => new IncreaseClassEnrollmentsCountEvent
         {
           CourseId = context.Saga.CourseId,
           ClassId = context.Saga.ClassId,
           EventId = context.Saga.EventId,
-          IsIncrease = context.Saga.IsIncrease
         })
-        .TransitionTo(ChangingCourseEnrollmentsCount),
-      When(ChangeStudentEnrollmentsCountFailed)
+        .TransitionTo(ChangingClassEnrollmentsCount),
+      When(IncreaseStudentEnrollmentsCountFailed)
         .ThenAsync(async context =>
         {
           context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected, $"Failed to enroll you in the course. Please contact support.");
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected, $"Failed to enroll you in the class. Please contact support.");
         })
         .TransitionTo(Failed)
-        .Finalize()
     );
 
-    During(ChangingCourseEnrollmentsCount,
-      When(ChangeCourseEnrollmentsCountSuccess)
-        .ThenAsync(async(context) =>
-        {
-          context.Saga.IsCourseEnrollmentsUpdated = true;
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreated, $"You have been successfully enrolled in the course.");
-        })
-        .TransitionTo(Completed)
-        .Finalize(),
-      When(ChangeCourseEnrollmentsCountFailed)
+    During(ChangingClassEnrollmentsCount,
+      When(IncreaseClassEnrollmentsCountFailed)
         .ThenAsync(async context =>
         {
-          context.Saga.FailureReason = $"Course enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected, $"Failed to enroll you in the course. Please contact support.");
+          context.Saga.FailureReason = $"Class enrollments count update failed: {context.Message.ErrorMessage}";
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected, $"Failed to enroll you in the class. Please contact support.");
         })
-        .Publish(context => new ChangeStudentEnrollmentsCountEvent
+        .Publish(context => new IncreaseStudentEnrollmentsCountEvent
         {
           StudentId = context.Saga.StudentId,
           EventId = context.Saga.EventId,
-          IsIncrease = !context.Saga.IsIncrease
         })
         .TransitionTo(Failed)
-        .Finalize()
     );
+
+
+    DuringAny(
+      When(IncreaseClassEnrollmentsCountSuccess)
+        .ThenAsync(async (context) =>
+        {
+          context.Saga.IsClassEnrollmentsUpdated = true;
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreated, $"You have been successfully enrolled in the class.");
+        })
+        .TransitionTo(Completed)
+        .Finalize());
 
     SetCompletedWhenFinalized();
   }

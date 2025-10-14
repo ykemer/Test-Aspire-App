@@ -49,6 +49,13 @@ public static class DependencyInjection
     {
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
+      configure.AddActivities(assembly);
+
+      configure.SetEntityFrameworkSagaRepositoryProvider(r =>
+      {
+        r.ExistingDbContext<ApplicationDbContext>();
+        r.UsePostgres();
+      });
 
       configure
         .AddSagaStateMachine<StudentEnrollStateMachine, StudentEnrollState>()
@@ -56,7 +63,6 @@ public static class DependencyInjection
         {
           r.ConcurrencyMode = ConcurrencyMode.Optimistic;
           r.ExistingDbContext<ApplicationDbContext>();
-          r.UsePostgres();
         });
 
       configure
@@ -65,7 +71,6 @@ public static class DependencyInjection
         {
           r.ConcurrencyMode = ConcurrencyMode.Optimistic;
           r.ExistingDbContext<ApplicationDbContext>();
-          r.UsePostgres();
         });
 
       configure.UsingRabbitMq((context, cfg) =>
@@ -75,11 +80,10 @@ public static class DependencyInjection
 
         cfg.Host(connectionString);
 
-        cfg.ReceiveEndpoint("queue-platform-consumers", e =>
+        cfg.ReceiveEndpoint("queue-platform", e =>
         {
           e.ConfigureConsumers(context);
         });
-
 
         cfg.ReceiveEndpoint("saga-enroll-state", e =>
         {
@@ -90,6 +94,7 @@ public static class DependencyInjection
         {
           e.ConfigureSaga<StudentUnenrollState>(context);
         });
+
       });
     });
 

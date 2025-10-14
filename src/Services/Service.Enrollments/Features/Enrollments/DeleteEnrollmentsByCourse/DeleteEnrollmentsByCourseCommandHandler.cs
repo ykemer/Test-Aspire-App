@@ -1,4 +1,4 @@
-﻿using Contracts.Students.Events.ChangeStudentEnrollmentsCount;
+﻿using Contracts.Students.Events.DecreaseStudentEnrollmentCount;
 
 using MassTransit;
 
@@ -26,7 +26,7 @@ public class DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnr
     var events = await _dbContext.Enrollments
       .Where(enrollment => enrollment.CourseId == request.CourseId)
       .Select(enrollment =>
-        new ChangeStudentEnrollmentsCountEvent { StudentId = enrollment.StudentId, IsIncrease = false })
+        new DecreaseStudentEnrollmentCountEvent { StudentId = enrollment.StudentId })
       .ToListAsync(cancellationToken);
 
 

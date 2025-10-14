@@ -23,16 +23,16 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
   {
     base.OnModelCreating(builder);
 
+    builder.AddInboxStateEntity();
+    builder.AddOutboxMessageEntity();
+    builder.AddOutboxStateEntity();
+
     builder.Entity<StudentEnrollState>().HasIndex(x => x.CorrelationId);
     builder.Entity<StudentEnrollState>().HasKey(x => x.EventId);
 
     builder.Entity<StudentUnenrollState>().HasIndex(x => x.CorrelationId);
     builder.Entity<StudentUnenrollState>().HasKey(x => x.EventId);
 
-
-    builder.AddInboxStateEntity();
-    builder.AddOutboxMessageEntity();
-    builder.AddOutboxStateEntity();
 
     builder.Entity<RefreshToken>()
       .HasIndex(r => r.Token)

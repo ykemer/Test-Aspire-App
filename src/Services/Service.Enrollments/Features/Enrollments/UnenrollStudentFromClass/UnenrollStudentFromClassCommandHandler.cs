@@ -41,8 +41,10 @@ public class UnenrollStudentFromClassCommandHandler
 
     if (existingClass.CourseStartDate <= DateTime.UtcNow)
     {
+
       _logger.LogWarning("Cannot unenroll student {StudentId} from class {ClassId} as the class has already started",
         command.StudentId, command.ClassId);
+
       return Error.Conflict("enrollment_service.unenroll_student_from_course.class_already_started",
         $"Cannot unenroll student {command.StudentId} from class {command.ClassId} as the class has already started");
     }

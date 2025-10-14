@@ -103,9 +103,8 @@ namespace Platform.Common.Database.Migrations
                     StudentId = table.Column<string>(type: "text", nullable: false),
                     CourseId = table.Column<string>(type: "text", nullable: false),
                     ClassId = table.Column<string>(type: "text", nullable: false),
-                    IsIncrease = table.Column<bool>(type: "boolean", nullable: false),
                     IsStudentEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
-                    IsCourseEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
+                    IsClassEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     EnrolledDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     FailureReason = table.Column<string>(type: "text", nullable: false)
                 },
@@ -124,9 +123,8 @@ namespace Platform.Common.Database.Migrations
                     StudentId = table.Column<string>(type: "text", nullable: false),
                     CourseId = table.Column<string>(type: "text", nullable: false),
                     ClassId = table.Column<string>(type: "text", nullable: false),
-                    IsIncrease = table.Column<bool>(type: "boolean", nullable: false),
                     IsStudentEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
-                    IsCourseEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
+                    IsClassEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     EnrolledDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
                     FailureReason = table.Column<string>(type: "text", nullable: false)
                 },

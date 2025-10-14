@@ -1,7 +1,5 @@
-using Library.Infrastructure;
-
-using Service.Courses;
 using Service.Courses.Common.Database;
+using Service.Courses.Common.Setup;
 using Service.Courses.Features.Classes;
 using Service.Courses.Features.Courses;
 
@@ -11,9 +9,8 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
 
-var assembly = typeof(Program).Assembly;
-builder.Services.AddMassTransitServices(assembly, "queue-courses");
 builder.Services.AddServices();
+builder.Services.AddMassTransitServices();
 
 var app = builder.Build();
 

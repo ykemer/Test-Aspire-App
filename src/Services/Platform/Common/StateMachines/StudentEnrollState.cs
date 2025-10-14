@@ -11,9 +11,8 @@ public class StudentEnrollState : SagaStateMachineInstance
   public string StudentId { get; set; }
   public string CourseId { get; set; }
   public string ClassId { get; set; }
-  public bool IsIncrease { get; set; }
   public bool IsStudentEnrollmentsUpdated { get; set; }
-  public bool IsCourseEnrollmentsUpdated { get; set; }
+  public bool IsClassEnrollmentsUpdated { get; set; }
   public DateTime EnrolledDate { get; set; }
   public string FailureReason { get; set; } = "";
 

@@ -1,10 +1,8 @@
 ﻿using MassTransit;
 
-using Service.Enrollments.Common.Database;
-using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
-using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
+using Service.Students.Common.Database;
 
-namespace Service.Enrollments.Common.Setup;
+namespace Service.Students.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
@@ -18,13 +16,10 @@ public static class DependencyInjectionMassTransit
     services.AddMassTransit(configure =>
     {
       var assembly = typeof(DependencyInjection).Assembly;
-      var queue = "queue-enrollments";
-      var deleteCommandQueue = "delete-enrollment-command";
-      var createCommandQueue = "create-enrollment-command";
+      var queue = "queue-students";
 
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
-
 
 
       // configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
@@ -39,35 +34,15 @@ public static class DependencyInjectionMassTransit
       //   cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
       // });
 
-      configure.AddOptions<OutboxDeliveryServiceOptions>()
-        .Configure(options =>
-        {
-          options.QueryDelay = TimeSpan.FromSeconds(1);
-          options.QueryMessageLimit = 100;
-        });
-
-
       configure.UsingRabbitMq((context, cfg) =>
       {
         var configService = context.GetRequiredService<IConfiguration>();
         var connectionString = configService.GetConnectionString("messaging");
         cfg.Host(connectionString);
 
-
-
         cfg.ReceiveEndpoint(queue, e =>
         {
           e.ConfigureConsumers(context);
-        });
-
-        cfg.ReceiveEndpoint(deleteCommandQueue, e =>
-        {
-          e.ConfigureConsumer<DeleteEnrollmentCommandConsumer>(context);
-        });
-
-        cfg.ReceiveEndpoint(createCommandQueue, e =>
-        {
-          e.ConfigureConsumer<CreateEnrollmentCommandConsumer>(context);
         });
       });
     });

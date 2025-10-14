@@ -13,6 +13,7 @@ using FastEndpoints;
 
 using MassTransit;
 
+using Platform.Common.Database;
 using Platform.Common.Middleware.Grpc;
 using Platform.Common.Services.User;
 
@@ -28,18 +29,20 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   private readonly IUserService _userService;
 
   private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly ApplicationDbContext _db;
 
 
   public EnrollToCourseEndpoint(
     IUserService userService,
     IGrpcRequestMiddleware grpcRequestMiddleware,
     GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    ISendEndpointProvider sendEndpointProvider)
+    ISendEndpointProvider sendEndpointProvider, ApplicationDbContext db)
   {
     _userService = userService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
     _sendEndpointProvider = sendEndpointProvider;
+    _db = db;
   }
 
   public override void Configure()

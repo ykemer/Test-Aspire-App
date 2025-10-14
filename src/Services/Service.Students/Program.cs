@@ -1,7 +1,5 @@
-using Library.Infrastructure;
-
-using Service.Students;
 using Service.Students.Common.Database;
+using Service.Students.Common.Setup;
 using Service.Students.Features;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,8 +8,8 @@ builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("studentsDb");
 builder.AddRedisDistributedCache("cache");
 
-var assembly = typeof(Program).Assembly;
-builder.Services.AddMassTransitServices(assembly, "queue-students");
+
+builder.Services.AddMassTransitServices();
 builder.Services.AddServices();
 
 var app = builder.Build();

@@ -1,7 +1,7 @@
-﻿using Contracts.Courses.Events.ChangeCourseEnrollmentsCount;
+﻿using Contracts.Courses.Events.DecreaseClassEnrollmentsCount;
 using Contracts.Enrollments.Events;
 using Contracts.Hub;
-using Contracts.Students.Events.ChangeStudentEnrollmentsCount;
+using Contracts.Students.Events.DecreaseStudentEnrollmentCount;
 
 using MassTransit;
 
@@ -13,19 +13,17 @@ namespace Platform.Common.StateMachines;
 
 public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenrollState>
 {
-
-
   public Event<EnrollmentDeletedEvent> EnrollmentDeleted { get; set; }
   public Event<StudentEnrollmentCountChangedEvent> StudentEnrollmentCountChanged { get; set; }
-  public Event<ChangeStudentEnrollmentsCountSuccessEvent> ChangeStudentEnrollmentsCountSuccess { get; set; }
-  public Event<ChangeStudentEnrollmentsCountFailedEvent> ChangeStudentEnrollmentsCountFailed { get; set; }
+  public Event<DecreaseStudentEnrollmentCountSuccessEvent> DecreaseStudentEnrollmentsCountSuccess { get; set; }
+  public Event<DecreaseStudentEnrollmentCountFailedEvent> DecreaseStudentEnrollmentsCountFailed { get; set; }
 
-  public Event<ChangeClassEnrollmentsCountFailedEvent> ChangeCourseEnrollmentsCountFailed { get; set; }
-  public Event<ChangeClassEnrollmentsCountSuccessEvent> ChangeCourseEnrollmentsCountSuccess { get; set; }
+  public Event<DecreaseClassEnrollmentsCountFailedEvent> DecreaseClassEnrollmentsCountFailed { get; set; }
+  public Event<DecreaseClassEnrollmentsCountSuccessEvent> DecreaseClassEnrollmentsCountSuccess { get; set; }
 
 
   public State ChangingStudentEnrollmentsCount { get; set; }
-  public State ChangingCourseEnrollmentsCount { get; set; }
+  public State ChangingClassEnrollmentsCount { get; set; }
   public State Completed { get; set; }
   public State Failed { get; set; }
 
@@ -41,11 +39,11 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
     Event(() => EnrollmentDeleted, x => x.CorrelateById(m => m.Message.EventId));
     Event(() => StudentEnrollmentCountChanged, x => x.CorrelateById(m => m.Message.EventId));
 
-    Event(() => ChangeStudentEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => ChangeStudentEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => DecreaseStudentEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => DecreaseStudentEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
 
-    Event(() => ChangeCourseEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => ChangeCourseEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => DecreaseClassEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
+    Event(() => DecreaseClassEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
 
 
     Initially(
@@ -56,71 +54,65 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
           context.Saga.CourseId = context.Message.CourseId;
           context.Saga.ClassId = context.Message.ClassId;
           context.Saga.EventId = context.Message.EventId;
-          context.Saga.IsIncrease = false;
           context.Saga.EnrolledDate = DateTime.Now;
         })
         .TransitionTo(ChangingStudentEnrollmentsCount)
-        .Publish(context => new ChangeStudentEnrollmentsCountEvent
+        .Publish(context => new DecreaseStudentEnrollmentCountEvent()
         {
-          StudentId = context.Saga.StudentId,
-          IsIncrease = context.Saga.IsIncrease,
-          EventId = context.Saga.EventId,
+          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId,
         })
     );
 
 
     During(ChangingStudentEnrollmentsCount,
-      When(ChangeStudentEnrollmentsCountSuccess)
+      When(DecreaseStudentEnrollmentsCountSuccess)
         .Then(context =>
         {
           context.Saga.IsStudentEnrollmentsUpdated = true;
         })
-        .Publish(context => new ChangeClassEnrollmentsCountEvent
+        .Publish(context => new DecreaseClassEnrollmentsCountEvent
         {
-          CourseId = context.Saga.CourseId,
-          ClassId = context.Saga.ClassId,
-          EventId = context.Saga.EventId,
-          IsIncrease = context.Saga.IsIncrease
+          CourseId = context.Saga.CourseId, ClassId = context.Saga.ClassId, EventId = context.Saga.EventId,
         })
-        .TransitionTo(ChangingCourseEnrollmentsCount),
-      When(ChangeStudentEnrollmentsCountFailed)
+        .TransitionTo(ChangingClassEnrollmentsCount),
+      When(DecreaseStudentEnrollmentsCountFailed)
         .ThenAsync(async context =>
         {
           context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleteRequestRejected, $"Failed to unenroll you from the course. Please contact support.");
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
+            EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
+            $"Failed to unenroll you from the class. Please contact support.");
         })
         .TransitionTo(Failed)
-        .Finalize()
     );
 
-    During(ChangingCourseEnrollmentsCount,
-      When(ChangeCourseEnrollmentsCountSuccess)
-        .ThenAsync(async(context) =>
-        {
-          context.Saga.IsCourseEnrollmentsUpdated = true;
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleted, $"You have been successfully unenrolled from the course.");
-        })
-        .TransitionTo(Completed)
-        .Finalize(),
-      When(ChangeCourseEnrollmentsCountFailed)
+    During(ChangingClassEnrollmentsCount,
+      When(DecreaseClassEnrollmentsCountFailed)
         .ThenAsync(async context =>
         {
-          context.Saga.FailureReason = $"Course enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleteRequestRejected, $"Failed to unenroll you from the course. Please contact support.");
+          context.Saga.FailureReason = $"Class enrollments count update failed: {context.Message.ErrorMessage}";
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
+            EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
+            $"Failed to unenroll you from the class. Please contact support.");
         })
-        .Publish(context => new ChangeStudentEnrollmentsCountEvent
+        .Publish(context => new DecreaseStudentEnrollmentCountEvent()
         {
-          StudentId = context.Saga.StudentId,
-          EventId = context.Saga.EventId,
-          IsIncrease = !context.Saga.IsIncrease
+          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId
         })
         .TransitionTo(Failed)
-        .Finalize()
     );
+
+    DuringAny(
+      When(DecreaseClassEnrollmentsCountSuccess)
+        .ThenAsync(async (context) =>
+        {
+          context.Saga.IsClassEnrollmentsUpdated = true;
+          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleted,
+            $"You have been successfully unenrolled from the class.");
+        })
+        .TransitionTo(Completed)
+        .Finalize());
 
     SetCompletedWhenFinalized();
   }
 }
-
-
-// TODO: delete enrollment from enrollment service in case of failure

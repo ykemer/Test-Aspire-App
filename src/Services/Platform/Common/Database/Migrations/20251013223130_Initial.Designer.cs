@@ -12,7 +12,7 @@ using Platform.Common.Database;
 namespace Platform.Common.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251012230422_Initial")]
+    [Migration("20251013223130_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -463,10 +463,7 @@ namespace Platform.Common.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCourseEnrollmentsUpdated")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsIncrease")
+                    b.Property<bool>("IsClassEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsStudentEnrollmentsUpdated")
@@ -511,10 +508,7 @@ namespace Platform.Common.Database.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<bool>("IsCourseEnrollmentsUpdated")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsIncrease")
+                    b.Property<bool>("IsClassEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsStudentEnrollmentsUpdated")
