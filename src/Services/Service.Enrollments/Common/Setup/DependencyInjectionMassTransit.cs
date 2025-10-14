@@ -26,18 +26,17 @@ public static class DependencyInjectionMassTransit
       configure.AddConsumers(assembly);
 
 
+      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+      {
+        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+        o.UsePostgres();
+        // o.UseBusOutbox(); // TODO setup the bus outbox
+      });
 
-      // configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
-      // {
-      //   o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-      //   o.UsePostgres();
-      //   o.UseBusOutbox();
-      // });
-
-      // configure.AddConfigureEndpointsCallback((context, name, cfg) =>
-      // {
-      //   cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-      // });
+      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
+      {
+        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+      });
 
       configure.AddOptions<OutboxDeliveryServiceOptions>()
         .Configure(options =>
@@ -54,20 +53,22 @@ public static class DependencyInjectionMassTransit
         cfg.Host(connectionString);
 
 
-
         cfg.ReceiveEndpoint(queue, e =>
         {
           e.ConfigureConsumers(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
         cfg.ReceiveEndpoint(deleteCommandQueue, e =>
         {
           e.ConfigureConsumer<DeleteEnrollmentCommandConsumer>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
         cfg.ReceiveEndpoint(createCommandQueue, e =>
         {
           e.ConfigureConsumer<CreateEnrollmentCommandConsumer>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
       });
     });

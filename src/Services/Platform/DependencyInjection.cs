@@ -51,6 +51,20 @@ public static class DependencyInjection
       configure.AddConsumers(assembly);
       configure.AddActivities(assembly);
 
+
+      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+      {
+        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+        o.UsePostgres();
+      });
+
+      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
+      {
+        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+      });
+
+
+
       configure.SetEntityFrameworkSagaRepositoryProvider(r =>
       {
         r.ExistingDbContext<ApplicationDbContext>();
@@ -83,16 +97,20 @@ public static class DependencyInjection
         cfg.ReceiveEndpoint("queue-platform", e =>
         {
           e.ConfigureConsumers(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
         cfg.ReceiveEndpoint("saga-enroll-state", e =>
         {
           e.ConfigureSaga<StudentEnrollState>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
         cfg.ReceiveEndpoint("saga-unenroll-state", e =>
         {
           e.ConfigureSaga<StudentUnenrollState>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+
         });
 
       });

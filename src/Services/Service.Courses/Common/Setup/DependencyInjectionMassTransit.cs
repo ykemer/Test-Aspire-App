@@ -22,17 +22,17 @@ public static class DependencyInjectionMassTransit
       configure.AddConsumers(assembly);
 
 
-      // configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
-      // {
-      //   o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-      //   o.UsePostgres();
-      //   o.UseBusOutbox();
-      // });
-      //
-      // configure.AddConfigureEndpointsCallback((context, name, cfg) =>
-      // {
-      //   cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-      // });
+      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+      {
+        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
+        o.UsePostgres();
+        // o.UseBusOutbox();
+      });
+
+      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
+      {
+        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+      });
 
       configure.UsingRabbitMq((context, cfg) =>
       {
@@ -43,6 +43,7 @@ public static class DependencyInjectionMassTransit
         cfg.ReceiveEndpoint(queue, e =>
         {
           e.ConfigureConsumers(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
       });
     });
