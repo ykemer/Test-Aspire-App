@@ -94,3 +94,4 @@ await app.RunAsync();
 // TODO switch class creation to masstransit command and add saga
 // TODO switch course creation to masstransit command and add saga
 // TODO switch course deletion to masstransit command and add saga
+// TODO switch class deletion to masstransit command and add saga
