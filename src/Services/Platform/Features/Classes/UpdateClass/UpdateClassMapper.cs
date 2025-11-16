@@ -1,5 +1,6 @@
 using ClassesGRPCClient;
 
+using Contracts.Classes.Requests;
 using Contracts.Courses.Requests;
 
 using Google.Protobuf.WellKnownTypes;

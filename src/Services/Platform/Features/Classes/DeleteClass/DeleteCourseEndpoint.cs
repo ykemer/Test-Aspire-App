@@ -1,5 +1,6 @@
 ﻿using ClassesGRPCClient;
 
+using Contracts.Classes.Events;
 using Contracts.Courses.Events;
 
 using FastEndpoints;

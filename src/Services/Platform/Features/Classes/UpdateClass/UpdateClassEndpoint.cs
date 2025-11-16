@@ -1,5 +1,7 @@
 ﻿using ClassesGRPCClient;
 
+using Contracts.Classes.Events;
+using Contracts.Classes.Requests;
 using Contracts.Courses.Events;
 using Contracts.Courses.Requests;
 
