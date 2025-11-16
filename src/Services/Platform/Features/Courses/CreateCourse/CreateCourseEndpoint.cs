@@ -1,29 +1,28 @@
-﻿using Contracts.Courses.Requests.Courses;
-using Contracts.Courses.Responses;
-
-using CoursesGRPCClient;
+﻿using Contracts.Courses.Commands;
+using Contracts.Courses.Requests;
 
 using FastEndpoints;
 
+using MassTransit;
+
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Courses.CreateCourse;
 
 public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
-  ErrorOr<CourseResponse>>
+  ErrorOr<Success>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IOutputCacheStore _outputCache;
+  private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly IUserService _userService;
 
-  public CreateCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache)
+  public CreateCourseEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
   {
-    _coursesGrpcService = coursesGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
+    _sendEndpointProvider = sendEndpointProvider;
+    _userService = userService;
   }
 
   public override void Configure()
@@ -34,16 +33,19 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
     Description(x => x.WithTags("Courses"));
   }
 
-  public override async Task<ErrorOr<CourseResponse>> ExecuteAsync(CreateCourseRequest createCourseCommand,
+  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateCourseRequest createCourseCommand,
     CancellationToken ct)
   {
-    var request =
-      _coursesGrpcService.CreateCourseAsync(createCourseCommand.ToGrpcCreateCourseRequest(), cancellationToken: ct);
 
-    var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("courses", ct);
-    return result.Match<ErrorOr<CourseResponse>>(
-      data => data.ToCourseResponse(),
-      error => error);
+    var sendUri = new Uri("queue:create-course-command");
+
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
+    await endpoint.Send(
+      new CreateCourseCommand { Name = createCourseCommand.Name, Description = createCourseCommand.Description, UserId = userId },
+      cancellationToken: ct);
+
+    return Result.Success;
   }
 }

@@ -1,7 +1,7 @@
 ﻿using System.Security.Claims;
 
 using Contracts.Common;
-using Contracts.Courses.Requests.Courses;
+using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;

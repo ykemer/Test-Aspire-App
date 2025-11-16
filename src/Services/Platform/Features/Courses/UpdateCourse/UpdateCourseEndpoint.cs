@@ -1,28 +1,30 @@
-﻿using Contracts.Courses.Requests;
-
-using CoursesGRPCClient;
+﻿using Contracts.Courses.Commands;
+using Contracts.Courses.Requests;
 
 using FastEndpoints;
 
+using MassTransit;
+
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Courses.UpdateCourse;
 
 public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
   ErrorOr<Updated>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IOutputCacheStore _outputCache;
+  private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly IUserService _userService;
 
-  public UpdateCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache)
+  public UpdateCourseEndpoint(IOutputCacheStore outputCache,
+    ISendEndpointProvider sendEndpointProvider,
+    IUserService userService)
   {
-    _coursesGrpcService = coursesGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
+    _sendEndpointProvider = sendEndpointProvider;
+    _userService = userService;
   }
 
   public override void Configure()
@@ -37,15 +39,19 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
     CancellationToken ct)
   {
     var id = Route<Guid>("CourseId");
-    var request =
-      _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(id.ToString()),
-        cancellationToken: ct);
-
-    var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("courses", ct);
-    return output.Match<ErrorOr<Updated>>(
-      _ => Result.Updated,
-      error => error
-    );
+    var sendUri = new Uri("queue:update-course-command");
+
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
+    endpoint.Send(new UpdateCourseCommand
+    {
+      CourseId = id.ToString(),
+      Name = updateCourseCommand.Name,
+      Description = updateCourseCommand.Description,
+      UserId = userId
+    }, cancellationToken: ct);
+
+    return Result.Updated;
   }
 }

@@ -1,6 +1,4 @@
-﻿using Contracts.Courses.Events;
-
-using CoursesGRPCClient;
+﻿using Contracts.Courses.Commands;
 
 using FastEndpoints;
 
@@ -8,25 +6,22 @@ using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Courses.DeleteCourse;
 
 public class DeleteCourseEndpoint : EndpointWithoutRequest<
   ErrorOr<Deleted>>
 {
-  private readonly GrpcCoursesService.GrpcCoursesServiceClient _coursesGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IOutputCacheStore _outputCache;
-  private readonly IPublishEndpoint _publishEndpoint;
+  private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly IUserService _userService;
 
-  public DeleteCourseEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache, IPublishEndpoint publishEndpoint)
+  public DeleteCourseEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
   {
-    _coursesGrpcService = coursesGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
-    _publishEndpoint = publishEndpoint;
+    _sendEndpointProvider = sendEndpointProvider;
+    _userService = userService;
   }
 
   public override void Configure()
@@ -41,19 +36,17 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
     CancellationToken ct)
   {
     var id = Route<Guid>("CourseId");
-    var request =
-      _coursesGrpcService.DeleteCourseAsync(new GrpcDeleteCourseRequest { Id = id.ToString() }, cancellationToken: ct);
-
-    var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("courses", ct);
+    var sendUri = new Uri("queue:delete-course-command");
 
-    await _publishEndpoint.Publish(
-      new CourseDeletedEvent { CourseId = id.ToString() }, ct);
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
+    await endpoint.Send(new DeleteCourseCommand
+    {
+      CourseId = id.ToString(),
+      UserId = userId
+    }, cancellationToken: ct);
 
-
-    return output.Match<ErrorOr<Deleted>>(
-      _ => Result.Deleted,
-      error => error
-    );
+    return Result.Deleted;
   }
 }
