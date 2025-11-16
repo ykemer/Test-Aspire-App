@@ -1,5 +1,5 @@
-﻿using Contracts.Courses.Requests.Enrollments;
-using Contracts.Enrollments.Commands;
+﻿using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 

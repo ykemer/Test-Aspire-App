@@ -77,6 +77,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseMiddleware<ProblemDetailsMiddleware>();
 app.MapHub<EnrollmentHub>("/enrollmentHub");
+app.MapHub<CoursesHub>("/courseHub");
 await app.RunAsync();
 
 // TODO error handling

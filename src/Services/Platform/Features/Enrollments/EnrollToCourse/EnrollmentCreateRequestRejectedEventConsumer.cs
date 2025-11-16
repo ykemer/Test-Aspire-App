@@ -1,5 +1,5 @@
 ﻿using Contracts.Enrollments.Events;
-using Contracts.Hub;
+using Contracts.Enrollments.Hub;
 
 using MassTransit;
 
@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 
 using Platform.Common.Hubs;
 
-namespace Platform.Features.Enrollments.EnrollmentCreateRequestRejected;
+namespace Platform.Features.Enrollments.EnrollToCourse;
 
 public class EnrollmentCreateRequestRejectedEventConsumer : IConsumer<EnrollmentCreateRequestRejectedEvent>
 {

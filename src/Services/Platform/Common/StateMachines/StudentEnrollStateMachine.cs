@@ -1,6 +1,6 @@
-﻿using Contracts.Courses.Events.IncreaseClassEnrollmentsCount;
+﻿using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
 using Contracts.Enrollments.Events;
-using Contracts.Hub;
+using Contracts.Enrollments.Hub;
 using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
 
 using MassTransit;

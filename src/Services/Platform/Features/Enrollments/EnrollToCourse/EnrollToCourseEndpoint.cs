@@ -1,5 +1,5 @@
-﻿using Contracts.Courses.Requests.Enrollments;
-using Contracts.Enrollments.Commands;
+﻿using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 
@@ -15,8 +15,6 @@ namespace Platform.Features.Enrollments.EnrollToCourse;
 
 public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Updated>>
 {
-  private readonly ApplicationDbContext _db;
-
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
 
   private readonly ISendEndpointProvider _sendEndpointProvider;
@@ -28,13 +26,12 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
     IUserService userService,
     IGrpcRequestMiddleware grpcRequestMiddleware,
     GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    ISendEndpointProvider sendEndpointProvider, ApplicationDbContext db)
+    ISendEndpointProvider sendEndpointProvider)
   {
     _userService = userService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
     _sendEndpointProvider = sendEndpointProvider;
-    _db = db;
   }
 
   public override void Configure()
