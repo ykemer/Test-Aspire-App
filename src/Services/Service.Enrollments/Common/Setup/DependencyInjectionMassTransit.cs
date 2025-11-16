@@ -19,8 +19,8 @@ public static class DependencyInjectionMassTransit
     {
       var assembly = typeof(DependencyInjection).Assembly;
       var queue = "queue-enrollments";
-      var deleteCommandQueue = "delete-enrollment-command";
-      var createCommandQueue = "create-enrollment-command";
+      var deleteEnrollmentCommandQueue = "delete-enrollment-command";
+      var createEnrollmentCommandQueue = "create-enrollment-command";
 
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
@@ -59,13 +59,13 @@ public static class DependencyInjectionMassTransit
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
-        cfg.ReceiveEndpoint(deleteCommandQueue, e =>
+        cfg.ReceiveEndpoint(deleteEnrollmentCommandQueue, e =>
         {
           e.ConfigureConsumer<DeleteEnrollmentCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
         });
 
-        cfg.ReceiveEndpoint(createCommandQueue, e =>
+        cfg.ReceiveEndpoint(createEnrollmentCommandQueue, e =>
         {
           e.ConfigureConsumer<CreateEnrollmentCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);

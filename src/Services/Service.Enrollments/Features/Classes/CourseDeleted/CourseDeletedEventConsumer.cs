@@ -2,7 +2,9 @@
 
 using MassTransit;
 
-namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
+using Service.Enrollments.Features.Classes.CourseDeleted;
+
+namespace Service.Enrollments.Features.Courses.DeleteCourse;
 
 public class CourseDeletedEventConsumer : IConsumer<CourseDeletedEvent>
 {
@@ -11,5 +13,5 @@ public class CourseDeletedEventConsumer : IConsumer<CourseDeletedEvent>
   public CourseDeletedEventConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<CourseDeletedEvent> context) =>
-    await _mediator.Send(new DeleteEnrollmentsByCourseCommand(context.Message.CourseId));
+    await _mediator.Send(new DeleteClassesByCourseIdCommand(context.Message.CourseId));
 }

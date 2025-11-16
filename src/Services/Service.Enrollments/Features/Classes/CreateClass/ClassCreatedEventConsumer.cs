@@ -1,4 +1,5 @@
-﻿using Contracts.Courses.Events;
+﻿using Contracts.Classes.Events;
+using Contracts.Courses.Events;
 
 using MassTransit;
 
