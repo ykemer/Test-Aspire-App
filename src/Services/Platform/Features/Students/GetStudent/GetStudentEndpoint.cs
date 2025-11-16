@@ -25,6 +25,8 @@ public class GetStudentEndpoint : EndpointWithoutRequest<ErrorOr<StudentResponse
     Get("/api/students/{StudentId}");
     Policies("RequireAdministratorRole");
     Options(x => x.RequireRateLimiting("fixed-per-user"));
+
+    Description(x => x.WithTags("Students"));
   }
 
   public override async Task<ErrorOr<StudentResponse>> ExecuteAsync(CancellationToken ct)

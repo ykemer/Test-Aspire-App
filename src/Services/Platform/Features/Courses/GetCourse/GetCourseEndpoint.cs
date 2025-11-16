@@ -35,6 +35,8 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
   {
     Get("/api/courses/{CourseId}");
     Policies("RequireUserRole");
+
+    Description(x => x.WithTags("Courses"));
   }
 
 

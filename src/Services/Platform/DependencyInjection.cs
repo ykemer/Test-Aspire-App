@@ -191,11 +191,22 @@ public static class DependencyInjection
       .AddResponseCaching()
       .SwaggerDocument(o =>
       {
+        o.AutoTagPathSegmentIndex = 0;
         o.DocumentSettings = s =>
         {
           s.Title = "Students API";
           s.Version = "v1";
         };
+
+        o.TagDescriptions = t =>
+        {
+          t["Auth"] = "Authorization endpoints for user management";
+          t["Classes"] = "Possible operations related to Classes";
+          t["Courses"] = "Possible operations related to Courses";
+          t["Students"] = "Possible operations related to Students";
+          t["Enrollments"] = "Possible operations related to Enrollments";
+        };
+
       });
 
     services.AddSignalR();

@@ -32,6 +32,8 @@ public class RefreshAccessTokenEndpoint : Endpoint<RefreshAccessTokenRequest, Er
   {
     Post("/api/auth/refresh");
     AllowAnonymous();
+
+    Description(x => x.WithTags("Auth"));
   }
 
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(RefreshAccessTokenRequest req,

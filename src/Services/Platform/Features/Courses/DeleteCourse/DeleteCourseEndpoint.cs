@@ -33,6 +33,8 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
   {
     Delete("/api/courses/{CourseId}");
     Policies("RequireAdministratorRole");
+
+    Description(x => x.WithTags("Courses"));
   }
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(

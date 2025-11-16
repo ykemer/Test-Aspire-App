@@ -37,6 +37,8 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   {
     Post("/api/auth/register");
     AllowAnonymous();
+
+    Description(x => x.WithTags("Auth"));
   }
 
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserRegisterRequest request,

@@ -32,8 +32,10 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
 
   public override void Configure()
   {
-    Post("/api/courses/{CourseId}/classes/{ClassId}");
+    Put("/api/courses/{CourseId}/classes/{ClassId}");
     Policies("RequireAdministratorRole");
+
+    Description(x => x.WithTags("Classes"));
   }
 
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateClassRequest updateClassCommand,

@@ -42,6 +42,8 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
     Post("/api/courses/{CourseId}/classes/{ClassId}/enroll");
     Policies("RequireUserRole");
     Claims("UserId");
+
+    Description(x => x.WithTags("Enrollments"));
   }
 
   public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,

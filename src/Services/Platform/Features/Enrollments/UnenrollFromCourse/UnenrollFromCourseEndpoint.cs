@@ -39,6 +39,8 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
     Post("/api/courses/{CourseId}/classes/{ClassId}/unenroll");
     Policies("RequireUserRole");
     Claims("UserId");
+
+    Description(x => x.WithTags("Enrollments"));
   }
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request,

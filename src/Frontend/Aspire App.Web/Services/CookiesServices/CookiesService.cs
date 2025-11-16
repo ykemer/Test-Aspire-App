@@ -12,7 +12,7 @@ public class CookiesService : ICookiesService
     var userId = Guid.CreateVersion7().ToString();
 
     // Set the cookie options
-    CookieOptions? cookieOptions = new()
+    var cookieOptions = new CookieOptions()
     {
       HttpOnly = true,
       Secure = true,
@@ -21,7 +21,7 @@ public class CookiesService : ICookiesService
     };
 
     // Add the cookie to the response
-    _httpContextAccessor.HttpContext.Response.Cookies.Append(UserIdCookieName, userId, cookieOptions);
+    _httpContextAccessor.HttpContext?.Response.Cookies.Append(UserIdCookieName, userId, cookieOptions);
     return userId;
   }
 

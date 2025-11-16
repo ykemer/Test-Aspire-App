@@ -31,6 +31,8 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
   {
     Post("/api/auth/login");
     AllowAnonymous();
+
+    Description(x => x.WithTags("Auth"));
   }
 
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserLoginRequest req, CancellationToken ct)

@@ -27,8 +27,10 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
 
   public override void Configure()
   {
-    Patch("/api/courses/{CourseId}");
+    Put("/api/courses/{CourseId}");
     Policies("RequireAdministratorRole");
+
+    Description(x => x.WithTags("Courses"));
   }
 
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest updateCourseCommand,

@@ -35,6 +35,8 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
   {
     Post("/api/courses/{CourseId}/classes");
     Policies("RequireAdministratorRole");
+
+    Description(x => x.WithTags("Classes"));
   }
 
   public override async Task<ErrorOr<ClassResponse>> ExecuteAsync(CreateClassRequest createClassCommand,
