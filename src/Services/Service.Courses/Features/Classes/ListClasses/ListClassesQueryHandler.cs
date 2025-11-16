@@ -20,7 +20,8 @@ public class ListClassesQueryHandler : IRequestHandler<ListClassesQuery, ErrorOr
         request.ShowAll ||
         (courseClass.RegistrationDeadline > DateTime.UtcNow && courseClass.TotalStudents < courseClass.MaxStudents)
         || request.EnrolledClasses.Contains(courseClass.Id)
-      ));
+      ))
+      .OrderByDescending(courseClass => courseClass.CreatedAt);
 
     var output = PagedList<Class>.Create(query, request.PageNumber, request.PageSize);
     return ValueTask.FromResult<ErrorOr<PagedList<Class>>>(output);
