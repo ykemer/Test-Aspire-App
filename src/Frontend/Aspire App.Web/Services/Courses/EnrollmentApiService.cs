@@ -1,4 +1,4 @@
-using Contracts.Courses.Requests.Enrollments;
+using Contracts.Enrollments.Requests;
 
 namespace Aspire_App.Web.Services.Courses;
 

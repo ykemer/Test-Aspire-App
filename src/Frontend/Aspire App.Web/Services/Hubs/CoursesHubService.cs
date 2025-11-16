@@ -1,6 +1,6 @@
 ﻿using Aspire_App.Web.Helpers;
 
-using Contracts.Enrollments.Hub;
+using Contracts.Courses.Hub;
 
 using Microsoft.AspNetCore.SignalR.Client;
 
@@ -9,21 +9,21 @@ using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationServi
 
 namespace Aspire_App.Web.Services.Hubs;
 
-public class EnrollmentHubService
+public class CoursesHubService
 {
   private HubConnection? _hubConnection;
   private readonly string _hubUrl;
 
   private readonly IAuthenticationService _authenticationService;
 
-  public EnrollmentHubService(IConfiguration configuration, IAuthenticationService authService)
+  public CoursesHubService(IConfiguration configuration, IAuthenticationService authService)
   {
     var platformServiceUrl = configuration["services:platformService:https:0"];
-    _hubUrl = platformServiceUrl + "/enrollmentHub";
+    _hubUrl = platformServiceUrl + "/courseHub";
     _authenticationService = authService;
   }
 
-  public event Action<EnrollmentMessage>? OnEnrollmentNotification;
+  public event Action<CourseMessage>? OnCourseNotification;
 
   public async Task StartConnectionAsync()
   {
@@ -36,21 +36,21 @@ public class EnrollmentHubService
         })
         .Build();
 
-      _hubConnection.On<string>(EnrollmentHubMessages.EnrollmentCreated, (message) =>
+      _hubConnection.On<string>(CourseHubMessage.CourseCreated, (message) =>
       {
-        OnEnrollmentNotification?.Invoke(new EnrollmentMessage(EnrollmentHubMessages.EnrollmentCreated, message));
+        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseCreated, message));
       });
-      _hubConnection.On<string>(EnrollmentHubMessages.EnrollmentCreateRequestRejected, (message) =>
+      _hubConnection.On<string>(CourseHubMessage.CourseCreateRequestRejected, (message) =>
       {
-        OnEnrollmentNotification?.Invoke(new EnrollmentMessage(EnrollmentHubMessages.EnrollmentCreateRequestRejected, message));
+        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseCreateRequestRejected, message));
       });
-      _hubConnection.On<string>(EnrollmentHubMessages.EnrollmentDeleted, (message) =>
+      _hubConnection.On<string>(CourseHubMessage.CourseDeleted, (message) =>
       {
-        OnEnrollmentNotification?.Invoke(new EnrollmentMessage(EnrollmentHubMessages.EnrollmentDeleted, message));
+        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseDeleted, message));
       });
-      _hubConnection.On<string>(EnrollmentHubMessages.EnrollmentDeleteRequestRejected, (message) =>
+      _hubConnection.On<string>(CourseHubMessage.CourseDeleteRequestRejected, (message) =>
       {
-        OnEnrollmentNotification?.Invoke(new EnrollmentMessage(EnrollmentHubMessages.EnrollmentDeleteRequestRejected, message));
+        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseDeleteRequestRejected, message));
       });
     }
 

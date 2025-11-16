@@ -5,7 +5,7 @@
 @using Aspire_App.Web.Services.Hubs
 @using Contracts.Common
 @using Contracts.Courses.Responses
-@using Contracts.Hub
+@using Contracts.Enrollments.Hub
 @attribute [Authorize]
 
 @rendermode InteractiveServer
@@ -50,7 +50,7 @@
       <span class="ms-2 text-muted">Loading data...</span>
     </div>
   }
-  else if (_classes is null || _classes.Items.Count == 0) // Проверяем загруженные данные
+  else if (_classes is null || _classes.Items.Count == 0)
   {
     <div class="card shadow-sm">
       <div class="card-body text-center py-5">
@@ -139,7 +139,7 @@
   private CourseResponse? _course;
   private string? _errorMessage;
   private string? _successMessage;
-  private bool _isDataLoaded = false;
+  private bool _isDataLoaded;
 
 
   protected override async Task OnAfterRenderAsync(bool firstRender)

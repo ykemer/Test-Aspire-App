@@ -1,8 +1,8 @@
 using Aspire_App.Web.Helpers;
 
+using Contracts.Classes.Requests;
 using Contracts.Common;
 using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 
@@ -66,7 +66,7 @@ public class CoursesApiService : ICoursesApiService
     CancellationToken cancellationToken = default)
   {
     var response =
-      await _httpClient.PatchAsJsonAsync($"/api/courses/{courseId.ToString()}", updateCourseRequest, cancellationToken);
+      await _httpClient.PutAsJsonAsync($"/api/courses/{courseId.ToString()}", updateCourseRequest, cancellationToken);
     if (response.IsSuccessStatusCode)
     {
       return;

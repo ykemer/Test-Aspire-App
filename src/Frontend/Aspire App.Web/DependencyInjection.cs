@@ -72,6 +72,7 @@ public static class DependencyInjection
       .AddScheme<AuthenticationSchemeOptions, CustomAuthenticationHandler>("Custom", options => { });
 
     services.AddScoped<EnrollmentHubService>();
+    services.AddScoped<CoursesHubService>();
     return services;
   }
 }

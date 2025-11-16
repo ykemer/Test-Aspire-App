@@ -3,7 +3,6 @@
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
 @using Contracts.Courses.Requests
-@using Contracts.Courses.Requests.Courses
 @rendermode InteractiveServer
 
 @inject ICoursesApiService CoursesApiService
@@ -16,10 +15,6 @@
         <div class="card-body p-4">
           <h3 class="card-title mb-3">Create course</h3>
 
-          @if (_successMessage is not null)
-          {
-            <div class="alert alert-success" role="alert">@_successMessage</div>
-          }
 
           @if (_errorMessage is not null)
           {
@@ -58,7 +53,6 @@
   private ValidationMessageStore _messageStore;
 
   private string? _errorMessage;
-  private string? _successMessage;
 
   protected override void OnInitialized()
   {
@@ -76,7 +70,6 @@
       await CoursesApiService.CreateCourse(createCourseForm);
       createCourseForm = new CreateCourseRequest();
       _errorMessage = null;
-      _successMessage = "Course created successfully!";
       NavigationManager.NavigateTo("/admin/courses");
     }
     catch (ValidationException ex)
@@ -93,7 +86,6 @@
     }
     catch (Exception ex)
     {
-      _successMessage = null;
       _errorMessage = ex.Message;
     }
   }

@@ -1,8 +1,8 @@
 using Aspire_App.Web.Helpers;
 
+using Contracts.Classes.Requests;
 using Contracts.Common;
 using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Classes;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 
@@ -72,7 +72,7 @@ public class ClassesApiApiService : IClassesApiService
       MaxStudents = updateCourseRequest.MaxStudents,
     };
     var response =
-      await _httpClient.PostAsJsonAsync($"/api/courses/{courseId}/classes/{classId}", command,
+      await _httpClient.PutAsJsonAsync($"/api/courses/{courseId}/classes/{classId}", command,
         cancellationToken);
     if (response.IsSuccessStatusCode)
     {

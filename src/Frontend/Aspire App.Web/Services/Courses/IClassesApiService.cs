@@ -1,7 +1,6 @@
+using Contracts.Classes.Requests;
 using Contracts.Common;
 using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Classes;
-using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 

@@ -1,7 +1,10 @@
 ﻿@page "/admin/courses"
 @using Aspire_App.Web.Components.Shared
+@using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
+@using Aspire_App.Web.Services.Hubs
 @using Contracts.Common
+@using Contracts.Courses.Hub
 @using Contracts.Courses.Responses
 @attribute [Authorize]
 
@@ -11,6 +14,8 @@
 @attribute [OutputCache(Duration = 5)]
 
 @inject ICoursesApiService CoursesApiService
+@inject CoursesHubService CoursesHubService
+
 <PageTitle>Courses</PageTitle>
 
 <div class="container my-4">
@@ -20,15 +25,24 @@
       + Create Course
     </NavLink>
   </div>
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success" role="alert">@_successMessage</div>
+  }
 
-  @if (_courses == null)
+  @if (_errorMessage is not null)
+  {
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+  }
+
+  @if (!_isDataLoaded)
   {
     <div class="d-flex justify-content-center align-items-center py-5">
       <div class="spinner-border text-primary" role="status" aria-label="Loading courses"></div>
       <span class="ms-2 text-muted">Loading courses...</span>
     </div>
   }
-  else if (_courses.Items.Count == 0)
+  else if (_courses is null || _courses?.Items.Count == 0)
   {
     <div class="card shadow-sm">
       <div class="card-body text-center py-5">
@@ -55,6 +69,7 @@
             <tbody>
             @foreach (var course in _courses.Items)
             {
+              var isLoading = _processingCourseId == course.Id;
               <tr>
                 <td class="fw-semibold">@course.Name</td>
                 <td>
@@ -62,10 +77,27 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group" role="group" aria-label="Actions for @course.Name">
-                    <NavLink href="@($"/admin/courses/{course.Id}/enrollments")" class="btn btn-outline-info btn-sm">Students</NavLink>
-                    <NavLink href="@($"/admin/courses/{course.Id}")" class="btn btn-outline-secondary btn-sm">Edit</NavLink>
-                    <NavLink href="@($"/admin/courses/{course.Id}/classes")" class="btn btn-outline-primary btn-sm">Classes</NavLink>
-                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirmation(course.Id)">Delete</button>
+                    <NavLink href="@($"/admin/courses/{course.Id}/enrollments")" class="btn btn-outline-info btn-sm">
+                      Students
+                    </NavLink>
+                    <NavLink href="@($"/admin/courses/{course.Id}")" class="btn btn-outline-secondary btn-sm">
+                      Edit
+                    </NavLink>
+                    <NavLink href="@($"/admin/courses/{course.Id}/classes")" class="btn btn-outline-primary btn-sm">
+                      Classes
+                    </NavLink>
+                    @if (isLoading)
+                    {
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <span class="ms-1">Deleting...</span>
+                    }
+                    else
+                    {
+                      <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirmation(course.Id)">
+                        Delete
+                      </button>
+                    }
+
                   </div>
                 </td>
               </tr>
@@ -98,16 +130,65 @@
   private PagedList<CourseListItemResponse>? _courses;
   private bool _showDeleteConfirmation;
   private Guid _courseIdToDelete;
+  private Guid? _processingCourseId;
+  private string? _errorMessage;
+  private string? _successMessage;
+  private bool _isDataLoaded;
 
-  protected override async Task OnInitializedAsync()
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
   {
-    await GetStudents();
+    if (firstRender)
+    {
+      await GetStudents();
+
+      try
+      {
+        CoursesHubService.OnCourseNotification -= HandleNotification;
+        await CoursesHubService.StartConnectionAsync();
+        CoursesHubService.OnCourseNotification += HandleNotification;
+      }
+      catch (Exception ex)
+      {
+        _errorMessage = $"Error initializing course notifications: {ex.Message}";
+      }
+
+      _isDataLoaded = true;
+      StateHasChanged();
+    }
   }
 
   protected async Task GetStudents(int page = 1)
   {
     _courses = null;
     _courses = await CoursesApiService.GetCoursesListAsync(page);
+  }
+
+  private void HandleNotification(CourseMessage message)
+  {
+    if (message.MessageType == CourseHubMessage.CourseCreated ||
+        message.MessageType == CourseHubMessage.CourseUpdated ||
+        message.MessageType == CourseHubMessage.CourseDeleted
+       )
+    {
+      _successMessage = message.Message;
+      _ = InvokeAsync(async () =>
+      {
+        await GetStudents();
+        StateHasChanged();
+      });
+    }
+    else if (message.MessageType == CourseHubMessage.CourseCreateRequestRejected ||
+             message.MessageType == CourseHubMessage.CourseUpdateRequestRejected ||
+             message.MessageType == CourseHubMessage.CourseDeleteRequestRejected)
+    {
+      _errorMessage = message.Message;
+    }
+
+    if (message.MessageType == CourseHubMessage.CourseDeleted || message.MessageType == CourseHubMessage.CourseDeleteRequestRejected)
+    {
+      _processingCourseId = null;
+    }
   }
 
   private void ShowDeleteConfirmation(Guid courseId)
@@ -119,13 +200,19 @@
   private async Task ConfirmDelete()
   {
     _showDeleteConfirmation = false;
+    _processingCourseId = _courseIdToDelete;
     await CoursesApiService.DeleteCourse(_courseIdToDelete);
-    await GetStudents();
   }
 
   private void CancelDelete()
   {
     _showDeleteConfirmation = false;
+  }
+
+  public async ValueTask DisposeAsync()
+  {
+    CoursesHubService.OnCourseNotification -= HandleNotification;
+    await CoursesHubService.StopConnectionAsync();
   }
 
 }
