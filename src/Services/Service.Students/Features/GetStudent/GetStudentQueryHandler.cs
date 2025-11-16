@@ -16,7 +16,8 @@ public class GetStudentQueryHandler : IRequestHandler<GetStudentQuery, ErrorOr<S
 
   public async ValueTask<ErrorOr<Student>> Handle(GetStudentQuery request, CancellationToken cancellationToken)
   {
-    var student = await _dbContext.Students.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.StudentId, cancellationToken);
+    var student = await _dbContext.Students.AsNoTracking()
+      .FirstOrDefaultAsync(x => x.Id == request.StudentId, cancellationToken);
     if (student != null)
     {
       return student;

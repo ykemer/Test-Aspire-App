@@ -10,4 +10,3 @@ public sealed class ListClassesQuery : PagedQuery, IRequest<ErrorOr<PagedList<Cl
   public List<string> EnrolledClasses { get; set; } = new();
   public bool ShowAll { get; set; }
 }
-

@@ -1,5 +1,4 @@
-﻿using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Courses;
+﻿using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;
@@ -9,7 +8,6 @@ using FastEndpoints;
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Middleware.Grpc;
-
 
 namespace Platform.Features.Courses.CreateCourse;
 

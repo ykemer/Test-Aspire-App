@@ -12,8 +12,8 @@ namespace Platform.Features.Auth.RefreshTokenRevoke;
 
 public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, ErrorOr<Deleted>>
 {
-  private readonly UserManager<ApplicationUser> _userManager;
   private readonly ApplicationDbContext _db;
+  private readonly UserManager<ApplicationUser> _userManager;
 
   public RefreshTokenRevokeEndpoint(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
   {
@@ -29,8 +29,7 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
 
   public override async Task<ErrorOr<Deleted>> ExecuteAsync(RefreshAccessTokenRequest req, CancellationToken ct)
   {
-
-    var token =  await _db.RefreshTokens.FirstOrDefaultAsync(i => i.Token == req.RefreshToken, ct);
+    var token = await _db.RefreshTokens.FirstOrDefaultAsync(i => i.Token == req.RefreshToken, ct);
     if (token == null || token.ExpiresAt <= DateTime.UtcNow)
     {
       return Error.Unauthorized(description: "Refresh token is not valid");

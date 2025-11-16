@@ -13,20 +13,6 @@ namespace Platform.Common.StateMachines;
 
 public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenrollState>
 {
-  public Event<EnrollmentDeletedEvent> EnrollmentDeleted { get; set; }
-  public Event<StudentEnrollmentCountChangedEvent> StudentEnrollmentCountChanged { get; set; }
-  public Event<DecreaseStudentEnrollmentCountSuccessEvent> DecreaseStudentEnrollmentsCountSuccess { get; set; }
-  public Event<DecreaseStudentEnrollmentCountFailedEvent> DecreaseStudentEnrollmentsCountFailed { get; set; }
-
-  public Event<DecreaseClassEnrollmentsCountFailedEvent> DecreaseClassEnrollmentsCountFailed { get; set; }
-  public Event<DecreaseClassEnrollmentsCountSuccessEvent> DecreaseClassEnrollmentsCountSuccess { get; set; }
-
-
-  public State ChangingStudentEnrollmentsCount { get; set; }
-  public State ChangingClassEnrollmentsCount { get; set; }
-  public State Completed { get; set; }
-  public State Failed { get; set; }
-
   private readonly IHubContext<EnrollmentHub> _hubContext;
 
 
@@ -57,9 +43,9 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
           context.Saga.EnrolledDate = DateTime.Now;
         })
         .TransitionTo(ChangingStudentEnrollmentsCount)
-        .Publish(context => new DecreaseStudentEnrollmentCountEvent()
+        .Publish(context => new DecreaseStudentEnrollmentCountEvent
         {
-          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId,
+          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId
         })
     );
 
@@ -72,7 +58,7 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
         })
         .Publish(context => new DecreaseClassEnrollmentsCountEvent
         {
-          CourseId = context.Saga.CourseId, ClassId = context.Saga.ClassId, EventId = context.Saga.EventId,
+          CourseId = context.Saga.CourseId, ClassId = context.Saga.ClassId, EventId = context.Saga.EventId
         })
         .TransitionTo(ChangingClassEnrollmentsCount),
       When(DecreaseStudentEnrollmentsCountFailed)
@@ -81,7 +67,7 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
           context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
           await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
             EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
-            $"Failed to unenroll you from the class. Please contact support.");
+            "Failed to unenroll you from the class. Please contact support.");
         })
         .TransitionTo(Failed)
     );
@@ -93,9 +79,9 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
           context.Saga.FailureReason = $"Class enrollments count update failed: {context.Message.ErrorMessage}";
           await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
             EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
-            $"Failed to unenroll you from the class. Please contact support.");
+            "Failed to unenroll you from the class. Please contact support.");
         })
-        .Publish(context => new DecreaseStudentEnrollmentCountEvent()
+        .Publish(context => new DecreaseStudentEnrollmentCountEvent
         {
           StudentId = context.Saga.StudentId, EventId = context.Saga.EventId
         })
@@ -104,15 +90,29 @@ public class StudentUnenrollStateMachine : MassTransitStateMachine<StudentUnenro
 
     DuringAny(
       When(DecreaseClassEnrollmentsCountSuccess)
-        .ThenAsync(async (context) =>
+        .ThenAsync(async context =>
         {
           context.Saga.IsClassEnrollmentsUpdated = true;
           await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleted,
-            $"You have been successfully unenrolled from the class.");
+            "You have been successfully unenrolled from the class.");
         })
         .TransitionTo(Completed)
         .Finalize());
 
     SetCompletedWhenFinalized();
   }
+
+  public Event<EnrollmentDeletedEvent> EnrollmentDeleted { get; set; }
+  public Event<StudentEnrollmentCountChangedEvent> StudentEnrollmentCountChanged { get; set; }
+  public Event<DecreaseStudentEnrollmentCountSuccessEvent> DecreaseStudentEnrollmentsCountSuccess { get; set; }
+  public Event<DecreaseStudentEnrollmentCountFailedEvent> DecreaseStudentEnrollmentsCountFailed { get; set; }
+
+  public Event<DecreaseClassEnrollmentsCountFailedEvent> DecreaseClassEnrollmentsCountFailed { get; set; }
+  public Event<DecreaseClassEnrollmentsCountSuccessEvent> DecreaseClassEnrollmentsCountSuccess { get; set; }
+
+
+  public State ChangingStudentEnrollmentsCount { get; set; }
+  public State ChangingClassEnrollmentsCount { get; set; }
+  public State Completed { get; set; }
+  public State Failed { get; set; }
 }

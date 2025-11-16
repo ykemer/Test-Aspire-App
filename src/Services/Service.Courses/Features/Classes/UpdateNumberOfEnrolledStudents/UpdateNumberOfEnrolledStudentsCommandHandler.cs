@@ -3,7 +3,8 @@
 namespace Service.Courses.Features.Classes.UpdateNumberOfEnrolledStudents;
 
 public class
-  UpdateNumberOfEnrolledStudentsCommandHandler : IRequestHandler<UpdateNumberOfEnrolledStudentsCommand, ErrorOr<Updated>>
+  UpdateNumberOfEnrolledStudentsCommandHandler : IRequestHandler<UpdateNumberOfEnrolledStudentsCommand,
+  ErrorOr<Updated>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<UpdateNumberOfEnrolledStudentsCommandHandler> _logger;
@@ -37,7 +38,7 @@ public class
     }
 
     existingCourse.TotalStudents += request.IsIncrease ? 1 : -1;
-    if(existingCourse.TotalStudents < 0)
+    if (existingCourse.TotalStudents < 0)
     {
       _logger.LogError("Course {CourseId} enrollments count cannot be negative", request.CourseId);
       return Error.Conflict("course_service.update_course_enrollments_count.invalid_enrollments_count",
@@ -45,9 +46,10 @@ public class
     }
 
     existingClass.TotalStudents += request.IsIncrease ? 1 : -1;
-    if(existingClass.TotalStudents < 0)
+    if (existingClass.TotalStudents < 0)
     {
-      _logger.LogError("Class {ClassId} for course {CourseId} enrollments count cannot be negative", request.ClassId, request.CourseId);
+      _logger.LogError("Class {ClassId} for course {CourseId} enrollments count cannot be negative", request.ClassId,
+        request.CourseId);
       return Error.Conflict("course_service.update_class_enrollments_count.invalid_enrollments_count",
         "Class enrollments count cannot be negative");
     }

@@ -10,7 +10,8 @@ namespace Platform.Features.Courses.ListCourses;
 
 public static class ListCoursesMapper
 {
-  public static GrpcListCoursesRequest ToGrpcGetEnrollmentsByCoursesRequest(this ListCoursesRequest request, List<string> enrolledClasses, bool ShowAll)
+  public static GrpcListCoursesRequest ToGrpcGetEnrollmentsByCoursesRequest(this ListCoursesRequest request,
+    List<string> enrolledClasses, bool ShowAll)
   {
     var repeatedEnrolledClasses = new RepeatedField<string>();
     repeatedEnrolledClasses.AddRange(enrolledClasses);
@@ -24,7 +25,9 @@ public static class ListCoursesMapper
       ShowAll = ShowAll
     };
   }
-  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course, List<string>? enrollments = null) =>
+
+  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course,
+    List<string>? enrollments = null) =>
     new()
     {
       Items = course.Items.Select(i => new CourseListItemResponse
@@ -38,7 +41,6 @@ public static class ListCoursesMapper
       CurrentPage = course.CurrentPage,
       TotalPages = course.TotalPages,
       PageSize = course.PageSize,
-      TotalCount = course.TotalCount,
-
+      TotalCount = course.TotalCount
     };
 }

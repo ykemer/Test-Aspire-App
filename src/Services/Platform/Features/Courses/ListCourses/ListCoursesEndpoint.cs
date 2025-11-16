@@ -25,7 +25,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   private readonly IUserService _userService;
 
   public ListCoursesEndpoint(GrpcCoursesService.GrpcCoursesServiceClient coursesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService, GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
+    IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService,
+    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
   {
     _coursesGrpcService = coursesGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
@@ -44,11 +45,9 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   }
 
   [OutputCache(PolicyName = "CoursesCache")]
-
   public override async Task<ErrorOr<PagedList<CourseListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
-
     var enrolledClassesList = new List<string>();
     var enrolledCoursesList = new List<string>();
 
@@ -57,10 +56,7 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
 
     if (!isAdmin)
     {
-      var request = new GrpcGetStudentEnrollmentsRequest
-      {
-        StudentId = _userService.GetUserId(User).ToString()
-      };
+      var request = new GrpcGetStudentEnrollmentsRequest { StudentId = _userService.GetUserId(User).ToString() };
 
       var enrollmentsRequest =
         _enrollmentsGrpcService.GetStudentEnrollmentsAsync(request, cancellationToken: ct);
@@ -78,7 +74,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     }
 
     var coursesRequest =
-      _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(enrolledClassesList, isAdmin), cancellationToken: ct);
+      _coursesGrpcService.ListCoursesAsync(query.ToGrpcGetEnrollmentsByCoursesRequest(enrolledClassesList, isAdmin),
+        cancellationToken: ct);
 
     var coursesResult =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);

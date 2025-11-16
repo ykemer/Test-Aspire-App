@@ -67,7 +67,10 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
 
     var request =
       _coursesGrpcService.GetCourseAsync(
-        new GrpcGetCourseRequest { Id = id.ToString(), EnrolledClasses = { courseList }, ShowAll =  _userService.IsAdmin(User)}, cancellationToken: ct);
+        new GrpcGetCourseRequest
+        {
+          Id = id.ToString(), EnrolledClasses = { courseList }, ShowAll = _userService.IsAdmin(User)
+        }, cancellationToken: ct);
 
     var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     return result.Match<ErrorOr<CourseResponse>>(

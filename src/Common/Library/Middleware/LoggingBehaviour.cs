@@ -14,7 +14,8 @@ public class LoggingBehaviour<TRequest, TResponse> : MessagePostProcessor<TReque
 
   public LoggingBehaviour(ILogger<LoggingBehaviour<TRequest, TResponse>> logger) => _logger = logger;
 
-  protected override ValueTask Handle(TRequest request, TResponse response, CancellationToken cancellationToken)  {
+  protected override ValueTask Handle(TRequest request, TResponse response, CancellationToken cancellationToken)
+  {
     _logger.LogInformation("Incoming request: {Name}. {Request}", typeof(TRequest).Name, request);
     if (!response.IsError)
     {

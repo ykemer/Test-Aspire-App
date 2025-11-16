@@ -6,7 +6,8 @@ using Service.Enrollments.Common.Database;
 
 namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByStudent;
 
-public class DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEnrollmentsByStudentCommand, ErrorOr<Deleted>>
+public class
+  DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEnrollmentsByStudentCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteEnrollmentsByStudentCommandHandler> _logger;
@@ -24,7 +25,7 @@ public class DeleteEnrollmentsByStudentCommandHandler : IRequestHandler<DeleteEn
     CancellationToken cancellationToken)
   {
     var events = await _dbContext.Enrollments
-            .Where(enrollment => enrollment.StudentId == request.StudentId)
+      .Where(enrollment => enrollment.StudentId == request.StudentId)
       .Select(enrollment => new DecreaseClassEnrollmentsCountEvent
       {
         CourseId = enrollment.CourseId, ClassId = enrollment.ClassId

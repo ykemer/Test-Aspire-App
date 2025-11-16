@@ -1,9 +1,7 @@
 ﻿using ClassesGRPCClient;
 
 using Contracts.Courses.Events;
-using Contracts.Courses.Requests;
 using Contracts.Courses.Requests.Classes;
-using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 
 using FastEndpoints;
@@ -42,7 +40,6 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
   public override async Task<ErrorOr<ClassResponse>> ExecuteAsync(CreateClassRequest createClassCommand,
     CancellationToken ct)
   {
-
     var id = Route<Guid>("CourseId");
     var request =
       _classGrpcService.CreateClassAsync(createClassCommand.MapToGrpcCreateClassRequest(id.ToString()),

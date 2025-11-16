@@ -10,7 +10,6 @@ namespace Platform.Features.Classes.ListClasses;
 
 public static class ListClassMapper
 {
-
   public static GrpcListClassRequest ToGrpcListClassRequest(this ListCoursesRequest request,
     List<string> enrolledClasses, bool showAll, string courseId)
   {
@@ -23,7 +22,7 @@ public static class ListClassMapper
       PageSize = request.PageSize,
       EnrolledClasses = { repeatedEnrolledClasses },
       ShowAll = showAll,
-      CourseId =courseId
+      CourseId = courseId
     };
   }
 
@@ -45,6 +44,6 @@ public static class ListClassMapper
       CurrentPage = course.CurrentPage,
       TotalPages = course.TotalPages,
       PageSize = course.PageSize,
-      TotalCount = course.TotalCount,
+      TotalCount = course.TotalCount
     };
 }

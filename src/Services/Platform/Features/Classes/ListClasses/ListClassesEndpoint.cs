@@ -25,7 +25,8 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   private readonly IUserService _userService;
 
   public ListClassesEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService, GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
+    IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService,
+    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
   {
     _classesGrpcService = classesGrpcService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
@@ -44,11 +45,9 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   }
 
   [OutputCache(PolicyName = "CoursesCache")]
-
   public override async Task<ErrorOr<PagedList<ClassListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
-
     var courseId = Route<Guid>("CourseId");
 
     var enrolledClasses = new List<string>();
@@ -57,10 +56,7 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
 
     if (!isAdmin)
     {
-      var request = new GrpcGetStudentEnrollmentsRequest
-      {
-        StudentId = _userService.GetUserId(User).ToString()
-      };
+      var request = new GrpcGetStudentEnrollmentsRequest { StudentId = _userService.GetUserId(User).ToString() };
 
       var enrollmentsRequest =
         _enrollmentsGrpcService.GetStudentEnrollmentsAsync(request, cancellationToken: ct);
@@ -77,7 +73,8 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     }
 
     var coursesRequest =
-      _classesGrpcService.ListClassesAsync(query.ToGrpcListClassRequest(enrolledClasses, isAdmin, courseId.ToString()), cancellationToken: ct);
+      _classesGrpcService.ListClassesAsync(query.ToGrpcListClassRequest(enrolledClasses, isAdmin, courseId.ToString()),
+        cancellationToken: ct);
 
     var coursesResult =
       await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);

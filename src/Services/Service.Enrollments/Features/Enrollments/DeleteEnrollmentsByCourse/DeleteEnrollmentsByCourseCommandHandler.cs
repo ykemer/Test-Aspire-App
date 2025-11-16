@@ -6,7 +6,8 @@ using Service.Enrollments.Common.Database;
 
 namespace Service.Enrollments.Features.Enrollments.DeleteEnrollmentsByCourse;
 
-public class DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnrollmentsByCourseCommand, ErrorOr<Deleted>>
+public class
+  DeleteEnrollmentsByCourseCommandHandler : IRequestHandler<DeleteEnrollmentsByCourseCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteEnrollmentsByCourseCommandHandler> _logger;

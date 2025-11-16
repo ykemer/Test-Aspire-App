@@ -3,18 +3,13 @@ using Contracts.Enrollments.Events;
 
 using MassTransit;
 
-using Service.Enrollments.Common.Database;
-
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
 public class CreateEnrollmentCommandConsumer : IConsumer<CreateEnrollmentCommand>
 {
   private readonly IMediator _mediator;
 
-  public CreateEnrollmentCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public CreateEnrollmentCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<CreateEnrollmentCommand> context)
   {

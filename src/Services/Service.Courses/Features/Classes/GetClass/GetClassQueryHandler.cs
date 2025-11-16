@@ -22,8 +22,9 @@ public class GetClassQueryHandler : IRequestHandler<GetClassQuery, ErrorOr<Class
           courseClass.Id == request.Id &&
           courseClass.CourseId == request.CourseId &&
           (request.ShowAll ||
-           ((courseClass.RegistrationDeadline > DateTime.UtcNow && courseClass.TotalStudents < courseClass.MaxStudents) ||
-            request.EnrolledClasses.Contains(courseClass.Id))
+           (courseClass.RegistrationDeadline > DateTime.UtcNow &&
+            courseClass.TotalStudents < courseClass.MaxStudents) ||
+           request.EnrolledClasses.Contains(courseClass.Id)
           ), cancellationToken
       );
 

@@ -15,9 +15,9 @@ namespace Platform.Features.Auth.UserLogin;
 
 public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenResponse>>
 {
+  private readonly ApplicationDbContext _db;
   private readonly IJwtService _jwtService;
   private readonly SignInManager<ApplicationUser> _signInManager;
-  private readonly ApplicationDbContext _db;
 
   public UserLoginEndpoint(SignInManager<ApplicationUser> signInManager, IJwtService jwtService,
     ApplicationDbContext db)
@@ -57,7 +57,9 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
 
     return new AccessTokenResponse
     {
-      AccessToken = jwtTokenResponse.AccessToken, ExpiresIn = jwtTokenResponse.ExpiresIn, RefreshToken = refreshToken.Token
+      AccessToken = jwtTokenResponse.AccessToken,
+      ExpiresIn = jwtTokenResponse.ExpiresIn,
+      RefreshToken = refreshToken.Token
     };
   }
 }

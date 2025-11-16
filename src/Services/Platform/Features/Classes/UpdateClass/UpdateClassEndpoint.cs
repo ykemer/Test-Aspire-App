@@ -39,11 +39,11 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateClassRequest updateClassCommand,
     CancellationToken ct)
   {
-
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
     var request =
-      _classGrpcService.UpdateClassAsync(updateClassCommand.MapToGrpcUpdateClassRequest(courseId.ToString(), classId.ToString()), cancellationToken: ct);
+      _classGrpcService.UpdateClassAsync(
+        updateClassCommand.MapToGrpcUpdateClassRequest(courseId.ToString(), classId.ToString()), cancellationToken: ct);
 
     var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
 

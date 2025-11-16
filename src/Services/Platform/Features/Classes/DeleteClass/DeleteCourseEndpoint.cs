@@ -41,15 +41,12 @@ public class DeleteClassEndpoint : EndpointWithoutRequest<
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
     var request =
-      _classGrpcService.DeleteClassAsync(new GrpcDeleteClassRequest
-      {
-        Id = classId.ToString(),
-        CourseId = courseId.ToString()
-      }, cancellationToken: ct);
+      _classGrpcService.DeleteClassAsync(
+        new GrpcDeleteClassRequest { Id = classId.ToString(), CourseId = courseId.ToString() }, cancellationToken: ct);
 
     var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     await _publishEndpoint.Publish(
-      new ClassDeletedEvent() { CourseId = courseId.ToString(), ClassId = classId.ToString()}, ct);
+      new ClassDeletedEvent { CourseId = courseId.ToString(), ClassId = classId.ToString() }, ct);
     await _outputCache.EvictByTagAsync("courses", ct);
     return output.Match<ErrorOr<Deleted>>(
       _ => Result.Deleted,

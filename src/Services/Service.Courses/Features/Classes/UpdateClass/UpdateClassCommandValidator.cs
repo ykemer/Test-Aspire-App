@@ -1,14 +1,11 @@
 using FluentValidation;
 
-using Service.Courses.Features.Classes.CreateClass;
-
 namespace Service.Courses.Features.Classes.UpdateClass;
 
 public class UpdateClassCommandValidator : AbstractValidator<UpdateClassCommand>
 {
   public UpdateClassCommandValidator()
   {
-
     RuleFor(x => x.CourseId)
       .NotNull()
       .NotEmpty()

@@ -16,11 +16,12 @@ namespace Platform.Features.Auth.RefreshAccessToken;
 
 public class RefreshAccessTokenEndpoint : Endpoint<RefreshAccessTokenRequest, ErrorOr<AccessTokenResponse>>
 {
+  private readonly ApplicationDbContext _db;
   private readonly IJwtService _jwtService;
   private readonly UserManager<ApplicationUser> _userManager;
-  private readonly ApplicationDbContext _db;
 
-  public RefreshAccessTokenEndpoint(IJwtService jwtService, UserManager<ApplicationUser> userManager, ApplicationDbContext db)
+  public RefreshAccessTokenEndpoint(IJwtService jwtService, UserManager<ApplicationUser> userManager,
+    ApplicationDbContext db)
   {
     _jwtService = jwtService;
     _userManager = userManager;

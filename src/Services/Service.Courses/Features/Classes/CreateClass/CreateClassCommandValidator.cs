@@ -6,7 +6,6 @@ public class CreateClassCommandValidator : AbstractValidator<CreateClassCommand>
 {
   public CreateClassCommandValidator()
   {
-
     RuleFor(x => x.CourseId)
       .NotNull()
       .NotEmpty()

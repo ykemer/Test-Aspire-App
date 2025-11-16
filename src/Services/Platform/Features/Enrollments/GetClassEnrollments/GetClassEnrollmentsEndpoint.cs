@@ -16,7 +16,9 @@ public class GetClassEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<E
   private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
 
-  public GetClassEnrollmentsEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService, GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService, IGrpcRequestMiddleware grpcRequestMiddleware)
+  public GetClassEnrollmentsEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService,
+    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
+    IGrpcRequestMiddleware grpcRequestMiddleware)
   {
     _classesGrpcService = classesGrpcService;
     _enrollmentsGrpcService = enrollmentsGrpcService;
@@ -37,11 +39,8 @@ public class GetClassEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<E
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
     var coursesRequest =
-      _classesGrpcService.GetClassAsync(new GrpcGetClassRequest
-      {
-        Id = classId.ToString(),
-        CourseId = courseId.ToString(),
-      }, cancellationToken: ct);
+      _classesGrpcService.GetClassAsync(
+        new GrpcGetClassRequest { Id = classId.ToString(), CourseId = courseId.ToString() }, cancellationToken: ct);
 
     var classResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
     if (classResult.IsError)
@@ -52,8 +51,7 @@ public class GetClassEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<E
     var enrollmentsRequest =
       _enrollmentsGrpcService.GetClassEnrollmentsAsync(new GrpcGetClassEnrollmentsRequest
       {
-        CourseId = courseId.ToString(),
-        ClassId = classId.ToString(),
+        CourseId = courseId.ToString(), ClassId = classId.ToString()
       });
 
     var enrollmentsResult =

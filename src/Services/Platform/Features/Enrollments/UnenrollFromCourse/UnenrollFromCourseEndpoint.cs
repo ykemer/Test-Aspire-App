@@ -1,9 +1,5 @@
-﻿using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Enrollments;
+﻿using Contracts.Courses.Requests.Enrollments;
 using Contracts.Enrollments.Commands;
-using Contracts.Enrollments.Events;
-
-using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
@@ -20,12 +16,12 @@ namespace Platform.Features.Enrollments.UnenrollFromCourse;
 public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest,
   ErrorOr<Deleted>>
 {
+  private readonly ApplicationDbContext _db;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
-  private readonly IUserService _userService;
 
   private readonly ISendEndpointProvider _sendEndpointProvider;
-  private readonly ApplicationDbContext _db;
+  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
+  private readonly IUserService _userService;
 
   public UnenrollFromCourseEndpoint(IUserService userService,
     IGrpcRequestMiddleware grpcRequestMiddleware, GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
@@ -72,9 +68,9 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
 
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
 
-    await endpoint.Send(new DeleteEnrollmentCommand()
+    await endpoint.Send(new DeleteEnrollmentCommand
     {
-      CourseId = courseId.ToString(), ClassId = classId.ToString(), StudentId = userId.ToString(),
+      CourseId = courseId.ToString(), ClassId = classId.ToString(), StudentId = userId.ToString()
     });
 
     return Result.Deleted;

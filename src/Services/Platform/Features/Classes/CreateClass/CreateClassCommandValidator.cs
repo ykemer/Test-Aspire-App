@@ -1,6 +1,4 @@
-﻿using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Classes;
-using Contracts.Courses.Requests.Courses;
+﻿using Contracts.Courses.Requests.Classes;
 
 using FastEndpoints;
 

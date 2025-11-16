@@ -17,11 +17,11 @@ namespace Platform.Features.Auth.UserRegister;
 
 public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<AccessTokenResponse>>
 {
+  private readonly ApplicationDbContext _db;
   private readonly IJwtService _jwtService;
   private readonly ILogger<UserRegisterEndpoint> _logger;
   private readonly IPublishEndpoint _publishEndpoint;
   private readonly UserManager<ApplicationUser> _userManager;
-  private readonly ApplicationDbContext _db;
 
   public UserRegisterEndpoint(UserManager<ApplicationUser> signInManager, ILogger<UserRegisterEndpoint> logger,
     IJwtService jwtService, IPublishEndpoint publishEndpoint, ApplicationDbContext db)
@@ -66,6 +66,7 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
     {
       return Error.Failure(description: "User not found");
     }
+
     await _userManager.AddToRolesAsync(user, ["User"]);
 
     await _publishEndpoint.Publish(user.ToUserCreatedEvent(), ct);

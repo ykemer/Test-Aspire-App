@@ -73,6 +73,4 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
       _ => new GrpcUpdatedCourseResponse { Success = true, Message = "Course deleted successfully" },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
-
-
 }

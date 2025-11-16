@@ -55,10 +55,9 @@ app.UseDefaultExceptionHandler()
         {
           ep.DontAutoSendResponse();
           ep.PostProcessor<ResponseMiddleware>(Order.After);
-          ep.Description(
-            b => b.ClearDefaultProduces()
-              .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
-              .ProducesProblemDetails());
+          ep.Description(b => b.ClearDefaultProduces()
+            .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
+            .ProducesProblemDetails());
         }
       };
   })

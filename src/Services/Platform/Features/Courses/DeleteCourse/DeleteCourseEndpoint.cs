@@ -1,5 +1,4 @@
 ﻿using Contracts.Courses.Events;
-using Contracts.Enrollments.Events;
 
 using CoursesGRPCClient;
 
@@ -10,7 +9,6 @@ using MassTransit;
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Middleware.Grpc;
-
 
 namespace Platform.Features.Courses.DeleteCourse;
 
@@ -48,7 +46,7 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
     await _outputCache.EvictByTagAsync("courses", ct);
 
     await _publishEndpoint.Publish(
-      new CourseDeletedEvent() { CourseId = id.ToString() }, ct);
+      new CourseDeletedEvent { CourseId = id.ToString() }, ct);
 
 
     return output.Match<ErrorOr<Deleted>>(

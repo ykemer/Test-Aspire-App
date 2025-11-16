@@ -1,8 +1,6 @@
 using ClassesGRPCClient;
 
-using Contracts.Courses.Requests;
 using Contracts.Courses.Requests.Classes;
-using Contracts.Courses.Requests.Courses;
 using Contracts.Courses.Responses;
 
 using Google.Protobuf.WellKnownTypes;
@@ -11,7 +9,6 @@ namespace Platform.Features.Classes.CreateClass;
 
 public static class CreateClassMapper
 {
-
   public static GrpcCreateClassRequest MapToGrpcCreateClassRequest(this CreateClassRequest request, string courseId) =>
     new()
     {
@@ -19,7 +16,7 @@ public static class CreateClassMapper
       RegistrationDeadline = request.RegistrationDeadline.ToTimestamp(),
       CourseStartDate = request.CourseStartDate.ToTimestamp(),
       CourseEndDate = request.CourseEndDate.ToTimestamp(),
-      MaxStudents = request.MaxStudents,
+      MaxStudents = request.MaxStudents
     };
 
 
@@ -32,6 +29,6 @@ public static class CreateClassMapper
       CourseStartDate = response.CourseStartDate.ToDateTime(),
       CourseEndDate = response.CourseEndDate.ToDateTime(),
       MaxStudents = response.MaxStudents,
-      TotalStudents = response.TotalStudents,
+      TotalStudents = response.TotalStudents
     };
 }

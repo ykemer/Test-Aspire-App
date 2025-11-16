@@ -14,7 +14,8 @@ public static class DependencyInjection
     {
       options.ServiceLifetime = ServiceLifetime.Scoped;
       options.Assemblies = [typeof(DependencyInjection).Assembly];
-      options.PipelineBehaviors = [typeof(LoggingBehaviour<,>), typeof(ValidationBehavior<,>), typeof(ExceptionHandlingBehaviour<,>)];
+      options.PipelineBehaviors =
+        [typeof(LoggingBehaviour<,>), typeof(ValidationBehavior<,>), typeof(ExceptionHandlingBehaviour<,>)];
     });
 
     return services;

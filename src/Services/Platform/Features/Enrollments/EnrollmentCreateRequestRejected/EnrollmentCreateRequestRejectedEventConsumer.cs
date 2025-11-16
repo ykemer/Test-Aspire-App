@@ -9,18 +9,14 @@ using Platform.Common.Hubs;
 
 namespace Platform.Features.Enrollments.EnrollmentCreateRequestRejected;
 
-public class EnrollmentCreateRequestRejectedEventConsumer: IConsumer<EnrollmentCreateRequestRejectedEvent>
+public class EnrollmentCreateRequestRejectedEventConsumer : IConsumer<EnrollmentCreateRequestRejectedEvent>
 {
-
   private readonly IHubContext<EnrollmentHub> _hubContext;
 
-  public EnrollmentCreateRequestRejectedEventConsumer(IHubContext<EnrollmentHub> hubContext)
-  {
+  public EnrollmentCreateRequestRejectedEventConsumer(IHubContext<EnrollmentHub> hubContext) =>
     _hubContext = hubContext;
-  }
 
-  public async Task Consume(ConsumeContext<EnrollmentCreateRequestRejectedEvent> context)
-  {
-    await _hubContext.Clients.User(context.Message.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected, $"Failed to enroll you in the course. Please contact support.");
-  }
+  public async Task Consume(ConsumeContext<EnrollmentCreateRequestRejectedEvent> context) => await _hubContext.Clients
+    .User(context.Message.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected,
+      "Failed to enroll you in the course. Please contact support.");
 }

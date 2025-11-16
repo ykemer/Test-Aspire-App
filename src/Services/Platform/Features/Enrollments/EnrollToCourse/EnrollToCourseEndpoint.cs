@@ -1,13 +1,5 @@
-﻿using ClassesGRPCClient;
-
-using Contracts.Courses.Requests;
-using Contracts.Courses.Requests.Enrollments;
+﻿using Contracts.Courses.Requests.Enrollments;
 using Contracts.Enrollments.Commands;
-using Contracts.Enrollments.Events;
-
-using CoursesGRPCClient;
-
-using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
@@ -23,13 +15,13 @@ namespace Platform.Features.Enrollments.EnrollToCourse;
 
 public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Updated>>
 {
+  private readonly ApplicationDbContext _db;
 
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
-  private readonly IUserService _userService;
 
   private readonly ISendEndpointProvider _sendEndpointProvider;
-  private readonly ApplicationDbContext _db;
+  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
+  private readonly IUserService _userService;
 
 
   public EnrollToCourseEndpoint(

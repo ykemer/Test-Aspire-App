@@ -4,7 +4,6 @@ namespace Platform.Common.StateMachines;
 
 public class StudentEnrollState : SagaStateMachineInstance
 {
-  public Guid CorrelationId { get; set; }
   public string CurrentState { get; set; }
 
   public Guid EventId { get; set; }
@@ -15,5 +14,5 @@ public class StudentEnrollState : SagaStateMachineInstance
   public bool IsClassEnrollmentsUpdated { get; set; }
   public DateTime EnrolledDate { get; set; }
   public string FailureReason { get; set; } = "";
-
+  public Guid CorrelationId { get; set; }
 }

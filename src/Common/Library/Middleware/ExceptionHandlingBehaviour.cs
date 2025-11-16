@@ -1,4 +1,6 @@
-﻿using ErrorOr;
+﻿using System.Reflection;
+
+using ErrorOr;
 
 using Mediator;
 
@@ -11,10 +13,8 @@ public class ExceptionHandlingBehaviour<TRequest, TResponse> : IPipelineBehavior
 {
   private readonly ILogger<ExceptionHandlingBehaviour<TRequest, TResponse>> _logger;
 
-  public ExceptionHandlingBehaviour(ILogger<ExceptionHandlingBehaviour<TRequest, TResponse>> logger)
-  {
+  public ExceptionHandlingBehaviour(ILogger<ExceptionHandlingBehaviour<TRequest, TResponse>> logger) =>
     _logger = logger;
-  }
 
   public async ValueTask<TResponse> Handle(
     TRequest message,
@@ -36,8 +36,8 @@ public class ExceptionHandlingBehaviour<TRequest, TResponse> : IPipelineBehavior
         typeof(TRequest).Name);
 
       var error = Error.Failure(
-        code: "General.InternalServerError",
-        description: $"An unexpected error occurred while processing {typeof(TRequest).Name}."
+        "General.InternalServerError",
+        $"An unexpected error occurred while processing {typeof(TRequest).Name}."
       );
 
       var errors = new List<Error> { error };
@@ -53,7 +53,7 @@ public class ExceptionHandlingBehaviour<TRequest, TResponse> : IPipelineBehavior
 
         var fromMethod = errorOrGenericType.GetMethod(
           "From",
-          System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Static,
+          BindingFlags.Public | BindingFlags.Static,
           null,
           new[] { typeof(IReadOnlyList<Error>) },
           null);

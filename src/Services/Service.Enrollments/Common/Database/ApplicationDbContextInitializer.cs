@@ -61,7 +61,8 @@ public sealed class ApplicationDbContextInitializer
         _context.Classes.Add(sharpClass);
 
         await _context.SaveChangesAsync();
-      } catch (Exception ex)
+      }
+      catch (Exception ex)
       {
         _logger.LogError(ex, "An error occurred while seeding the database.");
       }

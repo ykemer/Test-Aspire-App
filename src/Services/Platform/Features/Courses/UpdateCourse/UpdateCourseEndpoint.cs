@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Middleware.Grpc;
 
-
 namespace Platform.Features.Courses.UpdateCourse;
 
 public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
@@ -35,10 +34,10 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
   public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest updateCourseCommand,
     CancellationToken ct)
   {
-
     var id = Route<Guid>("CourseId");
     var request =
-      _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(id.ToString()), cancellationToken: ct);
+      _coursesGrpcService.UpdateCourseAsync(updateCourseCommand.ToGrpcUpdateCourseRequest(id.ToString()),
+        cancellationToken: ct);
 
     var output = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
     await _outputCache.EvictByTagAsync("courses", ct);

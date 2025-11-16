@@ -11,17 +11,15 @@ public class Enrollment
 
   public DateTime EnrollmentDateTime { get; set; } = DateTime.Now;
 
-  [MaxLength(50)]
-  public required string CourseId { get; set; }
-  [MaxLength(50)]
-  public required string ClassId { get; set; }
-  [MaxLength(50)]
-  public required string StudentId { get; set; }
+  [MaxLength(50)] public required string CourseId { get; set; }
 
-  [MaxLength(50)]
-  public required string StudentFirstName { get; set; }
-  [MaxLength(50)]
-  public required string StudentLastName { get; set; }
+  [MaxLength(50)] public required string ClassId { get; set; }
+
+  [MaxLength(50)] public required string StudentId { get; set; }
+
+  [MaxLength(50)] public required string StudentFirstName { get; set; }
+
+  [MaxLength(50)] public required string StudentLastName { get; set; }
 
   public Class Class { get; set; }
 }

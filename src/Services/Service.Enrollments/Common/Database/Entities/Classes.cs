@@ -3,13 +3,11 @@
 namespace Service.Enrollments.Common.Database.Entities;
 
 [Index(nameof(CourseId))]
-
 public class Class
 {
   [Key] public string Id { get; init; } = Guid.CreateVersion7().ToString();
 
-  [MaxLength(50)]
-  public required string CourseId { get; set; }
+  [MaxLength(50)] public required string CourseId { get; set; }
 
   public int MaxStudents { get; set; } = 0;
 

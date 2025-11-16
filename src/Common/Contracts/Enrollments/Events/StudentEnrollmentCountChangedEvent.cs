@@ -2,7 +2,7 @@
 
 namespace Contracts.Enrollments.Events;
 
-public class StudentEnrollmentCountChangedEvent: Event
+public class StudentEnrollmentCountChangedEvent : Event
 {
   public string CourseId { get; init; }
   public string ClassId { get; init; }

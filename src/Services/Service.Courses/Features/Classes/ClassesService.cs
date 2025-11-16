@@ -49,7 +49,8 @@ public class ClassesService : GrpcClassServiceBase
     return output.Match(
       course =>
       {
-        _logger.LogTrace("Class for course {CourseId} with start date {StartDate} is being created", request.CourseId, request.CourseStartDate);
+        _logger.LogTrace("Class for course {CourseId} with start date {StartDate} is being created", request.CourseId,
+          request.CourseStartDate);
         return course.MapToGrpcClassResponse();
       },
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));

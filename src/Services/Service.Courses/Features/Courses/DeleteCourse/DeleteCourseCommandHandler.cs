@@ -32,7 +32,8 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, E
 
     if (course.TotalStudents > 0)
     {
-      _logger.Log(LogLevel.Warning, "Course with id {RequestId} can not be deleted because it has students enrolled", request.Id);
+      _logger.Log(LogLevel.Warning, "Course with id {RequestId} can not be deleted because it has students enrolled",
+        request.Id);
       return Error.Conflict("courses_service.delete_course.course_has_students",
         $"Course with id {request.Id} can not be deleted because it has students enrolled");
     }

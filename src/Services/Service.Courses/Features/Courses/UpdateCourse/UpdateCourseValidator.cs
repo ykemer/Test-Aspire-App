@@ -23,7 +23,5 @@ public class UpdateCourseValidator : AbstractValidator<CreateCourseCommand>
       .WithMessage("Description is required.")
       .MaximumLength(500)
       .WithMessage("Description must not exceed 500 characters.");
-
   }
-
 }

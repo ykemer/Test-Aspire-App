@@ -3,8 +3,6 @@ using Contracts.Enrollments.Events;
 
 using MassTransit;
 
-using Service.Enrollments.Common.Database;
-
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 public class DeleteEnrollmentCommandConsumer : IConsumer<DeleteEnrollmentCommand>
@@ -12,10 +10,7 @@ public class DeleteEnrollmentCommandConsumer : IConsumer<DeleteEnrollmentCommand
   private readonly IMediator _mediator;
 
 
-  public DeleteEnrollmentCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public DeleteEnrollmentCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<DeleteEnrollmentCommand> context)
   {

@@ -6,4 +6,3 @@ public class CoursesDto : Course
 {
   public float Rank { get; set; } = 0;
 }
-

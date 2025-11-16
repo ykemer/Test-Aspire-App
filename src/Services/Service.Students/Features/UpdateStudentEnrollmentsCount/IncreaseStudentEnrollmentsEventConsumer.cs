@@ -9,10 +9,7 @@ public class IncreaseStudentEnrollmentsEventConsumer
 {
   private readonly IMediator _mediator;
 
-  public IncreaseStudentEnrollmentsEventConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public IncreaseStudentEnrollmentsEventConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<IncreaseStudentEnrollmentsCountEvent> context)
   {
@@ -23,15 +20,14 @@ public class IncreaseStudentEnrollmentsEventConsumer
       {
         StudentId = context.Message.StudentId,
         EventId = context.Message.EventId,
-        ErrorMessage = result.Errors.FirstOrDefault().Description,
+        ErrorMessage = result.Errors.FirstOrDefault().Description
       });
     }
     else
     {
-      await context.Publish(new IncreaseStudentEnrollmentsCountSuccessEvent()
+      await context.Publish(new IncreaseStudentEnrollmentsCountSuccessEvent
       {
-        StudentId = context.Message.StudentId,
-        EventId = context.Message.EventId,
+        StudentId = context.Message.StudentId, EventId = context.Message.EventId
       });
     }
   }

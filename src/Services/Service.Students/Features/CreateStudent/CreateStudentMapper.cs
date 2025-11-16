@@ -4,9 +4,8 @@ namespace Service.Students.Features.CreateStudent;
 
 public static class CreateStudentMapper
 {
-  public static Student MapToStudent(this CreateStudentCommand command)
-  {
-    return new Student
+  public static Student MapToStudent(this CreateStudentCommand command) =>
+    new()
     {
       Id = command.Id,
       FirstName = command.FirstName,
@@ -14,5 +13,4 @@ public static class CreateStudentMapper
       Email = command.Email,
       DateOfBirth = command.DateOfBirth
     };
-  }
 }

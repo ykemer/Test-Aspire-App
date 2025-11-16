@@ -39,7 +39,8 @@ public class StudentsService : GrpcStudentsService.GrpcStudentsServiceBase
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
 
-  public override async Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request, ServerCallContext context)
+  public override async Task<GrpcUpdatedResponse> DeleteStudent(GrpcDeleteStudentRequest request,
+    ServerCallContext context)
   {
     var deleteStudentResult = await _mediator.Send(request.MapToDeleteStudentCommand());
     return deleteStudentResult.Match(

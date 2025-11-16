@@ -7,31 +7,34 @@ using Mediator;
 namespace Library.Middleware;
 
 public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
-    where TRequest : IRequest<TResponse>
-    where TResponse : IErrorOr
+  where TRequest : IRequest<TResponse>
+  where TResponse : IErrorOr
 {
-    private readonly IValidator<TRequest>? _validator;
+  private readonly IValidator<TRequest>? _validator;
 
-    public ValidationBehavior(IValidator<TRequest>? validator = null)
+  public ValidationBehavior(IValidator<TRequest>? validator = null) => _validator = validator;
+
+
+  public async ValueTask<TResponse> Handle(TRequest message, MessageHandlerDelegate<TRequest, TResponse> next,
+    CancellationToken cancellationToken)
+  {
+    if (_validator is null)
     {
-        _validator = validator;
+      return await next(message, cancellationToken);
     }
 
+    var validationResult = await _validator.ValidateAsync(message, cancellationToken);
 
-    public async ValueTask<TResponse> Handle(TRequest message, MessageHandlerDelegate<TRequest, TResponse> next,
-        CancellationToken cancellationToken)
+    if (validationResult.IsValid)
     {
-        if (_validator is null) return await next(message, cancellationToken);
-
-        var validationResult = await _validator.ValidateAsync(message, cancellationToken);
-
-        if (validationResult.IsValid) return await next(message, cancellationToken);
-
-        var errors = validationResult.Errors
-            .ConvertAll(error => Error.Validation(
-                error.PropertyName,
-                error.ErrorMessage));
-
-        return (dynamic)errors;
+      return await next(message, cancellationToken);
     }
+
+    var errors = validationResult.Errors
+      .ConvertAll(error => Error.Validation(
+        error.PropertyName,
+        error.ErrorMessage));
+
+    return (dynamic)errors;
+  }
 }

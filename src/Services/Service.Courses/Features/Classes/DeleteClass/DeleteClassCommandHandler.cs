@@ -24,7 +24,8 @@ public class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, Err
   {
     var courseClass = await _dbContext
       .Classes
-      .FirstOrDefaultAsync(courseClass => courseClass.Id == request.Id && courseClass.CourseId == request.CourseId, cancellationToken);
+      .FirstOrDefaultAsync(courseClass => courseClass.Id == request.Id && courseClass.CourseId == request.CourseId,
+        cancellationToken);
     if (courseClass == null)
     {
       _logger.Log(LogLevel.Warning, "Course class with id {RequestId} was not found", request.Id);
@@ -32,20 +33,18 @@ public class DeleteClassCommandHandler : IRequestHandler<DeleteClassCommand, Err
         $"Course with id {request.Id} not found");
     }
 
-    if(courseClass.TotalStudents > 0)
+    if (courseClass.TotalStudents > 0)
     {
-      _logger.Log(LogLevel.Warning, "Course class with id {RequestId} can not be deleted because it has students enrolled", request.Id);
+      _logger.Log(LogLevel.Warning,
+        "Course class with id {RequestId} can not be deleted because it has students enrolled", request.Id);
       return Error.Conflict("courses_service.delete_course_class.class_has_students",
         $"Course class with id {request.Id} can not be deleted because it has students enrolled");
     }
 
     _dbContext.Classes.Remove(courseClass);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    await _publishEndpoint.Publish((object)new ClassDeletedEvent
-    {
-      CourseId = courseClass.CourseId,
-      ClassId = courseClass.Id,
-    }, cancellationToken);
+    await _publishEndpoint.Publish(
+      (object)new ClassDeletedEvent { CourseId = courseClass.CourseId, ClassId = courseClass.Id }, cancellationToken);
     _logger.Log(LogLevel.Information, "Course with id {RequestId} was deleted", request.Id);
     return Result.Deleted;
   }

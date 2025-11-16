@@ -41,7 +41,6 @@ public class UnenrollStudentFromClassCommandHandler
 
     if (existingClass.CourseStartDate <= DateTime.UtcNow)
     {
-
       _logger.LogWarning("Cannot unenroll student {StudentId} from class {ClassId} as the class has already started",
         command.StudentId, command.ClassId);
 

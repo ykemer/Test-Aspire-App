@@ -64,7 +64,6 @@ public static class DependencyInjection
       });
 
 
-
       configure.SetEntityFrameworkSagaRepositoryProvider(r =>
       {
         r.ExistingDbContext<ApplicationDbContext>();
@@ -110,9 +109,7 @@ public static class DependencyInjection
         {
           e.ConfigureSaga<StudentUnenrollState>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-
         });
-
       });
     });
 
@@ -167,7 +164,7 @@ public static class DependencyInjection
           ValidIssuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
           ValidAudience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
           ValidateIssuerSigningKey = true,
-          ValidateLifetime = true,
+          ValidateLifetime = true
         };
       });
 
@@ -229,8 +226,8 @@ public static class DependencyInjection
     {
       options.AddPolicy("fixed-per-user", context =>
         RateLimitPartition.GetFixedWindowLimiter(
-          partitionKey: context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
-          factory: _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1), }
+          context.User.Identity?.Name ?? context.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+          _ => new FixedWindowRateLimiterOptions { PermitLimit = 60, Window = TimeSpan.FromMinutes(1) }
         )
       );
 
