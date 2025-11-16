@@ -40,7 +40,7 @@ public class DeleteStudentCommandHandlerTest
   public async Task Handle_ShouldDeleteStudent_WhenStudentExists()
   {
     // Arrange
-    var existingStudent = Builder<Student>.CreateNew().Build();
+    var existingStudent = Builder<Student>.CreateNew().With(o => o.EnrollmentsCount = 0).Build();
     await _dbContext.Students.AddAsync(existingStudent);
     await _dbContext.SaveChangesAsync();
 
@@ -54,6 +54,21 @@ public class DeleteStudentCommandHandlerTest
     Assert.That(await _dbContext.Students.CountAsync(), Is.EqualTo(0));
     await _publishEndpointMock.Received(1).Publish(
       Arg.Any<StudentDeletedEvent>(), Arg.Any<CancellationToken>());
+  }
+
+  [Test]
+  public async Task Handle_ShouldReturnValidationError_WhenStudentHasActiveEnrollments()
+  {
+    // Arrange
+    var existingStudent = Builder<Student>.CreateNew().With(o => o.EnrollmentsCount = 2).Build();
+    await _dbContext.Students.AddAsync(existingStudent);
+    await _dbContext.SaveChangesAsync();
+    var command = new DeleteStudentCommand(existingStudent.Id);
+    // Act
+    var result = await _commandHandler.Handle(command, CancellationToken.None);
+    // Assert
+    Assert.That(result.IsError, Is.True);
+    Assert.That(result.FirstError.Code, Is.EqualTo("student_service.delete_student.student_has_enrollments"));
   }
 
   [Test]
