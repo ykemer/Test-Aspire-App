@@ -1,7 +1,7 @@
 ﻿namespace Contracts.Courses.Events;
 
-public record CourseDeletedEvent
+public class CourseCreateRejectionEvent
 {
-  public string CourseId { get; set; }
   public string UserId { get; init; }
+  public string Reason { get; init; }
 }

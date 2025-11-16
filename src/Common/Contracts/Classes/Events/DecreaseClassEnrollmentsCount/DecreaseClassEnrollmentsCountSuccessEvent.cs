@@ -1,6 +1,6 @@
 ﻿using Contracts.Common;
 
-namespace Contracts.Courses.Events.DecreaseClassEnrollmentsCount;
+namespace Contracts.Classes.Events.DecreaseClassEnrollmentsCount;
 
 public class DecreaseClassEnrollmentsCountSuccessEvent : Event
 {

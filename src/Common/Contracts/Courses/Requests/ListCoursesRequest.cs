@@ -1,6 +1,6 @@
 ﻿using Contracts.Common;
 
-namespace Contracts.Courses.Requests.Courses;
+namespace Contracts.Courses.Requests;
 
 public class ListCoursesRequest : PagedQuery
 {

@@ -30,6 +30,13 @@ public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand,
         $"Student {request.StudentId} not found");
     }
 
+    if(student.EnrollmentsCount > 0)
+    {
+      _logger.LogWarning("Cannot delete student {StudentId} with active enrollments", request.StudentId);
+      return Error.Validation("student_service.delete_student.student_has_enrollments",
+        $"Cannot delete student {request.StudentId} with active enrollments");
+    }
+
     _dbContext.Remove(student);
     await _dbContext.SaveChangesAsync(cancellationToken);
     await _publishEndpoint.Publish(new StudentDeletedEvent { StudentId = request.StudentId }, cancellationToken);

@@ -1,4 +1,4 @@
-namespace Contracts.Courses.Requests.Classes;
+namespace Contracts.Classes.Requests;
 
 public class CreateClassRequest
 {

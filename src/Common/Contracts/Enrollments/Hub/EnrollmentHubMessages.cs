@@ -1,4 +1,4 @@
-﻿namespace Contracts.Hub;
+﻿namespace Contracts.Enrollments.Hub;
 
 public static class EnrollmentHubMessages
 {

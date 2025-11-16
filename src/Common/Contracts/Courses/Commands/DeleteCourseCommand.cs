@@ -1,6 +1,6 @@
-﻿namespace Contracts.Courses.Events;
+﻿namespace Contracts.Courses.Commands;
 
-public record CourseDeletedEvent
+public class DeleteCourseCommand
 {
   public string CourseId { get; set; }
   public string UserId { get; init; }

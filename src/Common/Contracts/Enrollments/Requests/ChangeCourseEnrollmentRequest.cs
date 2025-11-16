@@ -1,4 +1,4 @@
-namespace Contracts.Courses.Requests.Enrollments;
+namespace Contracts.Enrollments.Requests;
 
 public class ChangeCourseEnrollmentRequest
 {

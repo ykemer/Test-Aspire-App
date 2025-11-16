@@ -1,4 +1,4 @@
-﻿namespace Contracts.Courses.Events;
+﻿namespace Contracts.Classes.Events;
 
 public record ClassCreatedEvent
 {

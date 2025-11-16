@@ -1,8 +1,8 @@
 ﻿using Contracts.Common;
 
-namespace Contracts.Courses.Events.IncreaseClassEnrollmentsCount;
+namespace Contracts.Classes.Events.DecreaseClassEnrollmentsCount;
 
-public class IncreaseClassEnrollmentsCountFailedEvent : Event
+public class DecreaseClassEnrollmentsCountFailedEvent : Event
 {
   public string CourseId { get; set; }
   public string ClassId { get; set; }
