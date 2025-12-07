@@ -1,4 +1,5 @@
-﻿@page "/courses/{courseId:guid}/classes"
+﻿@implements IAsyncDisposable
+@page "/courses/{courseId:guid}/classes"
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
@@ -33,12 +34,12 @@
 
   @if (_course != null)
   {
-    <div class="mb-3">
-      <Breadcrumb>
-        <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
-        <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
-      </Breadcrumb>
-    </div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/courses">Courses</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@_course.Name classes</li>
+      </ol>
+    </nav>
   }
 
   <h1 class="h4 mb-3">@(_course != null ? $"Course \"{_course.Name}\" classes" : "Classes")</h1>
@@ -140,7 +141,19 @@
   private string? _errorMessage;
   private string? _successMessage;
   private bool _isDataLoaded;
+  private bool _isHubInitialized;
 
+  private static readonly string[] EnrollmentHubSuccessMessages =
+  [
+    EnrollmentHubMessages.EnrollmentCreated,
+    EnrollmentHubMessages.EnrollmentDeleted
+  ];
+
+  private static readonly string[] EnrollmentHubErrorMessages =
+  [
+    EnrollmentHubMessages.EnrollmentCreateRequestRejected,
+    EnrollmentHubMessages.EnrollmentDeleteRequestRejected
+  ];
 
   protected override async Task OnAfterRenderAsync(bool firstRender)
   {
@@ -148,24 +161,58 @@
     {
       _course = await CoursesApiService.GetCourse(CourseId);
       await GetClasses();
-
-
-      try
-      {
-        EnrollmentHubService.OnEnrollmentNotification -= HandleNotification;
-        await EnrollmentHubService.StartConnectionAsync();
-        EnrollmentHubService.OnEnrollmentNotification += HandleNotification;
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine($"SignalR connection failed: {ex.Message}");
-      }
+      await InitializeHubConnectionAsync();
 
       _isDataLoaded = true;
       StateHasChanged();
     }
   }
 
+  private async Task InitializeHubConnectionAsync()
+  {
+    if (_isHubInitialized) return;
+
+    try
+    {
+      EnrollmentHubService.OnEnrollmentNotification += HandleNotification;
+      await EnrollmentHubService.StartConnectionAsync();
+      _isHubInitialized = true;
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Error initializing enrollment notifications: {ex.Message}";
+    }
+  }
+
+  private void HandleNotification(EnrollmentMessage message)
+  {
+    if (EnrollmentHubSuccessMessages.Contains(message.MessageType))
+    {
+      HandleSuccessMessage(message);
+    }
+    else if (EnrollmentHubErrorMessages.Contains(message.MessageType))
+    {
+      HandleErrorMessage(message);
+    }
+
+    _loadingClassId = null;
+  }
+
+  private void HandleSuccessMessage(EnrollmentMessage message)
+  {
+    _successMessage = message.Message;
+    _ = InvokeAsync(async () =>
+    {
+      await GetClasses(Page);
+      StateHasChanged();
+    });
+  }
+
+  private void HandleErrorMessage(EnrollmentMessage message)
+  {
+    _errorMessage = message.Message;
+    _ = InvokeAsync(StateHasChanged);
+  }
 
   protected async Task GetClasses(int page = 1)
   {
@@ -189,30 +236,11 @@
     }
   }
 
-  private void HandleNotification(EnrollmentMessage message)
-  {
-    if (message.MessageType == EnrollmentHubMessages.EnrollmentCreated ||
-        message.MessageType == EnrollmentHubMessages.EnrollmentDeleted)
-    {
-      _successMessage = message.Message;
-      _loadingClassId = null;
-      _ = InvokeAsync(async () =>
-      {
-        await GetClasses(Page);
-        StateHasChanged();
-      });
-    }
-    else
-    {
-      _loadingClassId = null;
-      _errorMessage = message.Message;
-    }
-  }
-
   public async ValueTask DisposeAsync()
   {
+    if (!_isHubInitialized) return;
     EnrollmentHubService.OnEnrollmentNotification -= HandleNotification;
+    _isHubInitialized = false;
     await EnrollmentHubService.StopConnectionAsync();
   }
-
 }

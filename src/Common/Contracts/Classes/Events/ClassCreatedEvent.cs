@@ -10,4 +10,6 @@ public record ClassCreatedEvent
   public required DateTime RegistrationDeadline { get; init; }
   public required DateTime CourseStartDate { get; init; }
   public required DateTime CourseEndDate { get; init; }
+
+  public required string UserId { get; init; }
 }

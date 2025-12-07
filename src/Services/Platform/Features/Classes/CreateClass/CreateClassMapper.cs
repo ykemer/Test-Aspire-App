@@ -9,17 +9,6 @@ namespace Platform.Features.Classes.CreateClass;
 
 public static class CreateClassMapper
 {
-  public static GrpcCreateClassRequest MapToGrpcCreateClassRequest(this CreateClassRequest request, string courseId) =>
-    new()
-    {
-      CourseId = courseId,
-      RegistrationDeadline = request.RegistrationDeadline.ToTimestamp(),
-      CourseStartDate = request.CourseStartDate.ToTimestamp(),
-      CourseEndDate = request.CourseEndDate.ToTimestamp(),
-      MaxStudents = request.MaxStudents
-    };
-
-
   public static ClassResponse MapToClassResponse(this GrpcClassResponse response) =>
     new()
     {

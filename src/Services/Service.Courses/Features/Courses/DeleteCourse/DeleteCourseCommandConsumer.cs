@@ -23,11 +23,10 @@ public class DeleteCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
       {
         Reason = result.FirstError.Description, CourseId = message.CourseId, UserId = message.UserId
       });
+      return;
     }
-    else
-    {
-      await context.Publish(
-        new Contracts.Courses.Events.CourseDeletedEvent { CourseId = message.CourseId, UserId = message.UserId });
-    }
+
+    await context.Publish(
+      new Contracts.Courses.Events.CourseDeletedEvent { CourseId = message.CourseId, UserId = message.UserId });
   }
 }

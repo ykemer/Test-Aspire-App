@@ -1,6 +1,9 @@
 ﻿using MassTransit;
 
 using Service.Courses.Common.Database;
+using Service.Courses.Features.Classes.CreateClass;
+using Service.Courses.Features.Classes.DeleteClass;
+using Service.Courses.Features.Classes.UpdateClass;
 using Service.Courses.Features.Courses.CreateCourse;
 using Service.Courses.Features.Courses.DeleteCourse;
 using Service.Courses.Features.Courses.UpdateCourse;
@@ -9,6 +12,16 @@ namespace Service.Courses.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
+  const string Queue = "queue-courses";
+  const string CreateCourseCommandQueue = "create-course-command";
+  const string UpdateCourseCommandQueue = "update-course-command";
+  const string DeleteCourseCommandQueue = "delete-course-command";
+
+
+  const string CreateClassCommandQueue = "create-class-command";
+  const string UpdateClassCommandQueue = "update-class-command";
+  const string DeleteClassCommandQueue = "delete-class-command";
+
   public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
   {
     services.Configure<MassTransitHostOptions>(options =>
@@ -19,10 +32,7 @@ public static class DependencyInjectionMassTransit
     services.AddMassTransit(configure =>
     {
       var assembly = typeof(DependencyInjection).Assembly;
-      var queue = "queue-courses";
-      var createCourseCommandQueue = "create-course-command";
-      var updateCourseCommandQueue = "update-course-command";
-      var deleteCourseCommandQueue = "delete-course-command";
+
 
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
@@ -53,28 +63,53 @@ public static class DependencyInjectionMassTransit
         var connectionString = configService.GetConnectionString("messaging");
         cfg.Host(connectionString);
 
-        cfg.ReceiveEndpoint(queue, e =>
+        cfg.ReceiveEndpoint(Queue, e =>
         {
           e.ConfigureConsumers(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
-        cfg.ReceiveEndpoint(createCourseCommandQueue, e =>
+        cfg.ReceiveEndpoint(CreateCourseCommandQueue, e =>
         {
           e.ConfigureConsumer<CreateCourseCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
-        cfg.ReceiveEndpoint(updateCourseCommandQueue, e =>
+        cfg.ReceiveEndpoint(UpdateCourseCommandQueue, e =>
         {
           e.ConfigureConsumer<UpdateCourseCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
-        cfg.ReceiveEndpoint(deleteCourseCommandQueue, e =>
+        cfg.ReceiveEndpoint(DeleteCourseCommandQueue, e =>
         {
           e.ConfigureConsumer<DeleteCourseCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
+        });
+
+        cfg.ReceiveEndpoint(CreateClassCommandQueue, e =>
+        {
+          e.ConfigureConsumer<CreateClassCommandConsumer>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
+        });
+
+        cfg.ReceiveEndpoint(UpdateClassCommandQueue, e =>
+        {
+          e.ConfigureConsumer<UpdateClassCommandConsumer>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
+        });
+
+        cfg.ReceiveEndpoint(DeleteClassCommandQueue, e =>
+        {
+          e.ConfigureConsumer<DeleteClassCommandConsumer>(context);
+          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
       });

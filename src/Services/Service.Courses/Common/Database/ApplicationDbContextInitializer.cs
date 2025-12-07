@@ -34,7 +34,7 @@ public sealed class ApplicationDbContextInitializer
   {
     try
     {
-      await TrySeedAsync();
+      // await TrySeedAsync();
     }
     catch (Exception ex)
     {

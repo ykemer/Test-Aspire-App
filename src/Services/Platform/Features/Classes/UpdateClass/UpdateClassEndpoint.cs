@@ -1,5 +1,6 @@
 ﻿using ClassesGRPCClient;
 
+using Contracts.Classes.Commands;
 using Contracts.Classes.Events;
 using Contracts.Classes.Requests;
 using Contracts.Courses.Events;
@@ -12,24 +13,24 @@ using MassTransit;
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Classes.UpdateClass;
 
 public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
   ErrorOr<Updated>>
 {
-  private readonly GrpcClassService.GrpcClassServiceClient _classGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly IOutputCacheStore _outputCache;
-  private readonly IPublishEndpoint _publishEndpoint;
 
-  public UpdateClassEndpoint(GrpcClassService.GrpcClassServiceClient classGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache, IPublishEndpoint publishEndpoint)
+  private readonly IOutputCacheStore _outputCache;
+  private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly IUserService _userService;
+
+
+  public UpdateClassEndpoint( IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
   {
-    _classGrpcService = classGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
-    _publishEndpoint = publishEndpoint;
+    _sendEndpointProvider = sendEndpointProvider;
+    _userService = userService;
   }
 
   public override void Configure()
@@ -45,29 +46,23 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
   {
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
-    var request =
-      _classGrpcService.UpdateClassAsync(
-        updateClassCommand.MapToGrpcUpdateClassRequest(courseId.ToString(), classId.ToString()), cancellationToken: ct);
-
-    var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
-
-    if (result.IsError)
-    {
-      return result.FirstError;
-    }
-
-    await _publishEndpoint.Publish(
-      new ClassUpdatedEvent
-      {
-        CourseId = courseId.ToString(),
-        CourseStartDate = updateClassCommand.CourseStartDate,
-        CourseEndDate = updateClassCommand.CourseEndDate,
-        RegistrationDeadline = updateClassCommand.RegistrationDeadline,
-        MaxStudents = updateClassCommand.MaxStudents,
-        Id = classId.ToString()
-      }, ct);
-
+    var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("classes", ct);
+
+    var sendUri = new Uri("queue:update-class-command");
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
+
+    await endpoint.Send(new UpdateClassCommand
+    {
+      ClassId = classId.ToString(),
+      CourseId = courseId.ToString(),
+      RegistrationDeadline = updateClassCommand.RegistrationDeadline,
+      CourseStartDate = updateClassCommand.CourseStartDate,
+      CourseEndDate = updateClassCommand.CourseEndDate,
+      MaxStudents = updateClassCommand.MaxStudents,
+      UserId = userId
+    }, ct);
+
     return Result.Updated;
   }
 }

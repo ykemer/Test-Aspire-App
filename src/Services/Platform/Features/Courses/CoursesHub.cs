@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 
-namespace Platform.Common.Hubs;
+namespace Platform.Features.Courses;
 
 public class CoursesHub : Hub
 {

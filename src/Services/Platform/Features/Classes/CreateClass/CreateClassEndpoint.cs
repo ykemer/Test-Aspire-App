@@ -1,9 +1,5 @@
-﻿using ClassesGRPCClient;
-
-using Contracts.Classes.Events;
+﻿using Contracts.Classes.Commands;
 using Contracts.Classes.Requests;
-using Contracts.Courses.Events;
-using Contracts.Courses.Responses;
 
 using FastEndpoints;
 
@@ -11,25 +7,25 @@ using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Services.User;
 
 namespace Platform.Features.Classes.CreateClass;
 
 public class CreateClassEndpoint : Endpoint<CreateClassRequest,
-  ErrorOr<ClassResponse>>
+  ErrorOr<Success>>
 {
-  private readonly GrpcClassService.GrpcClassServiceClient _classGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
   private readonly IOutputCacheStore _outputCache;
-  private readonly IPublishEndpoint _publishEndpoint;
 
-  public CreateClassEndpoint(GrpcClassService.GrpcClassServiceClient classGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IOutputCacheStore outputCache, IPublishEndpoint publishEndpoint)
+
+  private readonly ISendEndpointProvider _sendEndpointProvider;
+  private readonly IUserService _userService;
+
+  public CreateClassEndpoint(IOutputCacheStore outputCache,
+    ISendEndpointProvider sendEndpointProvider, IUserService userService)
   {
-    _classGrpcService = classGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
     _outputCache = outputCache;
-    _publishEndpoint = publishEndpoint;
+    _sendEndpointProvider = sendEndpointProvider;
+    _userService = userService;
   }
 
   public override void Configure()
@@ -40,37 +36,29 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
     Description(x => x.WithTags("Classes"));
   }
 
-  public override async Task<ErrorOr<ClassResponse>> ExecuteAsync(CreateClassRequest createClassCommand,
+  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateClassRequest createClassCommand,
     CancellationToken ct)
   {
     var id = Route<Guid>("CourseId");
-    var request =
-      _classGrpcService.CreateClassAsync(createClassCommand.MapToGrpcCreateClassRequest(id.ToString()),
-        cancellationToken: ct);
+    var userId = _userService.GetUserId(User).ToString();
 
-    var result = await _grpcRequestMiddleware.SendGrpcRequestAsync(request, ct);
+    var sendUri = new Uri("queue:create-class-command");
+    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
 
-    if (result.IsError)
-    {
-      return result.FirstError;
-    }
-
-
-    var classResponse = result.Value;
-
-
-    await _publishEndpoint.Publish(
-      new ClassCreatedEvent
+    await endpoint.Send(
+      new CreateClassCommand
       {
         CourseId = id.ToString(),
         CourseStartDate = createClassCommand.CourseStartDate,
         CourseEndDate = createClassCommand.CourseEndDate,
         RegistrationDeadline = createClassCommand.RegistrationDeadline,
         MaxStudents = createClassCommand.MaxStudents,
-        Id = classResponse.Id
-      }, ct);
+        UserId = userId
+      },
+      cancellationToken: ct);
+
 
     await _outputCache.EvictByTagAsync("classes", ct);
-    return classResponse.MapToClassResponse();
+    return Result.Success;
   }
 }

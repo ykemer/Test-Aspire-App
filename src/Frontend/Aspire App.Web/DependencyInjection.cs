@@ -73,6 +73,7 @@ public static class DependencyInjection
 
     services.AddScoped<EnrollmentHubService>();
     services.AddScoped<CoursesHubService>();
+    services.AddScoped<ClassesHubService>();
     return services;
   }
 }

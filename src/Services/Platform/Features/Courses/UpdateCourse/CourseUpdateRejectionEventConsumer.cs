@@ -5,8 +5,6 @@ using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
-using Platform.Common.Hubs;
-
 namespace Platform.Features.Courses.UpdateCourse;
 
 public class CourseUpdateRejectionEventConsumer: IConsumer<CourseUpdateRejectionEvent>

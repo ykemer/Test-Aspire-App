@@ -44,7 +44,7 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
     var sendUri = new Uri("queue:update-course-command");
 
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-    endpoint.Send(new UpdateCourseCommand
+    await endpoint.Send(new UpdateCourseCommand
     {
       CourseId = id.ToString(),
       Name = updateCourseCommand.Name,

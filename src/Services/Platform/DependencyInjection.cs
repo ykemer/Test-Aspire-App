@@ -97,18 +97,21 @@ public static class DependencyInjection
         {
           e.ConfigureConsumers(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
         cfg.ReceiveEndpoint("saga-enroll-state", e =>
         {
           e.ConfigureSaga<StudentEnrollState>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
         cfg.ReceiveEndpoint("saga-unenroll-state", e =>
         {
           e.ConfigureSaga<StudentUnenrollState>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
       });
     });

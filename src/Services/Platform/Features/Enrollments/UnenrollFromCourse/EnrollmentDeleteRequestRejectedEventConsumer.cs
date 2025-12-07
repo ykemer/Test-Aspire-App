@@ -5,8 +5,6 @@ using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
-using Platform.Common.Hubs;
-
 namespace Platform.Features.Enrollments.UnenrollFromCourse;
 
 public class EnrollmentDeleteRequestRejectedEventConsumer : IConsumer<EnrollmentDeleteRequestRejectedEvent>

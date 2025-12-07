@@ -1,8 +1,8 @@
 ﻿namespace Aspire_App.Web.Helpers;
 
-public struct CourseMessage
+public struct ClassMessage
 {
-  public CourseMessage(string messageType, string message)
+  public ClassMessage(string messageType, string message)
   {
     MessageType = messageType;
     Message = message;

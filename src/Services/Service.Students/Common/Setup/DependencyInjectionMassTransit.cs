@@ -44,6 +44,7 @@ public static class DependencyInjectionMassTransit
         {
           e.ConfigureConsumers(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
       });
     });

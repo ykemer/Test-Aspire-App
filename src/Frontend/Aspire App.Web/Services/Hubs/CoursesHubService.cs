@@ -9,64 +9,34 @@ using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationServi
 
 namespace Aspire_App.Web.Services.Hubs;
 
-public class CoursesHubService
+public class CoursesHubService : AbstractHubService
 {
-  private HubConnection? _hubConnection;
-  private readonly string _hubUrl;
+  private static readonly string[] s_courseEvents =
+  [
+    CourseHubMessage.CourseCreated,
+    CourseHubMessage.CourseCreateRequestRejected,
+    CourseHubMessage.CourseUpdated,
+    CourseHubMessage.CourseUpdateRequestRejected,
+    CourseHubMessage.CourseDeleted,
+    CourseHubMessage.CourseDeleteRequestRejected
+  ];
 
-  private readonly IAuthenticationService _authenticationService;
-
-  public CoursesHubService(IConfiguration configuration, IAuthenticationService authService)
+  public CoursesHubService(IConfiguration configuration, IAuthenticationService authService) : base(configuration,
+    authService, "/courseHub")
   {
-    var platformServiceUrl = configuration["services:platformService:https:0"];
-    _hubUrl = platformServiceUrl + "/courseHub";
-    _authenticationService = authService;
   }
 
   public event Action<CourseMessage>? OnCourseNotification;
 
-  public async Task StartConnectionAsync()
+  protected override void RegisterHandlers()
   {
-    if (_hubConnection == null)
-    {
-      _hubConnection = new HubConnectionBuilder()
-        .WithUrl(_hubUrl, options =>
-        {
-          options.AccessTokenProvider = () => _authenticationService.GetJwtAsync().AsTask();
-        })
-        .Build();
+    if (HubConnection == null) return;
 
-      _hubConnection.On<string>(CourseHubMessage.CourseCreated, (message) =>
-      {
-        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseCreated, message));
-      });
-      _hubConnection.On<string>(CourseHubMessage.CourseCreateRequestRejected, (message) =>
-      {
-        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseCreateRequestRejected, message));
-      });
-      _hubConnection.On<string>(CourseHubMessage.CourseDeleted, (message) =>
-      {
-        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseDeleted, message));
-      });
-      _hubConnection.On<string>(CourseHubMessage.CourseDeleteRequestRejected, (message) =>
-      {
-        OnCourseNotification?.Invoke(new CourseMessage(CourseHubMessage.CourseDeleteRequestRejected, message));
-      });
-    }
-
-    if (_hubConnection.State == HubConnectionState.Disconnected)
+    foreach (var eventName in s_courseEvents)
     {
-      await _hubConnection.StartAsync();
-    }
-  }
-
-  public async Task StopConnectionAsync()
-  {
-    if (_hubConnection != null)
-    {
-      await _hubConnection.StopAsync();
-      await _hubConnection.DisposeAsync();
-      _hubConnection = null;
+      HubConnection.On<string>(eventName, message =>
+        OnCourseNotification?.Invoke(new CourseMessage(eventName, message))
+      );
     }
   }
 }

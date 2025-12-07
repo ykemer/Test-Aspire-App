@@ -27,10 +27,9 @@ public class UpdateCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
       {
         CourseId = message.CourseId, UserId = message.UserId, Reason = result.FirstError.Description,
       });
+      return;
     }
-    else
-    {
-      await context.Publish(new CourseUpdatedEvent { CourseId = message.CourseId, UserId = message.UserId });
-    }
+
+    await context.Publish(new CourseUpdatedEvent { CourseId = message.CourseId, UserId = message.UserId });
   }
 }

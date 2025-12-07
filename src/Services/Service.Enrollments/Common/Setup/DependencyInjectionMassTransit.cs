@@ -8,6 +8,10 @@ namespace Service.Enrollments.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
+  const string queue = "queue-enrollments";
+  const string deleteEnrollmentCommandQueue = "delete-enrollment-command";
+  const string createEnrollmentCommandQueue = "create-enrollment-command";
+
   public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
   {
     services.Configure<MassTransitHostOptions>(options =>
@@ -18,13 +22,10 @@ public static class DependencyInjectionMassTransit
     services.AddMassTransit(configure =>
     {
       var assembly = typeof(DependencyInjection).Assembly;
-      var queue = "queue-enrollments";
-      var deleteEnrollmentCommandQueue = "delete-enrollment-command";
-      var createEnrollmentCommandQueue = "create-enrollment-command";
+
 
       configure.SetKebabCaseEndpointNameFormatter();
       configure.AddConsumers(assembly);
-
 
       configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
       {
@@ -57,18 +58,21 @@ public static class DependencyInjectionMassTransit
         {
           e.ConfigureConsumers(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
         cfg.ReceiveEndpoint(deleteEnrollmentCommandQueue, e =>
         {
           e.ConfigureConsumer<DeleteEnrollmentCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
 
         cfg.ReceiveEndpoint(createEnrollmentCommandQueue, e =>
         {
           e.ConfigureConsumer<CreateEnrollmentCommandConsumer>(context);
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+          e.ConfigureDefaultDeadLetterTransport();
         });
       });
     });

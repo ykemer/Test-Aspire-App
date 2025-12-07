@@ -5,8 +5,10 @@ using Library.Infrastructure;
 
 using Platform;
 using Platform.Common.Database;
-using Platform.Common.Hubs;
 using Platform.Common.Middleware.Responses;
+using Platform.Features.Classes;
+using Platform.Features.Courses;
+using Platform.Features.Enrollments;
 
 var root = Directory.GetCurrentDirectory();
 var dotenv = Path.Combine(root, ".env");
@@ -78,6 +80,7 @@ if (app.Environment.IsDevelopment())
 app.UseMiddleware<ProblemDetailsMiddleware>();
 app.MapHub<EnrollmentHub>("/enrollmentHub");
 app.MapHub<CoursesHub>("/courseHub");
+app.MapHub<ClassesHub>("/classHub");
 await app.RunAsync();
 
 // TODO error handling

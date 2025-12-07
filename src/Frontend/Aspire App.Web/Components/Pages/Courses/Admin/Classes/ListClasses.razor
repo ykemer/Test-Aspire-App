@@ -1,7 +1,11 @@
-﻿@page "/admin/courses/{courseId:guid}/classes"
+﻿@implements IAsyncDisposable
+@page "/admin/courses/{courseId:guid}/classes"
 @using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Services.Courses
 @using Aspire_App.Web.Exceptions
+@using Aspire_App.Web.Helpers
+@using Aspire_App.Web.Services.Hubs
+@using Contracts.Classes.Hub
 @using Contracts.Common
 @using Contracts.Courses.Responses
 @attribute [Authorize]
@@ -14,18 +18,20 @@
 @inject ICoursesApiService CoursesApiService
 @inject IClassesApiService ClassesApiService
 @inject NavigationManager NavigationManager;
+@inject ClassesHubService ClassesHubService;
+
 
 <PageTitle>Course "@(_course is not null ? _course.Name : "")" classes</PageTitle>
 
 <div class="container my-4">
   @if (_course != null)
   {
-    <div class="mb-3">
-      <Breadcrumb>
-        <BreadcrumbItem href="/courses">Courses</BreadcrumbItem>
-        <BreadcrumbItem active>@_course.Name classes</BreadcrumbItem>
-      </Breadcrumb>
-    </div>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/admin/courses">Courses</a></li>
+        <li class="breadcrumb-item active" aria-current="page">@_course.Name classes</li>
+      </ol>
+    </nav>
   }
 
   <div class="d-flex justify-content-between align-items-center mb-3">
@@ -33,14 +39,24 @@
     <NavLink href="@($"/admin/courses/{CourseId}/classes/create")" class="btn btn-primary">+ Create class</NavLink>
   </div>
 
-  @if (_classes == null)
+  @if (_successMessage is not null)
+  {
+    <div class="alert alert-success" role="alert">@_successMessage</div>
+  }
+
+  @if (_errorMessage is not null)
+  {
+    <div class="alert alert-danger" role="alert">@_errorMessage</div>
+  }
+
+  @if (!_isDataLoaded)
   {
     <div class="d-flex justify-content-center align-items-center py-5">
       <div class="spinner-border text-primary" role="status" aria-label="Loading classes"></div>
       <span class="ms-2 text-muted">Loading classes...</span>
     </div>
   }
-  else if (_classes.Items.Count == 0)
+  else if (_classes is null || _classes.Items.Count == 0)
   {
     <div class="card shadow-sm">
       <div class="card-body text-center py-5">
@@ -68,6 +84,7 @@
             <tbody>
             @foreach (var courseClass in _classes.Items)
             {
+              var isLoading = _processingClassId == courseClass.Id;
               <tr>
                 <td>@courseClass.RegistrationDeadline.ToString("dd.MM.yyyy")</td>
                 <td>@courseClass.CourseStartDate.ToString("dd.MM.yyyy")</td>
@@ -78,9 +95,23 @@
                 </td>
                 <td class="text-end">
                   <div class="btn-group" role="group" aria-label="Actions for class @courseClass.Id">
-                    <NavLink href="@($"/admin/courses/{CourseId}/classes/{courseClass.Id}/enrollments")" class="btn btn-outline-info btn-sm">Students</NavLink>
-                    <NavLink href="@($"/admin/courses/{courseClass.CourseId}/classes/{courseClass.Id}")" class="btn btn-outline-secondary btn-sm">Edit</NavLink>
-                    <button class="btn btn-outline-danger btn-sm" @onclick="() => ShowDeleteConfirmation(courseClass.Id)">Delete</button>
+                    <NavLink href="@($"/admin/courses/{CourseId}/classes/{courseClass.Id}/enrollments")"
+                             class="btn btn-outline-info btn-sm">Students
+                    </NavLink>
+                    <NavLink href="@($"/admin/courses/{courseClass.CourseId}/classes/{courseClass.Id}")"
+                             class="btn btn-outline-secondary btn-sm">Edit
+                    </NavLink>
+                    @if (isLoading)
+                    {
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <span class="ms-1">Deleting...</span>
+                    }
+                    else
+                    {
+                      <button class="btn btn-outline-danger btn-sm"
+                              @onclick="() => ShowDeleteConfirmation(courseClass.Id)">Delete
+                      </button>
+                    }
                   </div>
                 </td>
               </tr>
@@ -114,31 +145,106 @@
   private int Page { get; set; }
   private CourseResponse? _course;
   private bool _showDeleteConfirmation;
-  private Guid _courseIdToDelete;
+  private Guid _classIdToDelete;
+  private Guid? _processingClassId;
   private bool _redirectTo404;
+  private bool _isDataLoaded;
+  private string? _errorMessage;
+  private string? _successMessage;
+  private bool _isHubInitialized;
 
-  protected override async Task OnInitializedAsync()
-  {
-    try
-    {
-      _course = await CoursesApiService.GetCourse(CourseId);
-      await GetClasses();
-    }
-    catch (NotFoundException)
-    {
-      _redirectTo404 = true;
-    }
-  }
+  private static readonly string[] ClassHubSuccessMessages =
+  [
+    ClassHubMessage.ClassCreated,
+    ClassHubMessage.ClassUpdated,
+    ClassHubMessage.ClassDeleted,
+  ];
 
-  protected override Task OnAfterRenderAsync(bool firstRender)
+  private static readonly string[] ClassHubErrorMessages =
+  [
+    ClassHubMessage.ClassCreateRequestRejected,
+    ClassHubMessage.ClassUpdateRequestRejected,
+    ClassHubMessage.ClassDeleteRequestRejected
+  ];
+
+  protected override async Task OnAfterRenderAsync(bool firstRender)
   {
+    if (firstRender)
+    {
+      try
+      {
+        _course = await CoursesApiService.GetCourse(CourseId);
+        await GetClasses();
+        await InitializeHubConnectionAsync();
+      }
+      catch (NotFoundException)
+      {
+        _redirectTo404 = true;
+      }
+
+      _isDataLoaded = true;
+      StateHasChanged();
+    }
+
     if (_redirectTo404)
     {
       _redirectTo404 = false;
       NavigationManager.NavigateTo("/404", replace: true);
     }
-    return Task.CompletedTask;
   }
+
+  private async Task InitializeHubConnectionAsync()
+  {
+    if (_isHubInitialized) return;
+
+    try
+    {
+      ClassesHubService.OnClassNotification += HandleNotification;
+      await ClassesHubService.StartConnectionAsync();
+      _isHubInitialized = true;
+    }
+    catch (Exception ex)
+    {
+      _errorMessage = $"Error initializing class notifications: {ex.Message}";
+    }
+  }
+
+  private void HandleNotification(ClassMessage message)
+  {
+    if (ClassHubSuccessMessages.Contains(message.MessageType))
+    {
+      HandleSuccessMessage(message);
+    }
+    else if (ClassHubErrorMessages.Contains(message.MessageType))
+    {
+      HandleErrorMessage(message);
+    }
+
+    if (IsDeleteMessage(message.MessageType))
+    {
+      _processingClassId = null;
+    }
+  }
+
+  private void HandleSuccessMessage(ClassMessage message)
+  {
+    _successMessage = message.Message;
+    _ = InvokeAsync(async () =>
+    {
+      await GetClasses();
+      StateHasChanged();
+    });
+  }
+
+  private void HandleErrorMessage(ClassMessage message)
+  {
+    _errorMessage = message.Message;
+    _ = InvokeAsync(StateHasChanged);
+  }
+
+  private static bool IsDeleteMessage(string messageType) =>
+    messageType == ClassHubMessage.ClassDeleted ||
+    messageType == ClassHubMessage.ClassDeleteRequestRejected;
 
   protected async Task GetClasses(int page = 1)
   {
@@ -157,15 +263,15 @@
 
   private void ShowDeleteConfirmation(Guid courseId)
   {
-    _courseIdToDelete = courseId;
+    _classIdToDelete = courseId;
     _showDeleteConfirmation = true;
   }
 
   private async Task ConfirmDelete()
   {
     _showDeleteConfirmation = false;
-    await ClassesApiService.DeleteClass(CourseId, _courseIdToDelete);
-    await GetClasses();
+    _processingClassId = _classIdToDelete;
+    await ClassesApiService.DeleteClass(CourseId, _classIdToDelete);
   }
 
   private void CancelDelete()
@@ -173,4 +279,11 @@
     _showDeleteConfirmation = false;
   }
 
+  public async ValueTask DisposeAsync()
+  {
+    if (!_isHubInitialized) return;
+    ClassesHubService.OnClassNotification -= HandleNotification;
+    _isHubInitialized = false;
+    await ClassesHubService.StopConnectionAsync();
+  }
 }

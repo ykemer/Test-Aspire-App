@@ -7,7 +7,7 @@ using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
-using Platform.Common.Hubs;
+using Platform.Features.Enrollments;
 
 namespace Platform.Common.StateMachines;
 

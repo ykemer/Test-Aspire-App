@@ -24,7 +24,7 @@ public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, Err
     {
       _logger.LogWarning("Class with ID {ClassId} does not exists", request.CourseId);
       return Error.Conflict("courses_service.create_class.course_does_not_exist",
-        $"Course {request.CourseId} already exists");
+        $"Course {request.CourseId} does not exists");
     }
 
     var courseClass = request.MapToClass();

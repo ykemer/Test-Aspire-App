@@ -80,7 +80,11 @@ public class DeleteClassByClassIdCommandHandlerTest
       .With(c => c.Id, Guid.NewGuid().ToString())
       .With(c => c.CourseId, Guid.NewGuid().ToString())
       .Build();
+
+
+
     await _dbContext.Classes.AddAsync(existingClass);
+
     await _dbContext.SaveChangesAsync();
 
     var request = new DeleteClassByClassIdCommand(existingClass.CourseId, existingClass.Id);

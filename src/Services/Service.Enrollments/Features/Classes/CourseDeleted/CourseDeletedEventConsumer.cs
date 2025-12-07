@@ -2,9 +2,7 @@
 
 using MassTransit;
 
-using Service.Enrollments.Features.Classes.CourseDeleted;
-
-namespace Service.Enrollments.Features.Courses.DeleteCourse;
+namespace Service.Enrollments.Features.Classes.CourseDeleted;
 
 public class CourseDeletedEventConsumer : IConsumer<CourseDeletedEvent>
 {

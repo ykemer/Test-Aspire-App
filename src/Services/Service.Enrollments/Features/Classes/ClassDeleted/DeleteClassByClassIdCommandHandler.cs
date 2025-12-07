@@ -35,14 +35,11 @@ public class DeleteClassByClassIdCommandHandler : IRequestHandler<DeleteClassByC
         description: "Class with ID {ClassId} can not be deleted because of existing subscriptions");
     }
 
-    _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment =>
-      enrollment.CourseId == request.CourseId && enrollment.ClassId == request.ClassId));
-    _dbContext.Remove(_dbContext.Classes.Where(@class => @class.Id == request.ClassId));
-
+    _dbContext.Classes.Remove(existingClass);
     await _dbContext.SaveChangesAsync(cancellationToken);
 
-    _logger.LogInformation("Deleting enrollments for course {CourseId} and class {ClassId}", request.CourseId,
-      request.ClassId);
+    _logger.LogInformation("Deleting class  {ClassId} for course {CourseId}", request.ClassId,
+      request.CourseId);
 
     return Result.Deleted;
   }
