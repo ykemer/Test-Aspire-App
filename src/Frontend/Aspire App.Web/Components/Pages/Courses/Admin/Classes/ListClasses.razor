@@ -219,16 +219,12 @@
     {
       HandleErrorMessage(message);
     }
-
-    if (IsDeleteMessage(message.MessageType))
-    {
-      _processingClassId = null;
-    }
   }
 
   private void HandleSuccessMessage(ClassMessage message)
   {
     _successMessage = message.Message;
+    _processingClassId = null;
     _ = InvokeAsync(async () =>
     {
       await GetClasses();
@@ -239,12 +235,9 @@
   private void HandleErrorMessage(ClassMessage message)
   {
     _errorMessage = message.Message;
+    _processingClassId = null;
     _ = InvokeAsync(StateHasChanged);
   }
-
-  private static bool IsDeleteMessage(string messageType) =>
-    messageType == ClassHubMessage.ClassDeleted ||
-    messageType == ClassHubMessage.ClassDeleteRequestRejected;
 
   protected async Task GetClasses(int page = 1)
   {

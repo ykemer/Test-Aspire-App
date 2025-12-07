@@ -40,38 +40,4 @@ public class ClassesService : GrpcClassServiceBase
     return output.Match(value => value.MapToGrpcListClassResponse(),
       error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
   }
-
-  public override async Task<GrpcClassResponse> CreateClass(GrpcCreateClassRequest request, ServerCallContext context)
-  {
-    var output =
-      await _mediator.Send(request.MapToCreateClassCommand());
-
-    return output.Match(
-      course =>
-      {
-        _logger.LogTrace("Class for course {CourseId} with start date {StartDate} is being created", request.CourseId,
-          request.CourseStartDate);
-        return course.MapToGrpcClassResponse();
-      },
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
-  }
-
-  public override async Task<GrpcUpdatedClassResponse> UpdateClass(GrpcUpdateClassRequest request,
-    ServerCallContext context)
-  {
-    var result = await _mediator.Send(request.MapToUpdateClassCommand());
-
-    return result.Match(
-      _ => new GrpcUpdatedClassResponse { Message = "Class updated successfully", Success = true },
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
-  }
-
-  public override async Task<GrpcUpdatedClassResponse> DeleteClass(GrpcDeleteClassRequest request,
-    ServerCallContext context)
-  {
-    var output = await _mediator.Send(request.MapToDeleteClassCommand());
-    return output.Match(
-      _ => new GrpcUpdatedClassResponse { Success = true, Message = "Class deleted successfully" },
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
-  }
 }

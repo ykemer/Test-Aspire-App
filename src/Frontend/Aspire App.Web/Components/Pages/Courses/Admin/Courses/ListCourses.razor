@@ -195,16 +195,12 @@
     {
       HandleErrorMessage(message);
     }
-
-    if (IsDeleteMessage(message.MessageType))
-    {
-      _processingCourseId = null;
-    }
   }
 
   private void HandleSuccessMessage(CourseMessage message)
   {
     _successMessage = message.Message;
+    _processingCourseId = null;
     _ = InvokeAsync(async () =>
     {
       await LoadCoursesAsync();
@@ -214,13 +210,10 @@
 
   private void HandleErrorMessage(CourseMessage message)
   {
+    _processingCourseId = null;
     _errorMessage = message.Message;
     _ = InvokeAsync(StateHasChanged);
   }
-
-  private static bool IsDeleteMessage(string messageType) =>
-    messageType == CourseHubMessage.CourseDeleted ||
-    messageType == CourseHubMessage.CourseDeleteRequestRejected;
 
   private void ShowDeleteConfirmation(Guid courseId)
   {

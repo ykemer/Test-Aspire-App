@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Platform.Features.Courses.DeleteCourse;
 
-public class CourseDeletedRejectionEventConsumer: IConsumer<CourseCreateRejectionEvent>
+public class CourseDeletedRejectionEventConsumer: IConsumer<CourseDeleteRejectionEvent>
 {
   private readonly IHubContext<CoursesHub> _hubContext;
 
@@ -16,10 +16,10 @@ public class CourseDeletedRejectionEventConsumer: IConsumer<CourseCreateRejectio
     _hubContext = hubContext;
   }
 
-  public async Task Consume(ConsumeContext<CourseCreateRejectionEvent> context)
+  public async Task Consume(ConsumeContext<CourseDeleteRejectionEvent> context)
   {
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(CourseHubMessage.CourseCreateRequestRejected,
+      .User(context.Message.UserId).SendAsync(CourseHubMessage.CourseDeleteRequestRejected,
         context.Message.Reason);
   }
 }
