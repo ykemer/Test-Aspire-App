@@ -8,6 +8,9 @@ using Aspire_App.Web.Services.TokenServices;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.Extensions.Http.Resilience;
+
+using Polly;
 
 using AuthenticationService = Aspire_App.Web.Services.Auth.AuthenticationService;
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
@@ -42,6 +45,21 @@ public static class DependencyInjection
 
     services.AddHttpClient("ServerApi")
       .ConfigureHttpClient(c => c.BaseAddress = new Uri(platformServiceUrl));
+
+
+    services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
+    {
+      client.BaseAddress = new Uri(platformServiceUrl);
+    }).AddResilienceHandler("AuthenticationHandler", builder =>
+    {
+      builder.AddRetry(new HttpRetryStrategyOptions
+      {
+        MaxRetryAttempts = 3,
+        Delay = TimeSpan.FromSeconds(2),
+        BackoffType = DelayBackoffType.Exponential
+      });
+      builder.AddTimeout(TimeSpan.FromSeconds(30));
+    });
 
     services.AddHttpClient<IStudentApiService, StudentApiService>(client =>
     {
