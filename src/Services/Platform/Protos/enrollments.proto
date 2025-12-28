@@ -4,8 +4,8 @@ import "google/protobuf/timestamp.proto";
 option csharp_namespace = "EnrollmentsGRPCClient";
 
 service GrpcEnrollmentsService {
-  rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
-  rpc GetClassEnrollments (GrpcGetClassEnrollmentsRequest) returns (GrpcListEnrollmentsResponse); // not used
+  rpc GetStudentEnrollments (GrpcGetStudentEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
+  rpc GetClassEnrollments (GrpcGetClassEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
   rpc GetCourseEnrollments (GrpcGetCourseEnrollmentsRequest) returns (GrpcListEnrollmentsResponse);
 }
 

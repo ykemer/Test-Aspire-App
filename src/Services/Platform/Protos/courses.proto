@@ -5,7 +5,6 @@ import "google/protobuf/timestamp.proto";
 option csharp_namespace = "CoursesGRPCClient";
 
 service GrpcCoursesService {
-  // Courses
   rpc GetCourse (GrpcGetCourseRequest) returns (GrpcCourseResponse);
   rpc ListCourses (GrpcListCoursesRequest) returns (GrpcListCoursesResponse);
 }
