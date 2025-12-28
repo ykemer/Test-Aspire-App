@@ -1,6 +1,5 @@
 using Aspire_App.Web.Helpers;
 
-using Contracts.Classes.Requests;
 using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
@@ -20,20 +19,23 @@ public class CoursesApiService : ICoursesApiService
     CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"{CoursesUri}?page={page}&pageSize={pageSize}", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<CourseListItemResponse>>(response, "Courses not found");
+    var result = await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<CourseListItemResponse>>(response, "Courses not found");
+    return result!;
   }
 
   public async Task<CourseResponse> GetCourse(Guid guid, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<CourseResponse>(response, "Course not found");
+    var result =  await FrontendHelper.ReadJsonOrThrowForErrors<CourseResponse>(response, "Course not found");
+    return result!;
   }
 
   public async Task<List<EnrollmentResponse>> GetCourseEnrollments(Guid guid,
     CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"/api/courses/{guid}/enrollments", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    var result =  await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    return result!;
   }
 
 
@@ -47,7 +49,7 @@ public class CoursesApiService : ICoursesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 
   public async Task DeleteCourse(Guid id, CancellationToken cancellationToken = default)
@@ -59,7 +61,7 @@ public class CoursesApiService : ICoursesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 
   public async Task UpdateCourse(Guid courseId, UpdateCourseRequest updateCourseRequest,
@@ -72,6 +74,6 @@ public class CoursesApiService : ICoursesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 }

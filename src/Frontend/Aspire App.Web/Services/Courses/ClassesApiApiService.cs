@@ -2,7 +2,6 @@ using Aspire_App.Web.Helpers;
 
 using Contracts.Classes.Requests;
 using Contracts.Common;
-using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
 
@@ -21,21 +20,27 @@ public class ClassesApiApiService : IClassesApiService
   public async Task<PagedList<ClassListItemResponse>> GetClassListAsync(string courseId, int page, int pageSize = 10,
     CancellationToken cancellationToken = default)
   {
-    var response = await _httpClient.GetAsync($"{CoursesUri}/{courseId}/classes?page={page}&pageSize={pageSize}", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<ClassListItemResponse>>(response, "Classes not found");
+    var response = await _httpClient.GetAsync($"{CoursesUri}/{courseId}/classes?page={page}&pageSize={pageSize}",
+      cancellationToken);
+    var result =
+      await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<ClassListItemResponse>>(response, "Classes not found");
+    return result!;
   }
 
   public async Task<ClassResponse> GetClass(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<ClassResponse>(response, "Class not found");
+    var result = await FrontendHelper.ReadJsonOrThrowForErrors<ClassResponse>(response, "Class not found");
+    return result!;
   }
 
   public async Task<List<EnrollmentResponse>> GetClassEnrollments(Guid courseId, Guid classId,
     CancellationToken cancellationToken = default)
   {
-    var response = await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}/enrollments", cancellationToken);
-    return await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    var response =
+      await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}/enrollments", cancellationToken);
+    var result = await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    return result!;
   }
 
   public async Task CreateClass(Guid courseId, CreateClassRequest createClassRequest,
@@ -56,14 +61,13 @@ public class ClassesApiApiService : IClassesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 
 
   public async Task UpdateClass(Guid courseId, Guid classId, UpdateClassRequest updateCourseRequest,
     CancellationToken cancellationToken = default)
   {
-
     var command = new UpdateClassRequest
     {
       RegistrationDeadline = updateCourseRequest.RegistrationDeadline.ToUniversalTime(),
@@ -79,7 +83,7 @@ public class ClassesApiApiService : IClassesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 
   public async Task DeleteClass(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
@@ -92,6 +96,6 @@ public class ClassesApiApiService : IClassesApiService
       return;
     }
 
-    await FrontendHelper.ProcessValidationDetails(response);
+    await FrontendHelper.ProcessResponseErrors(response, "Resource not found");
   }
 }

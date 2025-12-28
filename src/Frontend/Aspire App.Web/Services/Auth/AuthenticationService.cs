@@ -11,13 +11,16 @@ namespace Aspire_App.Web.Services.Auth;
 
 public class AuthenticationService : IAuthenticationService
 {
-  private readonly IHttpClientFactory _factory;
+  private readonly HttpClient _httpClient;
   private readonly ITokenService _tokenService;
+  private readonly ILogger<AuthenticationService> _logger;
 
-  public AuthenticationService(IHttpClientFactory factory, ITokenService tokenService)
+  public AuthenticationService(ITokenService tokenService,
+    ILogger<AuthenticationService> logger, HttpClient httpClient)
   {
-    _factory = factory;
     _tokenService = tokenService;
+    _logger = logger;
+    _httpClient = httpClient;
   }
 
   public async ValueTask<string> GetJwtAsync()
@@ -41,20 +44,21 @@ public class AuthenticationService : IAuthenticationService
   {
     var refreshToken = await _tokenService.GetRefreshTokenAsync();
     if (string.IsNullOrEmpty(refreshToken))
-    {
       return;
+
+    var request = new RefreshAccessTokenRequest { RefreshToken = refreshToken };
+
+    await _tokenService.ClearTokensAsync();
+
+    try
+    {
+      await _httpClient
+        .PostAsync("api/auth/revoke", JsonContent.Create(request));
     }
-
-    RefreshAccessTokenRequest? request = new() { RefreshToken = refreshToken };
-
-    await _tokenService.ClearRefreshTokenAsync();
-    await _tokenService.ClearAccessTokenAsync();
-
-    var response = await _factory.CreateClient("ServerApi").PostAsync("api/auth/revoke",
-      JsonContent.Create(request));
-
-
-    await Console.Out.WriteLineAsync($"Revoke gave response {response.StatusCode}");
+    catch (Exception e)
+    {
+      _logger.LogError(e, "Failed to revoke refresh token during logout.");
+    }
   }
 
 
@@ -79,18 +83,21 @@ public class AuthenticationService : IAuthenticationService
 
   public async Task<bool> RefreshAsync()
   {
-    var content = await GetApiResponseAsync("api/auth/refresh",
-      new RefreshAccessTokenRequest { RefreshToken = await _tokenService.GetRefreshTokenAsync() });
-
-    if (content == null)
+    try
     {
-      await LogoutAsync();
+      var content = await GetApiResponseAsync("api/auth/refresh",
+        new RefreshAccessTokenRequest { RefreshToken = await _tokenService.GetRefreshTokenAsync() });
+
+      await SetTokensAsync(content);
+
+      return true;
+    }
+    catch (Exception e)
+    {
+      _logger.LogError(e, "Token refresh failed");
+      await _tokenService.ClearTokensAsync();
       return false;
     }
-
-    await SetTokensAsync(content);
-
-    return true;
   }
 
   private async Task<bool> TryRefreshTokenAsync()
@@ -112,23 +119,10 @@ public class AuthenticationService : IAuthenticationService
 
   private async Task<LoginResponse> GetApiResponseAsync(string url, object request)
   {
-    var response = await _factory.CreateClient("ServerApi").PostAsJsonAsync(url, request);
+    var response = await _httpClient.PostAsJsonAsync(url, request);
 
-    if (response.IsSuccessStatusCode)
-    {
-      var content = await response.Content.ReadFromJsonAsync<LoginResponse>();
-      if (content == null)
-      {
-        throw new InvalidDataException("Invalid response content.");
-      }
-
-      return content;
-    }
-
-    await FrontendHelper.ProcessValidationDetails(response);
-
-    var errorContent = await response.Content.ReadAsStringAsync();
-    throw new ArgumentException($"Request failed with status code {response.StatusCode}: {errorContent}");
+    var content = await FrontendHelper.ReadJsonOrThrowForErrors<LoginResponse>(response, "Authentication failed");
+    return content!;
   }
 
   private async Task SetTokensAsync(LoginResponse content)

@@ -36,12 +36,6 @@ public class RedisTokenService : ITokenService
     await _cache.SetStringAsync(GetAccessTokenCacheKey(userId), token, options);
   }
 
-  public async Task ClearAccessTokenAsync()
-  {
-    var userId = GetUserId();
-    await _cache.RemoveAsync(GetAccessTokenCacheKey(userId));
-  }
-
 
   public async Task SetRefreshTokenAsync(string refreshToken, TimeSpan? expiration = null)
   {
@@ -63,10 +57,13 @@ public class RedisTokenService : ITokenService
     return token;
   }
 
-  public async Task ClearRefreshTokenAsync()
+  public async Task ClearTokensAsync()
   {
     var userId = GetUserId();
-    await _cache.RemoveAsync(GetRefreshTokenCacheKey(userId));
+    await Task.WhenAll(
+      _cache.RemoveAsync(GetAccessTokenCacheKey(userId)),
+      _cache.RemoveAsync(GetRefreshTokenCacheKey(userId))
+    );
   }
 
 
