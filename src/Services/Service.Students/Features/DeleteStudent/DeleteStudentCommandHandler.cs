@@ -30,7 +30,7 @@ public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand,
         $"Student {request.StudentId} not found");
     }
 
-    if(student.EnrollmentsCount > 0)
+    if (student.EnrollmentsCount > 0)
     {
       _logger.LogWarning("Cannot delete student {StudentId} with active enrollments", request.StudentId);
       return Error.Validation("student_service.delete_student.student_has_enrollments",
