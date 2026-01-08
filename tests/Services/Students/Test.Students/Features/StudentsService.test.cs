@@ -25,11 +25,6 @@ namespace Test.Students.Application.Features;
 [TestFixture]
 public class StudentsServiceTests
 {
-  private IMediator _mediatorMock;
-  private ILogger<StudentsService> _loggerMock;
-  private StudentsService _studentsService;
-  private ServerCallContext _context;
-
   [SetUp]
   public void Setup()
   {
@@ -38,6 +33,11 @@ public class StudentsServiceTests
     _studentsService = new StudentsService(_loggerMock, _mediatorMock);
     _context = Substitute.For<ServerCallContext>();
   }
+
+  private IMediator _mediatorMock;
+  private ILogger<StudentsService> _loggerMock;
+  private StudentsService _studentsService;
+  private ServerCallContext _context;
 
   [Test]
   public async Task GetStudentById_ValidId_ReturnsStudent()
