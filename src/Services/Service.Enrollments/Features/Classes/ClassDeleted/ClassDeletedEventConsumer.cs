@@ -1,11 +1,8 @@
 ﻿using Contracts.Classes.Events;
-using Contracts.Courses.Events;
 
 using MassTransit;
 
-using Service.Enrollments.Features.Classes.ClassDeleted;
-
-namespace Service.Enrollments.Features.Classes.DeleteClass;
+namespace Service.Enrollments.Features.Classes.ClassDeleted;
 
 public class ClassDeletedEventConsumer : IConsumer<ClassDeletedEvent>
 {

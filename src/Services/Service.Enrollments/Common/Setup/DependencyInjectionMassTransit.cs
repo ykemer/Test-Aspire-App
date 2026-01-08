@@ -8,9 +8,9 @@ namespace Service.Enrollments.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
-  const string queue = "queue-enrollments";
-  const string deleteEnrollmentCommandQueue = "delete-enrollment-command";
-  const string createEnrollmentCommandQueue = "create-enrollment-command";
+  private const string queue = "queue-enrollments";
+  private const string deleteEnrollmentCommandQueue = "delete-enrollment-command";
+  private const string createEnrollmentCommandQueue = "create-enrollment-command";
 
   public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
   {

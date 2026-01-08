@@ -1,5 +1,4 @@
 using Contracts.Classes.Events;
-using Contracts.Courses.Events;
 
 using Service.Enrollments.Common.Database.Entities;
 

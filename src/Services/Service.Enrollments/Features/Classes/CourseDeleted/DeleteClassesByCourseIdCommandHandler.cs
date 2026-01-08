@@ -33,7 +33,8 @@ public class
       _logger.LogError("Classes for course with ID {CourseId} can not be deleted because of existing subscriptions",
         request.CourseId);
       return Error.Conflict(
-        description: $"Classes for course with ID {request.CourseId} can not be deleted because of existing subscriptions");
+        description:
+        $"Classes for course with ID {request.CourseId} can not be deleted because of existing subscriptions");
     }
 
     _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment => enrollment.CourseId == request.CourseId));
