@@ -8,10 +8,7 @@ public class DeleteClassCommandConsumer : IConsumer<Contracts.Classes.Commands.D
 {
   private readonly IMediator _mediator;
 
-  public DeleteClassCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public DeleteClassCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<Contracts.Classes.Commands.DeleteClassCommand> context)
   {
@@ -19,12 +16,12 @@ public class DeleteClassCommandConsumer : IConsumer<Contracts.Classes.Commands.D
     var command = new DeleteClassCommand(
       message.ClassId,
       message.CourseId
-     );
+    );
     var result = await _mediator.Send(command);
 
     if (result.IsError)
     {
-      await context.Publish(new ClassDeleteRejectionEvent()
+      await context.Publish(new ClassDeleteRejectionEvent
       {
         Reason = result.FirstError.Description,
         CourseId = message.CourseId,
@@ -35,11 +32,6 @@ public class DeleteClassCommandConsumer : IConsumer<Contracts.Classes.Commands.D
     }
 
     await context.Publish(
-      new ClassDeletedEvent
-      {
-        CourseId = message.CourseId,
-        UserId = message.UserId,
-        ClassId = message.ClassId
-      });
+      new ClassDeletedEvent { CourseId = message.CourseId, UserId = message.UserId, ClassId = message.ClassId });
   }
 }

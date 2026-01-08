@@ -1,4 +1,6 @@
-﻿using MassTransit;
+﻿using Contracts.Courses.Events;
+
+using MassTransit;
 
 namespace Service.Courses.Features.Courses.DeleteCourse;
 
@@ -6,10 +8,7 @@ public class DeleteCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
 {
   private readonly IMediator _mediator;
 
-  public DeleteCourseCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public DeleteCourseCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<Contracts.Courses.Commands.DeleteCourseCommand> context)
   {
@@ -19,7 +18,7 @@ public class DeleteCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
 
     if (result.IsError)
     {
-      await context.Publish(new Contracts.Courses.Events.CourseDeleteRejectionEvent
+      await context.Publish(new CourseDeleteRejectionEvent
       {
         Reason = result.FirstError.Description, CourseId = message.CourseId, UserId = message.UserId
       });
@@ -27,6 +26,6 @@ public class DeleteCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
     }
 
     await context.Publish(
-      new Contracts.Courses.Events.CourseDeletedEvent { CourseId = message.CourseId, UserId = message.UserId });
+      new CourseDeletedEvent { CourseId = message.CourseId, UserId = message.UserId });
   }
 }

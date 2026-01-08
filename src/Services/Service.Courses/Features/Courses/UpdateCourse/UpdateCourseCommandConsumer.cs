@@ -8,10 +8,7 @@ public class UpdateCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
 {
   private readonly IMediator _mediator;
 
-  public UpdateCourseCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public UpdateCourseCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<Contracts.Courses.Commands.UpdateCourseCommand> context)
   {
@@ -23,9 +20,9 @@ public class UpdateCourseCommandConsumer : IConsumer<Contracts.Courses.Commands.
     var result = await _mediator.Send(command);
     if (result.IsError)
     {
-      await context.Publish(new CourseUpdateRejectionEvent()
+      await context.Publish(new CourseUpdateRejectionEvent
       {
-        CourseId = message.CourseId, UserId = message.UserId, Reason = result.FirstError.Description,
+        CourseId = message.CourseId, UserId = message.UserId, Reason = result.FirstError.Description
       });
       return;
     }

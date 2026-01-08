@@ -8,21 +8,18 @@ public class CreateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.C
 {
   private readonly IMediator _mediator;
 
-  public CreateClassCommandConsumer(IMediator mediator)
-  {
-    _mediator = mediator;
-  }
+  public CreateClassCommandConsumer(IMediator mediator) => _mediator = mediator;
 
   public async Task Consume(ConsumeContext<Contracts.Classes.Commands.CreateClassCommand> context)
   {
     var message = context.Message;
     var command = new CreateClassCommand
     {
-      CourseId =  message.CourseId,
+      CourseId = message.CourseId,
       RegistrationDeadline = message.RegistrationDeadline,
       CourseStartDate = message.CourseStartDate,
       CourseEndDate = message.CourseEndDate,
-      MaxStudents = message.MaxStudents,
+      MaxStudents = message.MaxStudents
     };
     var result = await _mediator.Send(command);
 
@@ -30,9 +27,7 @@ public class CreateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.C
     {
       await context.Publish(new ClassCreateRejectionEvent
       {
-        CourseId = message.CourseId,
-        Reason = result.FirstError.Description,
-        UserId = message.UserId,
+        CourseId = message.CourseId, Reason = result.FirstError.Description, UserId = message.UserId
       });
       return;
     }

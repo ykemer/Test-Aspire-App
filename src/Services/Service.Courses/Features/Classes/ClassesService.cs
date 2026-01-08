@@ -4,11 +4,8 @@ using Grpc.Core;
 
 using Library.GRPC;
 
-using Service.Courses.Features.Classes.CreateClass;
-using Service.Courses.Features.Classes.DeleteClass;
 using Service.Courses.Features.Classes.GetClass;
 using Service.Courses.Features.Classes.ListClasses;
-using Service.Courses.Features.Classes.UpdateClass;
 using Service.Courses.Features.Courses;
 
 using static ClassesGRPC.GrpcClassService;

@@ -12,15 +12,15 @@ namespace Service.Courses.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
-  const string Queue = "queue-courses";
-  const string CreateCourseCommandQueue = "create-course-command";
-  const string UpdateCourseCommandQueue = "update-course-command";
-  const string DeleteCourseCommandQueue = "delete-course-command";
+  private const string Queue = "queue-courses";
+  private const string CreateCourseCommandQueue = "create-course-command";
+  private const string UpdateCourseCommandQueue = "update-course-command";
+  private const string DeleteCourseCommandQueue = "delete-course-command";
 
 
-  const string CreateClassCommandQueue = "create-class-command";
-  const string UpdateClassCommandQueue = "update-class-command";
-  const string DeleteClassCommandQueue = "delete-class-command";
+  private const string CreateClassCommandQueue = "create-class-command";
+  private const string UpdateClassCommandQueue = "update-class-command";
+  private const string DeleteClassCommandQueue = "delete-class-command";
 
   public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
   {
@@ -111,7 +111,6 @@ public static class DependencyInjectionMassTransit
           e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
           e.ConfigureDefaultDeadLetterTransport();
         });
-
       });
     });
 

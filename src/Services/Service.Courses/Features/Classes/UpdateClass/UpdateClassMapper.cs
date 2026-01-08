@@ -1,5 +1,3 @@
-using ClassesGRPC;
-
 using Service.Courses.Common.Database.Entities;
 
 namespace Service.Courses.Features.Classes.UpdateClass;
