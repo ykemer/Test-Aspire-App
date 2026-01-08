@@ -15,10 +15,6 @@ namespace Test.Enrollments.Features.Classes.CreateClass;
 [TestFixture]
 public class CreateClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private CreateClassCommandHandler _handler;
-  private ILogger<CreateClassCommandHandler> _logger;
-
   [SetUp]
   public void SetUp()
   {
@@ -29,6 +25,10 @@ public class CreateClassCommandHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private CreateClassCommandHandler _handler;
+  private ILogger<CreateClassCommandHandler> _logger;
 
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenClassAlreadyExists()

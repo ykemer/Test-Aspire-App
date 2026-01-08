@@ -7,10 +7,10 @@ namespace Test.Enrollments.Features.Classes.CreateClass;
 [TestFixture]
 public class CreateClassCommandValidatorTests
 {
-  private CreateClassCommandValidator _validator;
-
   [SetUp]
   public void SetUp() => _validator = new CreateClassCommandValidator();
+
+  private CreateClassCommandValidator _validator;
 
   [Test]
   public void ValidRequest_ShouldPass()

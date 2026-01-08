@@ -82,7 +82,6 @@ public class DeleteClassByClassIdCommandHandlerTest
       .Build();
 
 
-
     await _dbContext.Classes.AddAsync(existingClass);
 
     await _dbContext.SaveChangesAsync();

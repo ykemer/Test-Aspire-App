@@ -1,7 +1,5 @@
 using Contracts.Enrollments.Commands;
 
-using EnrollmentsGRPC;
-
 using Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
 namespace Test.Enrollments.Features.Enrollments.EnrollStudentToClass;

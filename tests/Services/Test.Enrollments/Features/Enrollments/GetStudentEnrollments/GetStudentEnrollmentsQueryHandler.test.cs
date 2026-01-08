@@ -1,5 +1,7 @@
 using FizzWare.NBuilder;
 
+using Microsoft.Extensions.Logging.Abstractions;
+
 using Service.Enrollments.Common.Database;
 using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Enrollments.GetStudentEnrollments;
@@ -11,25 +13,27 @@ namespace Test.Enrollments.Features.Enrollments.GetStudentEnrollments;
 [TestFixture]
 public class GetStudentEnrollmentsQueryHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private GetStudentEnrollmentsQueryHandler _handler;
-
   [SetUp]
   public void SetUp()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new GetStudentEnrollmentsQueryHandler(_dbContext, Microsoft.Extensions.Logging.Abstractions.NullLogger<GetStudentEnrollmentsQueryHandler>.Instance);
+    _handler = new GetStudentEnrollmentsQueryHandler(_dbContext,
+      NullLogger<GetStudentEnrollmentsQueryHandler>.Instance);
   }
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private GetStudentEnrollmentsQueryHandler _handler;
 
   [Test]
   public async Task Handle_ShouldReturnEnrollmentsForStudent_AllCourses_WhenCourseIdEmpty()
   {
     var e1 = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-1").With(e => e.CourseId, "c1").Build();
     var e2 = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-1").With(e => e.CourseId, "c2").Build();
-    var eOther = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-2").With(e => e.CourseId, "c1").Build();
+    var eOther = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-2").With(e => e.CourseId, "c1")
+      .Build();
 
     await _dbContext.Enrollments.AddRangeAsync(e1, e2, eOther);
     await _dbContext.SaveChangesAsync();
@@ -47,7 +51,8 @@ public class GetStudentEnrollmentsQueryHandlerTests
   {
     var e1 = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-1").With(e => e.CourseId, "c1").Build();
     var e2 = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-1").With(e => e.CourseId, "c2").Build();
-    var eOther = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-2").With(e => e.CourseId, "c1").Build();
+    var eOther = Builder<Enrollment>.CreateNew().With(e => e.StudentId, "student-2").With(e => e.CourseId, "c1")
+      .Build();
 
     await _dbContext.Enrollments.AddRangeAsync(e1, e2, eOther);
     await _dbContext.SaveChangesAsync();

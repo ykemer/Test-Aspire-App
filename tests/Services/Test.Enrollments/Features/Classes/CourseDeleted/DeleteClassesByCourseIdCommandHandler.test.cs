@@ -37,7 +37,6 @@ public class DeleteClassesByCourseIdCommandHandlerTest
     var result = await _handler.Handle(request, CancellationToken.None);
 
     Assert.That(result.IsError, Is.False);
-
   }
 
   [Test]

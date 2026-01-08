@@ -11,9 +11,6 @@ namespace Test.Enrollments.Features.Enrollments.GetClassEnrollments;
 [TestFixture]
 public class GetClassEnrollmentsQueryHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private GetClassEnrollmentsQueryHandler _handler;
-
   [SetUp]
   public void SetUp()
   {
@@ -24,6 +21,9 @@ public class GetClassEnrollmentsQueryHandlerTests
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
 
+  private ApplicationDbContext _dbContext;
+  private GetClassEnrollmentsQueryHandler _handler;
+
   [Test]
   public async Task Handle_ShouldReturnEnrollmentsForClass()
   {
@@ -32,7 +32,8 @@ public class GetClassEnrollmentsQueryHandlerTests
 
     var e1 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, cls1.CourseId).With(e => e.ClassId, cls1.Id).Build();
     var e2 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, cls1.CourseId).With(e => e.ClassId, cls1.Id).Build();
-    var eOther = Builder<Enrollment>.CreateNew().With(e => e.CourseId, cls2.CourseId).With(e => e.ClassId, cls2.Id).Build();
+    var eOther = Builder<Enrollment>.CreateNew().With(e => e.CourseId, cls2.CourseId).With(e => e.ClassId, cls2.Id)
+      .Build();
 
     await _dbContext.Classes.AddRangeAsync(cls1, cls2);
     await _dbContext.Enrollments.AddRangeAsync(e1, e2, eOther);

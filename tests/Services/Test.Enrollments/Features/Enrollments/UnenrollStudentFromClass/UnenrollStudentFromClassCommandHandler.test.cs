@@ -16,10 +16,6 @@ namespace Test.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 [TestFixture]
 public class UnenrollStudentFromClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private UnenrollStudentFromClassCommandHandler _handler;
-  private ILogger<UnenrollStudentFromClassCommandHandler> _logger;
-
   [SetUp]
   public void SetUp()
   {
@@ -30,6 +26,10 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private UnenrollStudentFromClassCommandHandler _handler;
+  private ILogger<UnenrollStudentFromClassCommandHandler> _logger;
 
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenClassDoesNotExist()
@@ -55,9 +55,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
     var cmd = new UnenrollStudentFromClassCommand
     {
-      CourseId = cls.CourseId,
-      ClassId = cls.Id,
-      StudentId = "student-1"
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
     };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
@@ -87,15 +85,14 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
     var cmd = new UnenrollStudentFromClassCommand
     {
-      CourseId = cls.CourseId,
-      ClassId = cls.Id,
-      StudentId = "student-1"
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
     };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("enrollment_service.unenroll_student_from_course.class_already_started"));
+    Assert.That(result.FirstError.Code,
+      Is.EqualTo("enrollment_service.unenroll_student_from_course.class_already_started"));
   }
 
   [Test]
@@ -119,9 +116,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
     var cmd = new UnenrollStudentFromClassCommand
     {
-      CourseId = cls.CourseId,
-      ClassId = cls.Id,
-      StudentId = "student-1"
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
     };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);

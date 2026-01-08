@@ -1,7 +1,5 @@
 using Contracts.Enrollments.Commands;
 
-using EnrollmentsGRPC;
-
 using Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
 namespace Test.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
@@ -12,12 +10,7 @@ public class UnenrollStudentFromClassMapperTests
   [Test]
   public void MapToUnenrollStudentFromClassCommand_MapsAllFields()
   {
-    var req = new DeleteEnrollmentCommand
-    {
-      CourseId = "course-1",
-      ClassId = "class-1",
-      StudentId = "student-1"
-    };
+    var req = new DeleteEnrollmentCommand { CourseId = "course-1", ClassId = "class-1", StudentId = "student-1" };
 
     var cmd = req.MapToUnenrollStudentFromClassCommand();
 

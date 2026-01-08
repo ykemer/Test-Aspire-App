@@ -11,9 +11,6 @@ namespace Test.Enrollments.Features.Enrollments.GetCourseEnrollments;
 [TestFixture]
 public class GetCourseEnrollmentsQueryHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private GetCourseEnrollmentsQueryHandler _handler;
-
   [SetUp]
   public void SetUp()
   {
@@ -23,6 +20,9 @@ public class GetCourseEnrollmentsQueryHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private GetCourseEnrollmentsQueryHandler _handler;
 
   [Test]
   public async Task Handle_ShouldReturnEnrollmentsForCourse()

@@ -16,10 +16,6 @@ namespace Test.Enrollments.Features.Enrollments.EnrollStudentToClass;
 [TestFixture]
 public class EnrollStudentToClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private EnrollStudentToClassCommandHandler _handler;
-  private ILogger<EnrollStudentToClassCommandHandler> _logger;
-
   [SetUp]
   public void SetUp()
   {
@@ -30,6 +26,10 @@ public class EnrollStudentToClassCommandHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private EnrollStudentToClassCommandHandler _handler;
+  private ILogger<EnrollStudentToClassCommandHandler> _logger;
 
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenAlreadyEnrolled()
@@ -103,7 +103,8 @@ public class EnrollStudentToClassCommandHandlerTests
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("enrollment_service.enroll_student_to_course.registration_deadline_passed"));
+    Assert.That(result.FirstError.Code,
+      Is.EqualTo("enrollment_service.enroll_student_to_course.registration_deadline_passed"));
   }
 
   [Test]

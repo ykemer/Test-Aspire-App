@@ -16,10 +16,6 @@ namespace Test.Enrollments.Features.Classes.UpdateClass;
 [TestFixture]
 public class UpdateClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private UpdateClassCommandHandler _handler;
-  private ILogger<CreateClassCommandHandler> _logger;
-
   [SetUp]
   public void SetUp()
   {
@@ -30,6 +26,10 @@ public class UpdateClassCommandHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private UpdateClassCommandHandler _handler;
+  private ILogger<CreateClassCommandHandler> _logger;
 
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenClassDoesNotExist()
