@@ -8,7 +8,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 var cache = builder
   .AddRedis("cache")
-  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/cache") ;
+  .WithDataBindMount($"{Environment.GetEnvironmentVariable("VOLUME_PATH")}/cache");
 
 #region Databases
 
