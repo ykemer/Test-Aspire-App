@@ -18,8 +18,8 @@ namespace Courses.Application.Features.Courses.DeleteCourse;
 
 public class DeleteCourseCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
   private DeleteCourseCommandHandler _commandHandler;
+  private ApplicationDbContext _dbContext;
   private ILogger<DeleteCourseCommandHandler> _loggerMock;
   private IPublishEndpoint _messageBusClientMock;
 

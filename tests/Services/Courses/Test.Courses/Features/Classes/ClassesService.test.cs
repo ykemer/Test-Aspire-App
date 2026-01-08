@@ -1,5 +1,7 @@
 using ClassesGRPC;
 
+using Contracts.Common;
+
 using ErrorOr;
 
 using FizzWare.NBuilder;
@@ -14,23 +16,14 @@ using NSubstitute;
 
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes;
-using Service.Courses.Features.Classes.CreateClass;
-using Service.Courses.Features.Classes.DeleteClass;
 using Service.Courses.Features.Classes.GetClass;
 using Service.Courses.Features.Classes.ListClasses;
-using Service.Courses.Features.Classes.UpdateClass;
 
 namespace Courses.Application.Features.Classes;
 
 [TestFixture]
 public class ClassesServiceTests
 {
-  private ILogger<ClassesService> _loggerMock = null!;
-  private IMediator _mediatorMock = null!;
-  private ClassesService _service = null!;
-  private ServerCallContext _context = null!;
-  private Error _testError;
-
   [SetUp]
   public void Setup()
   {
@@ -40,6 +33,12 @@ public class ClassesServiceTests
     _context = Substitute.For<ServerCallContext>();
     _testError = Error.Unexpected("Test error");
   }
+
+  private ILogger<ClassesService> _loggerMock = null!;
+  private IMediator _mediatorMock = null!;
+  private ClassesService _service = null!;
+  private ServerCallContext _context = null!;
+  private Error _testError;
 
   [Test]
   public async Task GetClass_Success_ReturnsResponse()
@@ -67,7 +66,7 @@ public class ClassesServiceTests
   public async Task ListClasses_Success_ReturnsResponse()
   {
     var cls = Builder<Class>.CreateNew().Build();
-    var paged = Contracts.Common.PagedList<Class>.Create(new List<Class> { cls }.AsQueryable(), 1, 10);
+    var paged = PagedList<Class>.Create(new List<Class> { cls }.AsQueryable(), 1, 10);
     _mediatorMock.Send(Arg.Any<ListClassesQuery>(), Arg.Any<CancellationToken>()).Returns(paged);
 
     var grpcReq = new GrpcListClassRequest { CourseId = cls.CourseId, Page = 1, PageSize = 10 };

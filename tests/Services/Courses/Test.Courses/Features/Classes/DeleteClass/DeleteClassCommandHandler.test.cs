@@ -17,11 +17,6 @@ namespace Courses.Application.Features.Classes.DeleteClass;
 [TestFixture]
 public class DeleteClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private DeleteClassCommandHandler _handler;
-  private ILogger<DeleteClassCommandHandler> _loggerMock;
-  private IPublishEndpoint _publishMock;
-
   [SetUp]
   public void SetUp()
   {
@@ -33,6 +28,11 @@ public class DeleteClassCommandHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private DeleteClassCommandHandler _handler;
+  private ILogger<DeleteClassCommandHandler> _loggerMock;
+  private IPublishEndpoint _publishMock;
 
   [Test]
   public async Task Handle_ShouldReturnUnexpected_WhenClassNotFound()
@@ -83,6 +83,6 @@ public class DeleteClassCommandHandlerTests
 
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Classes.FindAsync(cls.Id) == null, Is.True);
-    await _publishMock.ReceivedWithAnyArgs().Publish(default(object)!, default);
+    await _publishMock.ReceivedWithAnyArgs().Publish(default!);
   }
 }

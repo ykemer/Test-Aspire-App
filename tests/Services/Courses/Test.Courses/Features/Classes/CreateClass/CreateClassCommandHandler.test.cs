@@ -15,10 +15,6 @@ namespace Courses.Application.Features.Classes.CreateClass;
 [TestFixture]
 public class CreateClassCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private CreateClassCommandHandler _handler;
-  private ILogger<CreateClassCommandHandler> _loggerMock;
-
   [SetUp]
   public void SetUp()
   {
@@ -30,10 +26,13 @@ public class CreateClassCommandHandlerTests
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
 
+  private ApplicationDbContext _dbContext;
+  private CreateClassCommandHandler _handler;
+  private ILogger<CreateClassCommandHandler> _loggerMock;
+
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenCourseExistsCheckFails()
   {
-
     var course = Builder<Course>.CreateNew().Build();
     await _dbContext.Courses.AddAsync(course);
     await _dbContext.SaveChangesAsync();
@@ -53,8 +52,6 @@ public class CreateClassCommandHandlerTests
     Assert.That(created.CourseId, Is.EqualTo(cmd.CourseId));
     Assert.That(created.MaxStudents, Is.EqualTo(10));
     Assert.That(await _dbContext.Classes.FindAsync(created.Id) is not null, Is.True);
-
-
   }
 
   [Test]

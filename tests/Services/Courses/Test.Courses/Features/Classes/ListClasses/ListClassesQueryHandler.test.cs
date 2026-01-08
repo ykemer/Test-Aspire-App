@@ -11,9 +11,6 @@ namespace Courses.Application.Features.Classes.ListClasses;
 [TestFixture]
 public class ListClassesQueryHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private ListClassesQueryHandler _handler;
-
   [SetUp]
   public void SetUp()
   {
@@ -23,6 +20,9 @@ public class ListClassesQueryHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private ListClassesQueryHandler _handler;
 
   [Test]
   public async Task Handle_NotEnrolled_ShouldFilterClosedOrFull()
@@ -54,7 +54,14 @@ public class ListClassesQueryHandlerTests
     await _dbContext.Classes.AddRangeAsync(open, closed, full);
     await _dbContext.SaveChangesAsync();
 
-    var query = new ListClassesQuery { CourseId = courseId, PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string>(), ShowAll = false};
+    var query = new ListClassesQuery
+    {
+      CourseId = courseId,
+      PageNumber = 1,
+      PageSize = 10,
+      EnrolledClasses = new List<string>(),
+      ShowAll = false
+    };
 
     var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -79,7 +86,14 @@ public class ListClassesQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFull);
     await _dbContext.SaveChangesAsync();
 
-    var query = new ListClassesQuery { CourseId = courseId, PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string>{ closedFull.Id }, ShowAll = false };
+    var query = new ListClassesQuery
+    {
+      CourseId = courseId,
+      PageNumber = 1,
+      PageSize = 10,
+      EnrolledClasses = new List<string> { closedFull.Id },
+      ShowAll = false
+    };
 
     var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -117,7 +131,14 @@ public class ListClassesQueryHandlerTests
     await _dbContext.Classes.AddRangeAsync(open, closed, full);
     await _dbContext.SaveChangesAsync();
 
-    var query = new ListClassesQuery { CourseId = courseId, PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string>(), ShowAll = true };
+    var query = new ListClassesQuery
+    {
+      CourseId = courseId,
+      PageNumber = 1,
+      PageSize = 10,
+      EnrolledClasses = new List<string>(),
+      ShowAll = true
+    };
 
     var result = await _handler.Handle(query, CancellationToken.None);
 

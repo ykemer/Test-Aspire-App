@@ -43,15 +43,13 @@ public class ListCoursesQueryHandlerTests
     {
       await _dbContext.Classes.AddAsync(new Class
       {
-        CourseId = c.Id,
-        RegistrationDeadline = now.AddDays(3),
-        MaxStudents = 30,
-        TotalStudents = 5
+        CourseId = c.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 30, TotalStudents = 5
       });
     }
+
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest{ PageNumber = 1, PageSize = 2 };
+    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 2 };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);
@@ -75,12 +73,10 @@ public class ListCoursesQueryHandlerTests
     {
       await _dbContext.Classes.AddAsync(new Class
       {
-        CourseId = c.Id,
-        RegistrationDeadline = now.AddDays(3),
-        MaxStudents = 30,
-        TotalStudents = 5
+        CourseId = c.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 30, TotalStudents = 5
       });
     }
+
     await _dbContext.SaveChangesAsync();
 
     var request = new ListCoursesRequest { PageNumber = 2, PageSize = 2 };
@@ -107,16 +103,19 @@ public class ListCoursesQueryHandlerTests
     // Open course: one class open & has capacity
     await _dbContext.Classes.AddAsync(new Class
     {
-      CourseId = openCourse.Id,
-      RegistrationDeadline = now.AddDays(2),
-      MaxStudents = 20,
-      TotalStudents = 10
+      CourseId = openCourse.Id, RegistrationDeadline = now.AddDays(2), MaxStudents = 20, TotalStudents = 10
     });
 
     // Closed or full course: one class with past deadline; one class full
     await _dbContext.Classes.AddRangeAsync(
-      new Class { CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(-1), MaxStudents = 20, TotalStudents = 5 },
-      new Class { CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 10, TotalStudents = 10 }
+      new Class
+      {
+        CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(-1), MaxStudents = 20, TotalStudents = 5
+      },
+      new Class
+      {
+        CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 10, TotalStudents = 10
+      }
     );
 
     await _dbContext.SaveChangesAsync();
@@ -141,15 +140,16 @@ public class ListCoursesQueryHandlerTests
     var course = Builder<Course>.CreateNew().With(c => c.Name = "Enrolled Course").Build();
     await _dbContext.Courses.AddAsync(course);
 
-    var closedFullClass = new Class { CourseId = course.Id, RegistrationDeadline = now.AddDays(-5), MaxStudents = 10, TotalStudents = 10 };
+    var closedFullClass = new Class
+    {
+      CourseId = course.Id, RegistrationDeadline = now.AddDays(-5), MaxStudents = 10, TotalStudents = 10
+    };
     await _dbContext.Classes.AddAsync(closedFullClass);
     await _dbContext.SaveChangesAsync();
 
     var request = new ListCoursesRequest
     {
-      PageNumber = 1,
-      PageSize = 10,
-      EnrolledClasses = new List<string> { closedFullClass.Id }
+      PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string> { closedFullClass.Id }
     };
 
     // Act
@@ -173,16 +173,19 @@ public class ListCoursesQueryHandlerTests
     // Open course: one class open & has capacity
     await _dbContext.Classes.AddAsync(new Class
     {
-      CourseId = openCourse.Id,
-      RegistrationDeadline = now.AddDays(2),
-      MaxStudents = 20,
-      TotalStudents = 10
+      CourseId = openCourse.Id, RegistrationDeadline = now.AddDays(2), MaxStudents = 20, TotalStudents = 10
     });
 
     // Closed or full course: one class with past deadline; one class full
     await _dbContext.Classes.AddRangeAsync(
-      new Class { CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(-1), MaxStudents = 20, TotalStudents = 5 },
-      new Class { CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 10, TotalStudents = 10 }
+      new Class
+      {
+        CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(-1), MaxStudents = 20, TotalStudents = 5
+      },
+      new Class
+      {
+        CourseId = closedOrFullCourse.Id, RegistrationDeadline = now.AddDays(3), MaxStudents = 10, TotalStudents = 10
+      }
     );
 
     await _dbContext.SaveChangesAsync();

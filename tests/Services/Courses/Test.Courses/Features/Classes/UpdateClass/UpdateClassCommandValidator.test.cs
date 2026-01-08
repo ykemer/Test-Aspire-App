@@ -7,10 +7,10 @@ namespace Courses.Application.Features.Classes.UpdateClass;
 [TestFixture]
 public class UpdateClassCommandValidatorTests
 {
-  private UpdateClassCommandValidator _validator;
-
   [SetUp]
   public void SetUp() => _validator = new UpdateClassCommandValidator();
+
+  private UpdateClassCommandValidator _validator;
 
   [Test]
   public void ValidRequest_ShouldPass()

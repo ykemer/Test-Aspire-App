@@ -11,14 +11,15 @@ public class GetCourseMapperTest
   public void ToGetCourseQuery_MapsId()
   {
     // Arrange
-    var request = new GrpcGetCourseRequest { Id = "course-abc", EnrolledClasses = { "class-1", "class-2" }, ShowAll = true};
+    var request =
+      new GrpcGetCourseRequest { Id = "course-abc", EnrolledClasses = { "class-1", "class-2" }, ShowAll = true };
 
     // Act
     var result = request.ToGetCourseQuery();
 
     // Assert
     Assert.That(result.Id, Is.EqualTo("course-abc"));
-    Assert.That(result.EnrolledClasses, Is.EquivalentTo(new[]{"class-1","class-2"}));
+    Assert.That(result.EnrolledClasses, Is.EquivalentTo(new[] { "class-1", "class-2" }));
     Assert.That(result.ShowAll, Is.True);
   }
 }

@@ -14,8 +14,8 @@ namespace Courses.Application.Features.Courses.CreateCourse;
 
 public class CreateCourseCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
   private CreateCourseCommandHandler _commandHandler;
+  private ApplicationDbContext _dbContext;
   private ILogger<CreateCourseCommandHandler> _loggerMock;
 
   [SetUp]

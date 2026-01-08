@@ -15,8 +15,8 @@ namespace Courses.Application.Features.Courses.UpdateCourse;
 
 public class UpdateCourseCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
   private UpdateCourseCommandHandler _commandHandler;
+  private ApplicationDbContext _dbContext;
   private ILogger<UpdateCourseCommandHandler> _loggerMock;
 
   [SetUp]

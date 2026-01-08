@@ -45,7 +45,8 @@ public class CourseExtensionMethodsTest
     Assert.That(grpcResponse.CourseId, Is.EqualTo(courseClass.CourseId));
     Assert.That(grpcResponse.MaxStudents, Is.EqualTo(courseClass.MaxStudents));
     Assert.That(grpcResponse.TotalStudents, Is.EqualTo(courseClass.TotalStudents));
-    Assert.That(grpcResponse.RegistrationDeadline.ToDateTime(), Is.EqualTo(courseClass.RegistrationDeadline.ToUniversalTime()));
+    Assert.That(grpcResponse.RegistrationDeadline.ToDateTime(),
+      Is.EqualTo(courseClass.RegistrationDeadline.ToUniversalTime()));
     Assert.That(grpcResponse.CourseStartDate.ToDateTime(), Is.EqualTo(courseClass.CourseStartDate.ToUniversalTime()));
     Assert.That(grpcResponse.CourseEndDate.ToDateTime(), Is.EqualTo(courseClass.CourseEndDate.ToUniversalTime()));
   }

@@ -1,8 +1,4 @@
-using ClassesGRPC;
-
 using FizzWare.NBuilder;
-
-using Google.Protobuf.WellKnownTypes;
 
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes.UpdateClass;
@@ -12,14 +8,12 @@ namespace Courses.Application.Features.Classes.UpdateClass;
 [TestFixture]
 public class UpdateClassMapperTests
 {
-
-
   [Test]
   public void AddCommandValues_ShouldUpdateEntityFields()
   {
     // Arrange
 
-    var entity =  Builder<Class>
+    var entity = Builder<Class>
       .CreateNew()
       .Build();
 

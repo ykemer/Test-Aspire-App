@@ -15,10 +15,6 @@ namespace Courses.Application.Features.Classes.GetClass;
 [TestFixture]
 public class GetClassQueryHandlerTests
 {
-  private ApplicationDbContext _dbContext;
-  private GetClassQueryHandler _handler;
-  private ILogger<GetClassQueryHandler> _loggerMock;
-
   [SetUp]
   public void SetUp()
   {
@@ -29,6 +25,10 @@ public class GetClassQueryHandlerTests
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
+
+  private ApplicationDbContext _dbContext;
+  private GetClassQueryHandler _handler;
+  private ILogger<GetClassQueryHandler> _loggerMock;
 
   [Test]
   public async Task Handle_NotEnrolled_ShouldReturnWhenOpenAndHasCapacity()
@@ -94,7 +94,7 @@ public class GetClassQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFull);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetClassQuery(closedFull.Id, course.Id, new List<string>{ closedFull.Id }, false);
+    var query = new GetClassQuery(closedFull.Id, course.Id, new List<string> { closedFull.Id }, false);
 
     var result = await _handler.Handle(query, CancellationToken.None);
 

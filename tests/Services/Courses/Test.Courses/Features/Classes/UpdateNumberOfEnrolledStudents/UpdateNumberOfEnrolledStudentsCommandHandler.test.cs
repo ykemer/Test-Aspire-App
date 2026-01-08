@@ -14,8 +14,8 @@ namespace Courses.Application.Features.Classes.UpdateNumberOfEnrolledStudents;
 
 public class UpdateNumberOfEnrolledStudentsCommandHandlerTests
 {
-  private ApplicationDbContext _dbContext;
   private UpdateNumberOfEnrolledStudentsCommandHandler _commandHandler;
+  private ApplicationDbContext _dbContext;
   private ILogger<UpdateNumberOfEnrolledStudentsCommandHandler> _loggerMock;
 
   [SetUp]

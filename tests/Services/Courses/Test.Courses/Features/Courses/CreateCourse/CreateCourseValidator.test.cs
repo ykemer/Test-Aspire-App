@@ -5,13 +5,10 @@ namespace Courses.Application.Features.Courses.CreateCourse;
 [TestFixture]
 public class CreateCourseValidatorTests
 {
-  private CreateCourseValidator _validator = null!;
-
   [SetUp]
-  public void SetUp()
-  {
-    _validator = new CreateCourseValidator();
-  }
+  public void SetUp() => _validator = new CreateCourseValidator();
+
+  private CreateCourseValidator _validator = null!;
 
   [Test]
   public void Validate_ValidInput_ShouldBeValid()
@@ -65,7 +62,9 @@ public class CreateCourseValidatorTests
 
     // Assert
     Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors.Any(e => e.PropertyName == nameof(CreateCourseCommand.Name) && e.ErrorMessage == "Name is required."), Is.True);
+    Assert.That(
+      result.Errors.Any(e =>
+        e.PropertyName == nameof(CreateCourseCommand.Name) && e.ErrorMessage == "Name is required."), Is.True);
   }
 
   [Test]
@@ -81,7 +80,10 @@ public class CreateCourseValidatorTests
     // Assert
     Assert.That(result.IsValid, Is.False);
     // The validator sets MaximumLength(100) but message says 50; assert current message as implemented
-    Assert.That(result.Errors.Any(e => e.PropertyName == nameof(CreateCourseCommand.Name) && e.ErrorMessage == "Name must not exceed 50 characters."), Is.True);
+    Assert.That(
+      result.Errors.Any(e =>
+        e.PropertyName == nameof(CreateCourseCommand.Name) && e.ErrorMessage == "Name must not exceed 50 characters."),
+      Is.True);
   }
 
   [Test]
@@ -123,7 +125,10 @@ public class CreateCourseValidatorTests
 
     // Assert
     Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors.Any(e => e.PropertyName == nameof(CreateCourseCommand.Description) && e.ErrorMessage == "Description is required."), Is.True);
+    Assert.That(
+      result.Errors.Any(e =>
+        e.PropertyName == nameof(CreateCourseCommand.Description) && e.ErrorMessage == "Description is required."),
+      Is.True);
   }
 
   [Test]
@@ -138,6 +143,9 @@ public class CreateCourseValidatorTests
 
     // Assert
     Assert.That(result.IsValid, Is.False);
-    Assert.That(result.Errors.Any(e => e.PropertyName == nameof(CreateCourseCommand.Description) && e.ErrorMessage == "Description must not exceed 500 characters."), Is.True);
+    Assert.That(
+      result.Errors.Any(e =>
+        e.PropertyName == nameof(CreateCourseCommand.Description) &&
+        e.ErrorMessage == "Description must not exceed 500 characters."), Is.True);
   }
 }

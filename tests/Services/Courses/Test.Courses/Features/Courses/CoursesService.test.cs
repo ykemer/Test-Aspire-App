@@ -16,11 +16,8 @@ using NSubstitute;
 
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses;
-using Service.Courses.Features.Courses.CreateCourse;
-using Service.Courses.Features.Courses.DeleteCourse;
 using Service.Courses.Features.Courses.GetCourse;
 using Service.Courses.Features.Courses.ListCourses;
-using Service.Courses.Features.Courses.UpdateCourse;
 
 namespace Courses.Application.Features.Courses;
 
@@ -42,7 +39,6 @@ public class CoursesServiceTests
   private CoursesService _coursesService;
   private ServerCallContext _context;
   private Error _testError;
-
 
 
   [Test]
@@ -130,7 +126,6 @@ public class CoursesServiceTests
       Assert.That(response.Items[1].Name, Is.EqualTo(courses[1].Name));
       Assert.That(response.Items[1].Description, Is.EqualTo(courses[1].Description));
       Assert.That(response.Items[1].TotalStudents, Is.EqualTo(courses[1].TotalStudents));
-
     });
   }
 
