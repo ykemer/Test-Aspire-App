@@ -12,7 +12,7 @@ public class CookiesService : ICookiesService
     var userId = Guid.CreateVersion7().ToString();
 
     // Set the cookie options
-    var cookieOptions = new CookieOptions()
+    var cookieOptions = new CookieOptions
     {
       HttpOnly = true,
       Secure = true,
