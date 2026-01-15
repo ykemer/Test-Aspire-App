@@ -13,12 +13,12 @@ namespace Platform.Features.Classes.DeleteClass;
 public class DeleteClassEndpoint : EndpointWithoutRequest<
   ErrorOr<Deleted>>
 {
-
   private readonly IOutputCacheStore _outputCache;
   private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public DeleteClassEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
+  public DeleteClassEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider,
+    IUserService userService)
   {
     _outputCache = outputCache;
     _sendEndpointProvider = sendEndpointProvider;
@@ -29,7 +29,6 @@ public class DeleteClassEndpoint : EndpointWithoutRequest<
   {
     Delete("/api/courses/{CourseId}/classes/{ClassId}");
     Policies("RequireAdministratorRole");
-
     Description(x => x.WithTags("Classes"));
   }
 
@@ -51,7 +50,5 @@ public class DeleteClassEndpoint : EndpointWithoutRequest<
     });
 
     return Result.Deleted;
-
-
   }
 }

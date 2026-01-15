@@ -39,6 +39,8 @@ public class CreateClassCommandValidator : Validator<CreateClassRequest>
       .NotNull()
       .NotEmpty()
       .GreaterThan(0)
-      .WithMessage("Maximum number of students must be greater than zero.");
+      .WithMessage("Maximum number of students must be greater than zero.")
+      .LessThanOrEqualTo(1000)
+      .WithMessage("Maximum number of students must be less than or equal to 1000.");
   }
 }

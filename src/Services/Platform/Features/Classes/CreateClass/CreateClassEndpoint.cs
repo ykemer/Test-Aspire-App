@@ -15,8 +15,6 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
   ErrorOr<Success>>
 {
   private readonly IOutputCacheStore _outputCache;
-
-
   private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
@@ -32,7 +30,6 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
   {
     Post("/api/courses/{CourseId}/classes");
     Policies("RequireAdministratorRole");
-
     Description(x => x.WithTags("Classes"));
   }
 
@@ -55,7 +52,7 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
         MaxStudents = createClassCommand.MaxStudents,
         UserId = userId
       },
-      cancellationToken: ct);
+      ct);
 
 
     await _outputCache.EvictByTagAsync("classes", ct);

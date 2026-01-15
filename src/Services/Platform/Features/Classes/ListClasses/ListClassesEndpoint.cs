@@ -39,10 +39,8 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
     Get("/api/courses/{CourseId}/classes");
     Policies("RequireUserRole");
     Claims("UserId");
-    Claims(ClaimTypes.Role);
     ResponseCache(60);
     Options(x => x.RequireRateLimiting("fixed-per-user"));
-
     Description(x => x.WithTags("Classes"));
   }
 

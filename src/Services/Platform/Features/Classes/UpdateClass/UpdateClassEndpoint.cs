@@ -1,10 +1,5 @@
-﻿using ClassesGRPCClient;
-
-using Contracts.Classes.Commands;
-using Contracts.Classes.Events;
+﻿using Contracts.Classes.Commands;
 using Contracts.Classes.Requests;
-using Contracts.Courses.Events;
-using Contracts.Courses.Requests;
 
 using FastEndpoints;
 
@@ -12,7 +7,6 @@ using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
-using Platform.Common.Middleware.Grpc;
 using Platform.Common.Services.User;
 
 namespace Platform.Features.Classes.UpdateClass;
@@ -20,13 +14,13 @@ namespace Platform.Features.Classes.UpdateClass;
 public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
   ErrorOr<Updated>>
 {
-
   private readonly IOutputCacheStore _outputCache;
   private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
 
-  public UpdateClassEndpoint( IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
+  public UpdateClassEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider,
+    IUserService userService)
   {
     _outputCache = outputCache;
     _sendEndpointProvider = sendEndpointProvider;
@@ -37,7 +31,6 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
   {
     Put("/api/courses/{CourseId}/classes/{ClassId}");
     Policies("RequireAdministratorRole");
-
     Description(x => x.WithTags("Classes"));
   }
 
@@ -52,16 +45,17 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
     var sendUri = new Uri("queue:update-class-command");
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
 
-    await endpoint.Send(new UpdateClassCommand
-    {
-      ClassId = classId.ToString(),
-      CourseId = courseId.ToString(),
-      RegistrationDeadline = updateClassCommand.RegistrationDeadline,
-      CourseStartDate = updateClassCommand.CourseStartDate,
-      CourseEndDate = updateClassCommand.CourseEndDate,
-      MaxStudents = updateClassCommand.MaxStudents,
-      UserId = userId
-    }, ct);
+    await endpoint.Send(
+      new UpdateClassCommand
+      {
+        ClassId = classId.ToString(),
+        CourseId = courseId.ToString(),
+        RegistrationDeadline = updateClassCommand.RegistrationDeadline,
+        CourseStartDate = updateClassCommand.CourseStartDate,
+        CourseEndDate = updateClassCommand.CourseEndDate,
+        MaxStudents = updateClassCommand.MaxStudents,
+        UserId = userId
+      }, ct);
 
     return Result.Updated;
   }

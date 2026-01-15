@@ -7,19 +7,14 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Platform.Features.Classes.CreateClass;
 
-public class ClassCreatedEventConsumer: IConsumer<ClassCreatedEvent>
+public class ClassCreatedEventConsumer : IConsumer<ClassCreatedEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
-  public ClassCreatedEventConsumer(IHubContext<ClassesHub> hubContext)
-  {
-    _hubContext = hubContext;
-  }
+  public ClassCreatedEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassCreatedEvent> context)
-  {
+  public async Task Consume(ConsumeContext<ClassCreatedEvent> context) =>
     await _hubContext.Clients
       .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassCreated,
         "Class created successfully.");
-  }
 }

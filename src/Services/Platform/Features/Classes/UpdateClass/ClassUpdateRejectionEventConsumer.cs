@@ -7,18 +7,13 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Platform.Features.Classes.UpdateClass;
 
-public class ClassUpdateRejectionEventConsumer: IConsumer<ClassUpdateRejectionEvent>
+public class ClassUpdateRejectionEventConsumer : IConsumer<ClassUpdateRejectionEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
-  public ClassUpdateRejectionEventConsumer(IHubContext<ClassesHub> hubContext)
-  {
-    _hubContext = hubContext;
-  }
+  public ClassUpdateRejectionEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassUpdateRejectionEvent> context)
-  {
+  public async Task Consume(ConsumeContext<ClassUpdateRejectionEvent> context) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassUpdateRequestRejected,context.Message.Reason);
-  }
+      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassUpdateRequestRejected, context.Message.Reason);
 }

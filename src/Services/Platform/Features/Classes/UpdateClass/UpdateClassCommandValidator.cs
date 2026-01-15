@@ -1,5 +1,4 @@
 ﻿using Contracts.Classes.Requests;
-using Contracts.Courses.Requests;
 
 using FastEndpoints;
 

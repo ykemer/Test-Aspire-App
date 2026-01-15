@@ -1,9 +1,6 @@
 using ClassesGRPCClient;
 
-using Contracts.Classes.Requests;
 using Contracts.Courses.Responses;
-
-using Google.Protobuf.WellKnownTypes;
 
 namespace Platform.Features.Classes.CreateClass;
 
