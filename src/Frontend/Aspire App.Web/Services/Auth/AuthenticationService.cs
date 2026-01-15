@@ -12,8 +12,8 @@ namespace Aspire_App.Web.Services.Auth;
 public class AuthenticationService : IAuthenticationService
 {
   private readonly HttpClient _httpClient;
-  private readonly ITokenService _tokenService;
   private readonly ILogger<AuthenticationService> _logger;
+  private readonly ITokenService _tokenService;
 
   public AuthenticationService(ITokenService tokenService,
     ILogger<AuthenticationService> logger, HttpClient httpClient)
@@ -44,7 +44,9 @@ public class AuthenticationService : IAuthenticationService
   {
     var refreshToken = await _tokenService.GetRefreshTokenAsync();
     if (string.IsNullOrEmpty(refreshToken))
+    {
       return;
+    }
 
     var request = new RefreshAccessTokenRequest { RefreshToken = refreshToken };
 
@@ -55,23 +57,21 @@ public class AuthenticationService : IAuthenticationService
       await _httpClient
         .PostAsync("api/auth/revoke", JsonContent.Create(request));
     }
-    catch (Exception e)
+    catch (HttpRequestException e)
     {
       _logger.LogError(e, "Failed to revoke refresh token during logout.");
     }
   }
 
-
-  public string GetUsername(string token) => GetClaimFromToken(token, ClaimTypes.Name);
+  public string GetUserId(string token) => GetClaimFromToken(token, ClaimTypes.Sid);
 
   public string GetUserRole(string token) => GetClaimFromToken(token, ClaimTypes.Role);
+
 
   public async Task<DateTime> LoginAsync(UserLoginRequest request)
   {
     var content = await GetApiResponseAsync("/api/auth/login", request);
-
     await SetTokensAsync(content);
-
     return content.ExpiresAt;
   }
 
@@ -85,7 +85,7 @@ public class AuthenticationService : IAuthenticationService
   {
     try
     {
-      var content = await GetApiResponseAsync("api/auth/refresh",
+      var content = await GetApiResponseAsync("/api/auth/refresh",
         new RefreshAccessTokenRequest { RefreshToken = await _tokenService.GetRefreshTokenAsync() });
 
       await SetTokensAsync(content);
@@ -113,8 +113,14 @@ public class AuthenticationService : IAuthenticationService
 
   private static string GetClaimFromToken(string token, string claimType)
   {
-    JwtSecurityToken? jwt = new(token);
-    return jwt.Claims.First(c => c.Type == claimType).Value;
+    var jwt = new JwtSecurityToken(token);
+    var claim = jwt.Claims.FirstOrDefault(c => c.Type == claimType);
+    if (claim is null)
+    {
+      throw new InvalidOperationException($"The token does not contain the required '{claimType}' claim.");
+    }
+
+    return claim.Value;
   }
 
   private async Task<LoginResponse> GetApiResponseAsync(string url, object request)

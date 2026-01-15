@@ -10,6 +10,6 @@ public interface IAuthenticationService
   Task RegisterAsync(UserRegisterRequest request);
   Task<bool> RefreshAsync();
 
-  string GetUsername(string token);
+  string GetUserId(string token);
   string GetUserRole(string token);
 }
