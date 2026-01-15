@@ -21,28 +21,18 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
       return new AuthenticationState(new ClaimsPrincipal());
     }
 
-    var userName = _authenticationService.GetUsername(token);
+    var userId = _authenticationService.GetUserId(token);
     var userRole = _authenticationService.GetUserRole(token);
 
-    ClaimsIdentity? identity =
-      new(new[] { new Claim(ClaimTypes.Name, userName), new Claim(ClaimTypes.Role, userRole) },
+    var identity =
+      new ClaimsIdentity(new[]
+        {
+          new Claim(ClaimTypes.Sid, userId),
+          new Claim(ClaimTypes.Role, userRole)
+        },
         "apiauth"); // Simplified
 
-    ClaimsPrincipal? user = new(identity);
+    var user = new ClaimsPrincipal(identity);
     return new AuthenticationState(user);
-  }
-
-  public void NotifyUserAuthentication()
-  {
-    ClaimsIdentity? identity = new(new[] { new Claim(ClaimTypes.Name, "User") }, "apiauth");
-    ClaimsPrincipal? user = new(identity);
-    NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
-  }
-
-  public void NotifyUserLogout()
-  {
-    ClaimsIdentity? identity = new();
-    ClaimsPrincipal? user = new(identity);
-    NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
   }
 }
