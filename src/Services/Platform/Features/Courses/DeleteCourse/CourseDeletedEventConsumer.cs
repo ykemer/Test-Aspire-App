@@ -7,19 +7,14 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace Platform.Features.Courses.DeleteCourse;
 
-public class CourseDeletedEventConsumer: IConsumer<CourseDeletedEvent>
+public class CourseDeletedEventConsumer : IConsumer<CourseDeletedEvent>
 {
   private readonly IHubContext<CoursesHub> _hubContext;
 
-  public CourseDeletedEventConsumer(IHubContext<CoursesHub> hubContext)
-  {
-    _hubContext = hubContext;
-  }
+  public CourseDeletedEventConsumer(IHubContext<CoursesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<CourseDeletedEvent> context)
-  {
+  public async Task Consume(ConsumeContext<CourseDeletedEvent> context) =>
     await _hubContext.Clients
       .User(context.Message.UserId).SendAsync(CourseHubMessage.CourseDeleted,
         "Course deleted successfully.");
-  }
 }

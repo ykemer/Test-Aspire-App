@@ -10,7 +10,22 @@ public class CreateCourseCommandValidator : Validator<CreateCourseRequest>
 {
   public CreateCourseCommandValidator()
   {
-    RuleFor(course => course.Name).NotEmpty().WithMessage("Name can not be empty");
-    RuleFor(course => course.Description).NotEmpty().WithMessage("Description can not be empty");
+    RuleFor(course => course.Name)
+      .NotNull()
+      .NotEmpty()
+      .WithMessage("Name can not be empty")
+      .MinimumLength(3)
+      .WithMessage("Name must be at least 3 characters long")
+      .MaximumLength(100)
+      .WithMessage("Name can not exceed 100 characters");
+
+    RuleFor(course => course.Description)
+      .NotNull()
+      .NotEmpty()
+      .WithMessage("Description can not be empty")
+      .MinimumLength(3)
+      .WithMessage("Name must be at least 3 characters long")
+      .MaximumLength(500)
+      .WithMessage("Name can not exceed 100 characters");
   }
 }

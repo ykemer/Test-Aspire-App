@@ -10,7 +10,6 @@ using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Middleware.Grpc;
 using Platform.Common.Services.User;
-using Platform.Features.Courses.CreateCourse;
 
 namespace Platform.Features.Courses.GetCourse;
 
@@ -35,7 +34,6 @@ public class GetCourseEndpoint : EndpointWithoutRequest<ErrorOr<CourseResponse>>
   {
     Get("/api/courses/{CourseId}");
     Policies("RequireUserRole");
-
     Description(x => x.WithTags("Courses"));
   }
 

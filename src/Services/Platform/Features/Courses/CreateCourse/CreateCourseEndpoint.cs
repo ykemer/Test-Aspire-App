@@ -30,7 +30,6 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
   {
     Post("/api/courses");
     Policies("RequireAdministratorRole");
-
     Description(x => x.WithTags("Courses"));
   }
 
@@ -47,7 +46,7 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
       {
         Name = createCourseCommand.Name, Description = createCourseCommand.Description, UserId = userId
       },
-      cancellationToken: ct);
+      ct);
 
     return Result.Success;
   }

@@ -17,7 +17,8 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
   private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public DeleteCourseEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider, IUserService userService)
+  public DeleteCourseEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider,
+    IUserService userService)
   {
     _outputCache = outputCache;
     _sendEndpointProvider = sendEndpointProvider;
@@ -28,7 +29,6 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
   {
     Delete("/api/courses/{CourseId}");
     Policies("RequireAdministratorRole");
-
     Description(x => x.WithTags("Courses"));
   }
 
@@ -41,11 +41,7 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
     var sendUri = new Uri("queue:delete-course-command");
 
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-    await endpoint.Send(new DeleteCourseCommand
-    {
-      CourseId = id.ToString(),
-      UserId = userId
-    }, cancellationToken: ct);
+    await endpoint.Send(new DeleteCourseCommand { CourseId = id.ToString(), UserId = userId }, ct);
 
     return Result.Deleted;
   }

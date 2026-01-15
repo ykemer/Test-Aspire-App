@@ -38,11 +38,8 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   {
     Get("/api/courses");
     Policies("RequireUserRole");
-    Claims("UserId");
-    Claims(ClaimTypes.Role);
     ResponseCache(60);
     Options(x => x.RequireRateLimiting("fixed-per-user"));
-
     Description(x => x.WithTags("Courses"));
   }
 
@@ -52,7 +49,6 @@ public class ListCoursesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   {
     var enrolledClassesList = new List<string>();
     var enrolledCoursesList = new List<string>();
-
 
     var isAdmin = User.IsInRole("Administrator");
 
