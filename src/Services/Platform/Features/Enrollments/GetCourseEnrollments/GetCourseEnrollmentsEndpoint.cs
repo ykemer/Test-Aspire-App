@@ -30,7 +30,6 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
     Get("/api/courses/{CourseId}/enrollments");
     Policies("RequireAdministratorRole");
     Options(x => x.RequireRateLimiting("fixed-per-user"));
-
     Description(x => x.WithTags("Enrollments"));
   }
 

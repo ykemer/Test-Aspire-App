@@ -1,11 +1,12 @@
-﻿using Contracts.Enrollments.Commands;
+﻿using System.Security.Claims;
+
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 
 using MassTransit;
 
-using Platform.Common.Database;
 using Platform.Common.Middleware.Grpc;
 using Platform.Common.Services.User;
 
@@ -38,8 +39,6 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
   {
     Post("/api/courses/{CourseId}/classes/{ClassId}/enroll");
     Policies("RequireUserRole");
-    Claims("UserId");
-
     Description(x => x.WithTags("Enrollments"));
   }
 

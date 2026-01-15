@@ -1,4 +1,6 @@
-﻿using Contracts.Enrollments.Commands;
+﻿using System.Security.Claims;
+
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
@@ -38,8 +40,6 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
   {
     Post("/api/courses/{CourseId}/classes/{ClassId}/unenroll");
     Policies("RequireUserRole");
-    Claims("UserId");
-
     Description(x => x.WithTags("Enrollments"));
   }
 
