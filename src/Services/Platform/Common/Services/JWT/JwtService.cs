@@ -20,41 +20,34 @@ public class JwtService : IJwtService
 
   public async Task<JwtTokenServiceResponse> GenerateJwtToken(ApplicationUser user)
   {
+    var secret = Environment.GetEnvironmentVariable("JWT_SIGN_KEY")
+                 ?? throw new InvalidOperationException("Missing JWT_SIGN_KEY");
+    var issuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER")
+                 ?? throw new InvalidOperationException("Missing JWT_KEY_ISSUER");
+    var audience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE")
+                   ?? throw new InvalidOperationException("Missing JWT_KEY_AUDIENCE");
+
     var expiresAt = DateTime.UtcNow.AddMinutes(15);
     var roles = await _signInManager.UserManager.GetRolesAsync(user);
+
     var jwtToken = JwtBearer.CreateToken(o =>
     {
-      o.SigningKey = Environment.GetEnvironmentVariable("JWT_SIGN_KEY") ?? string.Empty;
-      o.Issuer = Environment.GetEnvironmentVariable("JWT_KEY_ISSUER");
-      o.Audience = Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE");
+      o.SigningKey = secret;
+      o.Issuer = issuer;
+      o.Audience = audience;
       o.ExpireAt = expiresAt;
-      o.User.Claims.Add((ClaimTypes.Name, user.FirstName));
-      o.User.Claims.Add((ClaimTypes.Surname, user.LastName));
-      o.User.Claims.Add((ClaimTypes.Email, user.Email!));
-      o.User.Claims.Add((ClaimTypes.Role, roles.FirstOrDefault()!));
-      o.User.Claims.Add((ClaimTypes.Sid, user.Id));
-      o.User.Roles.Add(roles.ToArray());
-      o.User["UserId"] = user.Id; //indexer based claim setting
+
+      // Minimal, non-PII claims: subject (user id) and roles
+      o.User.Claims.Add(new Claim(ClaimTypes.Sid, user.Id));
+      // Add roles as individual claims
+      foreach (var r in roles)
+        o.User.Claims.Add(new Claim(ClaimTypes.Role, r));
     });
 
     return new JwtTokenServiceResponse
     {
-      AccessToken = jwtToken, ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
+      AccessToken = jwtToken,
+      ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
     };
-  }
-
-  private ClaimsPrincipal? GetPrincipalFromExpiredToken(string token)
-  {
-    var secret = Environment.GetEnvironmentVariable("JWT_SIGN_KEY");
-
-    TokenValidationParameters? validation = new()
-    {
-      ValidIssuer = "https+http://platform", // Environment.GetEnvironmentVariable("JWT_KEY_ISSUER"),
-      ValidAudience = "https+http://platform", //Environment.GetEnvironmentVariable("JWT_KEY_AUDIENCE"),
-      IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secret)),
-      ValidateLifetime = false
-    };
-
-    return new JwtSecurityTokenHandler().ValidateToken(token, validation, out _);
   }
 }
