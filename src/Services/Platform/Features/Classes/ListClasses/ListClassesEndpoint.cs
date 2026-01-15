@@ -38,13 +38,12 @@ public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedLis
   {
     Get("/api/courses/{CourseId}/classes");
     Policies("RequireUserRole");
-    Claims("UserId");
     ResponseCache(60);
     Options(x => x.RequireRateLimiting("fixed-per-user"));
     Description(x => x.WithTags("Classes"));
   }
 
-  [OutputCache(PolicyName = "CoursesCache")]
+  [OutputCache(PolicyName = "ClassesCache")]
   public override async Task<ErrorOr<PagedList<ClassListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {

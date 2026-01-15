@@ -38,8 +38,10 @@ public class GetCourseEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<
     CancellationToken ct)
   {
     var id = Route<Guid>("CourseId");
+
     var coursesRequest =
-      _coursesGrpcService.GetCourseAsync(new GrpcGetCourseRequest { Id = id.ToString() }, cancellationToken: ct);
+      _coursesGrpcService.GetCourseAsync(
+        new GrpcGetCourseRequest { Id = id.ToString(), EnrolledClasses = {  }, ShowAll = true }, cancellationToken: ct);
 
     var coursesResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
     if (coursesResult.IsError)
