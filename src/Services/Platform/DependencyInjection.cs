@@ -209,7 +209,6 @@ public static class DependencyInjection
           t["Students"] = "Possible operations related to Students";
           t["Enrollments"] = "Possible operations related to Enrollments";
         };
-
       });
 
     services.AddSignalR();
