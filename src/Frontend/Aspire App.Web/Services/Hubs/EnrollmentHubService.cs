@@ -10,16 +10,16 @@ namespace Aspire_App.Web.Services.Hubs;
 
 public class EnrollmentHubService : AbstractHubService
 {
-
   private static readonly string[] s_enrollmentEvents =
   [
     EnrollmentHubMessages.EnrollmentCreated,
     EnrollmentHubMessages.EnrollmentCreateRequestRejected,
     EnrollmentHubMessages.EnrollmentDeleted,
-    EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
+    EnrollmentHubMessages.EnrollmentDeleteRequestRejected
   ];
 
-  public EnrollmentHubService(IConfiguration configuration, IAuthenticationService authenticationService): base(configuration, authenticationService, "/enrollmentHub")
+  public EnrollmentHubService(IConfiguration configuration, IAuthenticationService authenticationService) : base(
+    configuration, authenticationService, "/enrollmentHub")
   {
   }
 
@@ -28,7 +28,10 @@ public class EnrollmentHubService : AbstractHubService
 
   protected override void RegisterHandlers()
   {
-    if (HubConnection == null) return;
+    if (HubConnection == null)
+    {
+      return;
+    }
 
     foreach (var eventName in s_enrollmentEvents)
     {

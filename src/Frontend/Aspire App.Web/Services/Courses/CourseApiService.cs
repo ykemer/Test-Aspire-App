@@ -19,14 +19,15 @@ public class CoursesApiService : ICoursesApiService
     CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"{CoursesUri}?page={page}&pageSize={pageSize}", cancellationToken);
-    var result = await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<CourseListItemResponse>>(response, "Courses not found");
+    var result =
+      await FrontendHelper.ReadJsonOrThrowForErrors<PagedList<CourseListItemResponse>>(response, "Courses not found");
     return result!;
   }
 
   public async Task<CourseResponse> GetCourse(Guid guid, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"/api/courses/{guid}", cancellationToken);
-    var result =  await FrontendHelper.ReadJsonOrThrowForErrors<CourseResponse>(response, "Course not found");
+    var result = await FrontendHelper.ReadJsonOrThrowForErrors<CourseResponse>(response, "Course not found");
     return result!;
   }
 
@@ -34,7 +35,8 @@ public class CoursesApiService : ICoursesApiService
     CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.GetAsync($"/api/courses/{guid}/enrollments", cancellationToken);
-    var result =  await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    var result =
+      await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
     return result!;
   }
 

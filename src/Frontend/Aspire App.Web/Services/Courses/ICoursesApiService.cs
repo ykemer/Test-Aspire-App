@@ -1,5 +1,4 @@
-﻿using Contracts.Classes.Requests;
-using Contracts.Common;
+﻿using Contracts.Common;
 using Contracts.Courses.Requests;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;
@@ -16,12 +15,7 @@ public interface ICoursesApiService
 
   Task CreateCourse(CreateCourseRequest createCourseRequest, CancellationToken cancellationToken = default);
   Task DeleteCourse(Guid id, CancellationToken cancellationToken = default);
-  Task UpdateCourse(Guid courseId, UpdateCourseRequest updateCourseRequest, CancellationToken cancellationToken = default);
 
-
-
-
-
-
-
+  Task UpdateCourse(Guid courseId, UpdateCourseRequest updateCourseRequest,
+    CancellationToken cancellationToken = default);
 }

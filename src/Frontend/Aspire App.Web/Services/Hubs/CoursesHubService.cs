@@ -30,7 +30,10 @@ public class CoursesHubService : AbstractHubService
 
   protected override void RegisterHandlers()
   {
-    if (HubConnection == null) return;
+    if (HubConnection == null)
+    {
+      return;
+    }
 
     foreach (var eventName in s_courseEvents)
     {

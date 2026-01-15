@@ -2,7 +2,7 @@ using Contracts.Enrollments.Requests;
 
 namespace Aspire_App.Web.Services.Courses;
 
-public class EnrollmentApiService: IEnrollmentApiService
+public class EnrollmentApiService : IEnrollmentApiService
 {
   private const string CoursesUri = "/api/courses";
   private readonly HttpClient _httpClient;
@@ -19,7 +19,7 @@ public class EnrollmentApiService: IEnrollmentApiService
   public async Task LeaveCourse(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.PostAsJsonAsync($"/api/courses/{courseId}/classes/{classId}/unenroll",
-      new ChangeCourseEnrollmentRequest { }, cancellationToken);
+      new ChangeCourseEnrollmentRequest(), cancellationToken);
     response.EnsureSuccessStatusCode();
   }
 

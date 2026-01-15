@@ -10,5 +10,4 @@ public interface IEnrollmentApiService
 
   Task EnrollToCourseByAdmin(string courseId, string classId, string studentId,
     CancellationToken cancellationToken = default);
-
 }

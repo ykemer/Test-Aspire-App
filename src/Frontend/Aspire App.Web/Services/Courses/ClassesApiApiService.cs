@@ -12,10 +12,7 @@ public class ClassesApiApiService : IClassesApiService
   private const string CoursesUri = "/api/courses";
   private readonly HttpClient _httpClient;
 
-  public ClassesApiApiService(HttpClient httpClient)
-  {
-    _httpClient = httpClient;
-  }
+  public ClassesApiApiService(HttpClient httpClient) => _httpClient = httpClient;
 
   public async Task<PagedList<ClassListItemResponse>> GetClassListAsync(string courseId, int page, int pageSize = 10,
     CancellationToken cancellationToken = default)
@@ -39,7 +36,8 @@ public class ClassesApiApiService : IClassesApiService
   {
     var response =
       await _httpClient.GetAsync($"/api/courses/{courseId}/classes/{classId}/enrollments", cancellationToken);
-    var result = await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
+    var result =
+      await FrontendHelper.ReadJsonOrThrowForErrors<List<EnrollmentResponse>>(response, "Enrollments not found");
     return result!;
   }
 
@@ -51,7 +49,7 @@ public class ClassesApiApiService : IClassesApiService
       RegistrationDeadline = createClassRequest.RegistrationDeadline.ToUniversalTime(),
       CourseStartDate = createClassRequest.CourseStartDate.ToUniversalTime(),
       CourseEndDate = createClassRequest.CourseEndDate.ToUniversalTime(),
-      MaxStudents = createClassRequest.MaxStudents,
+      MaxStudents = createClassRequest.MaxStudents
     };
 
     var response =
@@ -73,7 +71,7 @@ public class ClassesApiApiService : IClassesApiService
       RegistrationDeadline = updateCourseRequest.RegistrationDeadline.ToUniversalTime(),
       CourseStartDate = updateCourseRequest.CourseStartDate.ToUniversalTime(),
       CourseEndDate = updateCourseRequest.CourseEndDate.ToUniversalTime(),
-      MaxStudents = updateCourseRequest.MaxStudents,
+      MaxStudents = updateCourseRequest.MaxStudents
     };
     var response =
       await _httpClient.PutAsJsonAsync($"/api/courses/{courseId}/classes/{classId}", command,

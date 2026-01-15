@@ -6,9 +6,9 @@ namespace Aspire_App.Web.Services.Hubs;
 
 public abstract class AbstractHubService
 {
-  protected HubConnection? HubConnection;
-  private readonly string _hubUrl;
   private readonly IAuthenticationService _authenticationService;
+  private readonly string _hubUrl;
+  protected HubConnection? HubConnection;
 
   protected AbstractHubService(IConfiguration configuration, IAuthenticationService authenticationService,
     string hubEndpoint)
