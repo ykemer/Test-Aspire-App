@@ -1,7 +1,6 @@
 using Aspire_App.Web;
 using Aspire_App.Web.Components;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add service defaults & Aspire components.

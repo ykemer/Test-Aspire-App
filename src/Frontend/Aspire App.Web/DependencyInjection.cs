@@ -5,6 +5,7 @@ using Aspire_App.Web.Services.Courses;
 using Aspire_App.Web.Services.Hubs;
 using Aspire_App.Web.Services.Students;
 using Aspire_App.Web.Services.TokenServices;
+using Aspire_App.Web.Services.UserService;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -21,7 +22,6 @@ public static class DependencyInjection
 {
   public static IServiceCollection AddWebServices(this IServiceCollection services, IConfiguration configuration)
   {
-
     var platformServiceUrl = configuration["services:platformService:https:0"];
 
     if (string.IsNullOrEmpty(platformServiceUrl))
@@ -38,6 +38,7 @@ public static class DependencyInjection
     services.AddScoped<ICookiesService, CookiesService>();
     services.AddScoped<AuthenticationStateProvider, ApiAuthenticationStateProvider>();
     services.AddScoped<IAuthenticationService, AuthenticationService>();
+    services.AddScoped<IUserService, UserService>();
 
     services.AddScoped<ITokenService, RedisTokenService>();
     services.AddScoped<BearerTokenInterceptor>();
@@ -48,20 +49,24 @@ public static class DependencyInjection
 
 
     services.AddHttpClient<IAuthenticationService, AuthenticationService>(client =>
-    {
-      client.BaseAddress = new Uri(platformServiceUrl);
-    }).AddResilienceHandler("AuthenticationHandler", builder =>
-    {
-      builder.AddRetry(new HttpRetryStrategyOptions
       {
-        MaxRetryAttempts = 3,
-        Delay = TimeSpan.FromSeconds(2),
-        BackoffType = DelayBackoffType.Exponential
+        client.BaseAddress = new Uri(platformServiceUrl);
+      })
+      .AddResilienceHandler("AuthenticationHandler", builder =>
+      {
+        builder.AddRetry(new HttpRetryStrategyOptions
+        {
+          MaxRetryAttempts = 3, Delay = TimeSpan.FromSeconds(2), BackoffType = DelayBackoffType.Exponential
+        });
+        builder.AddTimeout(TimeSpan.FromSeconds(30));
       });
-      builder.AddTimeout(TimeSpan.FromSeconds(30));
-    });
 
     services.AddHttpClient<IStudentApiService, StudentApiService>(client =>
+    {
+      client.BaseAddress = new Uri(platformServiceUrl);
+    }).AddHttpMessageHandler<BearerTokenInterceptor>();
+
+    services.AddHttpClient<IUserService, UserService>(client =>
     {
       client.BaseAddress = new Uri(platformServiceUrl);
     }).AddHttpMessageHandler<BearerTokenInterceptor>();
@@ -95,4 +100,3 @@ public static class DependencyInjection
     return services;
   }
 }
-
