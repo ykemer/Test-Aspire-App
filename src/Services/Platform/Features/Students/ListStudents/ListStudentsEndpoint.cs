@@ -27,7 +27,6 @@ public class ListStudentsEndpoint : Endpoint<ListStudentsRequest, ErrorOr<PagedL
     Get("/api/students");
     Policies("RequireAdministratorRole");
     Options(x => x.RequireRateLimiting("fixed-per-user"));
-
     Description(x => x.WithTags("Students"));
   }
 
