@@ -39,7 +39,8 @@
               <div class="row g-3">
                 <div class="col-md-6">
                   <label for="RegistrationDeadline" class="form-label">Registration Deadline</label>
-                  <InputDate id="RegistrationDeadline" class="form-control" @bind-Value="createClassForm.RegistrationDeadline"/>
+                  <InputDate id="RegistrationDeadline" class="form-control"
+                             @bind-Value="createClassForm.RegistrationDeadline"/>
                   <ValidationMessage For="@(() => createClassForm.RegistrationDeadline)"/>
                 </div>
                 <div class="col-md-6">
@@ -114,6 +115,7 @@
     {
       StateHasChanged();
     }
+
     return Task.CompletedTask;
   }
 
@@ -157,4 +159,5 @@
   {
     _editContext.OnFieldChanged -= EditContext_OnFieldChanged;
   }
+
 }

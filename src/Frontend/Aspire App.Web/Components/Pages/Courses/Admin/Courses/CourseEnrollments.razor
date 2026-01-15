@@ -1,6 +1,6 @@
 ﻿@page "/admin/courses/{courseId:guid}/enrollments"
-@using Aspire_App.Web.Services.Courses
 @using Aspire_App.Web.Exceptions
+@using Aspire_App.Web.Services.Courses
 @using Contracts.Courses.Responses
 @using Contracts.Enrollments.Responses
 @attribute [Authorize]
@@ -98,6 +98,7 @@
       _redirectTo404 = false;
       NavigationManager.NavigateTo("/404", replace: true);
     }
+
     return Task.CompletedTask;
   }
 
@@ -117,4 +118,5 @@
       StateHasChanged();
     }
   }
+
 }

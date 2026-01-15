@@ -1,12 +1,12 @@
-﻿@implements IAsyncDisposable
-@page "/courses/{courseId:guid}/classes"
-@using Aspire_App.Web.Components.Shared
+﻿@using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
 @using Aspire_App.Web.Services.Hubs
 @using Contracts.Common
 @using Contracts.Courses.Responses
 @using Contracts.Enrollments.Hub
+@implements IAsyncDisposable
+@page "/courses/{courseId:guid}/classes"
 @attribute [Authorize]
 
 @rendermode InteractiveServer
@@ -86,30 +86,30 @@
                   {
                     <button class="btn btn-outline-danger btn-sm" disabled="@isLoading"
                             @onclick="() => UpdateEnrollment(courseClass.Id, EnrollmentAction.Leave)">
-                    @if (isLoading)
-                    {
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <span class="ms-1">Leaving...</span>
-                    }
-                    else
-                    {
-                      <span>Leave</span>
-                    }
+                      @if (isLoading)
+                      {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ms-1">Leaving...</span>
+                      }
+                      else
+                      {
+                        <span>Leave</span>
+                      }
                     </button>
                   }
                   else
                   {
                     <button class="btn btn-outline-primary btn-sm" disabled="@isLoading"
                             @onclick="() => UpdateEnrollment(courseClass.Id, EnrollmentAction.Enroll)">
-                    @if (isLoading)
-                    {
-                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                      <span class="ms-1">Enrolling...</span>
-                    }
-                    else
-                    {
-                      <span>Enroll</span>
-                    }
+                      @if (isLoading)
+                      {
+                        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                        <span class="ms-1">Enrolling...</span>
+                      }
+                      else
+                      {
+                        <span>Enroll</span>
+                      }
                     </button>
                   }
                 </td>
@@ -243,4 +243,5 @@
     _isHubInitialized = false;
     await EnrollmentHubService.StopConnectionAsync();
   }
+
 }

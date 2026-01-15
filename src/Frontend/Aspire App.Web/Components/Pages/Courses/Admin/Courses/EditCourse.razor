@@ -2,7 +2,6 @@
 @using Aspire_App.Web.Exceptions
 @using Aspire_App.Web.Helpers
 @using Aspire_App.Web.Services.Courses
-@using Contracts.Classes.Requests
 @using Contracts.Courses.Requests
 @rendermode InteractiveServer
 
@@ -25,7 +24,6 @@
           }
           else
           {
-
             @if (_errorMessage is not null)
             {
               <div class="alert alert-danger" role="alert">@_errorMessage</div>
@@ -95,6 +93,7 @@
       _redirectTo404 = false;
       NavigationManager.NavigateTo("/404", replace: true);
     }
+
     if (firstRender) StateHasChanged();
     return Task.CompletedTask;
   }

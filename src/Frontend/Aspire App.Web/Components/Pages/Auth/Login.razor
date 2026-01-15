@@ -32,13 +32,15 @@
 
               <div class="mb-3">
                 <label for="Email" class="form-label">Email</label>
-                <InputText id="Email" type="email" autocomplete="username" class="form-control" @bind-Value="loginForm.Email"/>
+                <InputText id="Email" type="email" autocomplete="username" class="form-control"
+                           @bind-Value="loginForm.Email"/>
                 <ValidationMessage For="@(() => loginForm.Email)"/>
               </div>
 
               <div class="mb-3">
                 <label for="Password" class="form-label">Password</label>
-                <InputText id="Password" type="password" autocomplete="current-password" class="form-control" @bind-Value="loginForm.Password"/>
+                <InputText id="Password" type="password" autocomplete="current-password" class="form-control"
+                           @bind-Value="loginForm.Password"/>
                 <ValidationMessage For="@(() => loginForm.Password)"/>
               </div>
 

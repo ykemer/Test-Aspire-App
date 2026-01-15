@@ -1,7 +1,6 @@
 ﻿@page "/admin/courses/{courseId:guid}/classes/{classId:guid}/enrollments"
-@using Aspire_App.Web.Services.Courses
 @using Aspire_App.Web.Exceptions
-@using Contracts.Courses.Requests
+@using Aspire_App.Web.Services.Courses
 @using Contracts.Courses.Responses
 @using Contracts.Enrollments.Responses
 @attribute [Authorize]
@@ -27,7 +26,8 @@
   {
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h1 class="h4 mb-0">Course "@_course.Name" @_class.CourseStartDate enrollments</h1>
-      <NavLink href="@($"/admin/courses/{CourseId}/classes")" class="btn btn-outline-secondary btn-sm">Back to classes</NavLink>
+      <NavLink href="@($"/admin/courses/{CourseId}/classes")" class="btn btn-outline-secondary btn-sm">Back to classes
+      </NavLink>
     </div>
   }
 
@@ -111,6 +111,7 @@
       _redirectTo404 = false;
       NavigationManager.NavigateTo("/404", replace: true);
     }
+
     return Task.CompletedTask;
   }
 
@@ -131,4 +132,5 @@
       StateHasChanged();
     }
   }
+
 }

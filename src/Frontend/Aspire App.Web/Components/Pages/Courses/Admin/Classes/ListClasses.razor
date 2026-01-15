@@ -1,13 +1,13 @@
-﻿@implements IAsyncDisposable
-@page "/admin/courses/{courseId:guid}/classes"
-@using Aspire_App.Web.Components.Shared
-@using Aspire_App.Web.Services.Courses
+﻿@using Aspire_App.Web.Components.Shared
 @using Aspire_App.Web.Exceptions
 @using Aspire_App.Web.Helpers
+@using Aspire_App.Web.Services.Courses
 @using Aspire_App.Web.Services.Hubs
 @using Contracts.Classes.Hub
 @using Contracts.Common
 @using Contracts.Courses.Responses
+@implements IAsyncDisposable
+@page "/admin/courses/{courseId:guid}/classes"
 @attribute [Authorize]
 
 @rendermode InteractiveServer
@@ -157,7 +157,7 @@
   [
     ClassHubMessage.ClassCreated,
     ClassHubMessage.ClassUpdated,
-    ClassHubMessage.ClassDeleted,
+    ClassHubMessage.ClassDeleted
   ];
 
   private static readonly string[] ClassHubErrorMessages =
@@ -279,4 +279,5 @@
     _isHubInitialized = false;
     await ClassesHubService.StopConnectionAsync();
   }
+
 }
