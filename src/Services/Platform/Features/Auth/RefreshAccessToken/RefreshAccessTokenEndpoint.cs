@@ -32,7 +32,6 @@ public class RefreshAccessTokenEndpoint : Endpoint<RefreshAccessTokenRequest, Er
   {
     Post("/api/auth/refresh");
     AllowAnonymous();
-
     Description(x => x.WithTags("Auth"));
   }
 

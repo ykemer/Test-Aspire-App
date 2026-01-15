@@ -25,7 +25,6 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
   {
     Post("/api/auth/revoke");
     AllowAnonymous();
-
     Description(x => x.WithTags("Auth"));
   }
 

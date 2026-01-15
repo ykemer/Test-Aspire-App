@@ -13,12 +13,20 @@ public class UserRegisterCommandValidator : Validator<UserRegisterRequest>
     RuleFor(student => student.FirstName)
       .NotNull()
       .NotEmpty()
-      .WithMessage("First Name can not be empty");
+      .WithMessage("First Name can not be empty")
+      .MinimumLength(3)
+      .WithMessage("First Name must be at least 3 characters long")
+      .MaximumLength(50)
+      .WithMessage("First Name can not be longer than 50 characters");
 
     RuleFor(student => student.LastName)
       .NotNull()
       .NotEmpty()
-      .WithMessage("Last Name can not be empty");
+      .WithMessage("Last Name can not be empty")
+      .MinimumLength(3)
+      .WithMessage("Last Name must be at least 3 characters long")
+      .MaximumLength(50)
+      .WithMessage("Last Name can not be longer than 50 characters");
 
     RuleFor(student => student.Email)
       .NotNull()

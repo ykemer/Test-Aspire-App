@@ -31,13 +31,12 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
   {
     Post("/api/auth/login");
     AllowAnonymous();
-
     Description(x => x.WithTags("Auth"));
   }
 
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserLoginRequest req, CancellationToken ct)
   {
-    var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, false);
+    var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, true);
     if (!result.Succeeded)
     {
       return Error.Unauthorized(description: "Invalid email or password");

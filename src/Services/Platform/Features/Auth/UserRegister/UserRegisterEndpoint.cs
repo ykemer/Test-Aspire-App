@@ -37,7 +37,6 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   {
     Post("/api/auth/register");
     AllowAnonymous();
-
     Description(x => x.WithTags("Auth"));
   }
 
