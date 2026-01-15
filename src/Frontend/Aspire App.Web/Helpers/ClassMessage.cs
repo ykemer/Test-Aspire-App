@@ -8,6 +8,6 @@ public struct ClassMessage
     Message = message;
   }
 
-  public string MessageType { get;  }
-  public string Message { get;  }
+  public string MessageType { get; }
+  public string Message { get; }
 }

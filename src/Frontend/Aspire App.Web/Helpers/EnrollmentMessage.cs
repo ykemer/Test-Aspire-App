@@ -8,12 +8,11 @@ public struct EnrollmentMessage
     Message = message;
   }
 
-  public string MessageType { get;  }
-  public string Message { get;  }
+  public string MessageType { get; }
+  public string Message { get; }
 }
 
-
-enum EnrollmentAction
+internal enum EnrollmentAction
 {
   Enroll,
   Leave
