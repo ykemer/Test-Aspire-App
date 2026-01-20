@@ -41,13 +41,8 @@ public class GetClassEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<E
     var classId = Route<Guid>("ClassId");
     var classRequest =
       _classesGrpcService.GetClassAsync(
-        new GrpcGetClassRequest
-        {
-          Id = classId.ToString(),
-          CourseId = courseId.ToString(),
-          EnrolledClasses = {  },
-          ShowAll = true,
-        }, cancellationToken: ct);
+        new GrpcGetClassRequest { Id = classId.ToString(), CourseId = courseId.ToString(), ShowAll = true },
+        cancellationToken: ct);
 
     var classResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(classRequest, ct);
     if (classResult.IsError)

@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-using ClassesGRPCClient;
+﻿using ClassesGRPCClient;
 
 using Contracts.Common;
 using Contracts.Courses.Requests;

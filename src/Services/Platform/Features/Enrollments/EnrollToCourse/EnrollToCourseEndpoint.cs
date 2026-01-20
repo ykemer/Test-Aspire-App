@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-using Contracts.Enrollments.Commands;
+﻿using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Requests;
 
 using FastEndpoints;

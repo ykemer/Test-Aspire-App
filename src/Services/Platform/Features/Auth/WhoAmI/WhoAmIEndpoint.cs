@@ -30,20 +30,21 @@ public class WhoAmIEndpoint : EndpointWithoutRequest<ErrorOr<UserInfoResponse>>
   public override async Task<ErrorOr<UserInfoResponse>> ExecuteAsync(CancellationToken cancellationToken)
   {
     var id = _userService.GetUserId(User).ToString();
-    if(string.IsNullOrEmpty(id))
+    if (string.IsNullOrEmpty(id))
+    {
       return Error.Unauthorized("User not found");
+    }
 
     var user = await _userManager.FindByIdAsync(id);
 
     if (user is null)
+    {
       return Error.Unauthorized("User not found");
+    }
 
     return new UserInfoResponse
     {
-      Id = user.Id,
-      FirstName = user.FirstName,
-      Email = user.Email!,
-      LastName = user.LastName
+      Id = user.Id, FirstName = user.FirstName, Email = user.Email!, LastName = user.LastName
     };
   }
 }
