@@ -25,7 +25,8 @@ public static class FrontendHelper
   }
 
 
-  public static async Task<T?> ReadJsonOrThrowForErrors<T>(HttpResponseMessage response, string notFoundMessage = "Record not found")
+  public static async Task<T?> ReadJsonOrThrowForErrors<T>(HttpResponseMessage response,
+    string notFoundMessage = "Record not found")
   {
     if (response.IsSuccessStatusCode)
     {

@@ -1,5 +1,4 @@
-﻿using Contracts.Users.Requests;
-using Contracts.Users.Responses;
+﻿using Contracts.Users.Responses;
 
 namespace Aspire_App.Web.Services.UserService;
 

@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+
 using Aspire_App.Web.Helpers;
 using Aspire_App.Web.Services.CookiesServices;
 
@@ -10,9 +11,9 @@ namespace Aspire_App.Web.Services.UserService;
 
 public class UserService : IUserService
 {
-  private readonly HttpClient _httpClient;
-  private readonly ICookiesService _cookiesService;
   private readonly IDistributedCache _cache;
+  private readonly ICookiesService _cookiesService;
+  private readonly HttpClient _httpClient;
 
   public UserService(HttpClient httpClient, IDistributedCache cache, ICookiesService cookiesService)
   {
@@ -25,9 +26,11 @@ public class UserService : IUserService
   {
     var cachedUser = await GetUserData();
     if (cachedUser != null)
+    {
       return cachedUser;
+    }
 
-    var response = await _httpClient.GetAsync($"api/auth/whoami",
+    var response = await _httpClient.GetAsync("api/auth/whoami",
       cancellationToken);
     var result =
       await FrontendHelper.ReadJsonOrThrowForErrors<UserInfoResponse>(response);
@@ -39,19 +42,22 @@ public class UserService : IUserService
 
     await SetUserNameAsync(result!, TimeSpan.FromHours(1));
     return result;
-
   }
 
   private async Task<UserInfoResponse?> GetUserData()
   {
     var userId = GetUserId();
     if (string.IsNullOrEmpty(userId))
+    {
       return null;
+    }
 
     var key = GetUserNameTokenCacheKey(userId);
     var data = await _cache.GetAsync(key);
     if (data == null || data.Length == 0)
+    {
       return null;
+    }
 
     try
     {
@@ -69,7 +75,9 @@ public class UserService : IUserService
   {
     var userId = GetUserId();
     if (string.IsNullOrEmpty(userId))
+    {
       return;
+    }
 
     var options = new DistributedCacheEntryOptions
     {

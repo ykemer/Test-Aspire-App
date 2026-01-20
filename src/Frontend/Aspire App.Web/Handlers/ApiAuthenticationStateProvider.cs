@@ -25,11 +25,7 @@ public class ApiAuthenticationStateProvider : AuthenticationStateProvider
     var userRole = _authenticationService.GetUserRole(token);
 
     var identity =
-      new ClaimsIdentity(new[]
-        {
-          new Claim(ClaimTypes.Sid, userId),
-          new Claim(ClaimTypes.Role, userRole)
-        },
+      new ClaimsIdentity(new[] { new Claim(ClaimTypes.Sid, userId), new Claim(ClaimTypes.Role, userRole) },
         "apiauth"); // Simplified
 
     var user = new ClaimsPrincipal(identity);
