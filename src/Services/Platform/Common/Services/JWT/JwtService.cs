@@ -1,11 +1,8 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
+﻿using System.Security.Claims;
 
 using FastEndpoints.Security;
 
 using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 using Platform.Common.Database.Entities;
 
@@ -41,13 +38,14 @@ public class JwtService : IJwtService
       o.User.Claims.Add(new Claim(ClaimTypes.Sid, user.Id));
       // Add roles as individual claims
       foreach (var r in roles)
+      {
         o.User.Claims.Add(new Claim(ClaimTypes.Role, r));
+      }
     });
 
     return new JwtTokenServiceResponse
     {
-      AccessToken = jwtToken,
-      ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
+      AccessToken = jwtToken, ExpiresIn = (long)(expiresAt - DateTime.UtcNow).TotalSeconds
     };
   }
 }
