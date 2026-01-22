@@ -25,26 +25,26 @@
     <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.1.0"/>
     <PackageReference Include="AspNetCore.HealthChecks.NpgSql" Version="9.0.0"/>
     <PackageReference Include="ErrorOr" Version="2.0.1"/>
-    <PackageReference Include="FastEndpoints" Version="7.1.1"/>
-    <PackageReference Include="FastEndpoints.Security" Version="7.1.1"/>
-    <PackageReference Include="FastEndpoints.Swagger" Version="7.1.1"/>
-    <PackageReference Include="Google.Protobuf" Version="3.33.2"/>
+    <PackageReference Include="FastEndpoints" Version="7.2.0" />
+    <PackageReference Include="FastEndpoints.Security" Version="7.2.0" />
+    <PackageReference Include="FastEndpoints.Swagger" Version="7.2.0" />
+    <PackageReference Include="Google.Protobuf" Version="3.33.4" />
     <PackageReference Include="Grpc.Net.Client" Version="2.76.0"/>
     <PackageReference Include="Grpc.Net.ClientFactory" Version="2.76.0"/>
     <PackageReference Include="Grpc.Tools" Version="2.76.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="MassTransit.Redis" Version="8.5.7"/>
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.1"/>
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.0"/>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.1">
+    <PackageReference Include="MassTransit.Redis" Version="9.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="10.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.2.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.1">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
