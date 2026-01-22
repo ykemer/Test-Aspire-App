@@ -92,12 +92,6 @@ await app.RunAsync();
 // TODO remove mediators
 
 
-// TODO add tests
-// TODO add fail handler - send message via SignalR
-// TODO switch class creation to masstransit command and add saga
-// TODO switch course creation to masstransit command and add saga
-// TODO switch course deletion to masstransit command and add saga
-// TODO switch class deletion to masstransit command and add saga
 
 
 // TODO update endpoints to return 204 where applicable
