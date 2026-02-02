@@ -88,8 +88,6 @@ await app.RunAsync();
 // TODO log unhandled
 // TODO validation problem
 // TODO password recovery
-// TODO RPC errors handling
-// TODO remove mediators
 
 
 
