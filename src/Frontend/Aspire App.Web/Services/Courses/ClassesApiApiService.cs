@@ -1,6 +1,7 @@
 using Aspire_App.Web.Helpers;
 
 using Contracts.Classes.Requests;
+using Contracts.Classes.Responses;
 using Contracts.Common;
 using Contracts.Courses.Responses;
 using Contracts.Enrollments.Responses;

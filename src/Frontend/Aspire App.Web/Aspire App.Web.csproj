@@ -9,13 +9,13 @@
     <ProjectReference Include="..\..\Infrastructure\Aspire App.ServiceDefaults\Aspire App.ServiceDefaults.csproj"/>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.1.0"/>
-    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.1.0"/>
-    <PackageReference Include="FastEndpoints" Version="7.2.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.2" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.2" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.15.0"/>
+    <PackageReference Include="Aspire.StackExchange.Redis.DistributedCaching" Version="13.1.2" />
+    <PackageReference Include="Aspire.StackExchange.Redis.OutputCaching" Version="13.1.2" />
+    <PackageReference Include="FastEndpoints" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.4" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.4" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.16.0" />
   </ItemGroup>
 
 </Project>

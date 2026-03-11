@@ -65,9 +65,7 @@ public static class FrontendHelper
       throw new Exception("Unexpected problem details format.");
     }
 
-    var statusCode = (int)response.StatusCode;
-
-    if (statusCode.Equals(HttpStatusCode.BadRequest))
+    if (response.StatusCode.Equals(HttpStatusCode.BadRequest))
     {
       var problemDetails = await response.Content.ReadFromJsonAsync<ProblemDetails>(s_jsonOptions);
       throw new ValidationException(problemDetails?.Errors.ToDictionary(e => e.Name, e => new[] { e.Reason }) ??
