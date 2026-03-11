@@ -10,8 +10,9 @@ public class GetCourseEnrollmentsMapperTests
   [Test]
   public void MapToGetCourseEnrollmentsQuery_MapsFields()
   {
-    var req = new GrpcGetCourseEnrollmentsRequest { CourseId = "course-1" };
+    var courseId = Guid.NewGuid();
+    var req = new GrpcGetCourseEnrollmentsRequest { CourseId = courseId.ToString() };
     var query = req.MapToGetCourseEnrollmentsQuery();
-    Assert.That(query.CourseId, Is.EqualTo("course-1"));
+    Assert.That(query.CourseId, Is.EqualTo(courseId));
   }
 }

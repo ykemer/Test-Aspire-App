@@ -34,6 +34,7 @@ public class EnrollStudentToClassCommandHandlerTests
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenAlreadyEnrolled()
   {
+    var studentId = Guid.NewGuid();
     var cls = Builder<Class>.CreateNew()
       .With(c => c.MaxStudents, 2)
       .With(c => c.RegistrationDeadline, DateTime.UtcNow.AddDays(1))
@@ -45,7 +46,7 @@ public class EnrollStudentToClassCommandHandlerTests
     var enrollment = Builder<Enrollment>.CreateNew()
       .With(e => e.CourseId, cls.CourseId)
       .With(e => e.ClassId, cls.Id)
-      .With(e => e.StudentId, "student-1")
+      .With(e => e.StudentId, studentId)
       .With(e => e.StudentFirstName, "John")
       .With(e => e.StudentLastName, "Doe")
       .Build();
@@ -57,7 +58,7 @@ public class EnrollStudentToClassCommandHandlerTests
     {
       CourseId = cls.CourseId,
       ClassId = cls.Id,
-      StudentId = "student-1",
+      StudentId = studentId,
       FirstName = "John",
       LastName = "Doe"
     };
@@ -82,6 +83,7 @@ public class EnrollStudentToClassCommandHandlerTests
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenRegistrationDeadlinePassed()
   {
+    var studentId = Guid.NewGuid();
     var cls = Builder<Class>.CreateNew()
       .With(c => c.RegistrationDeadline, DateTime.UtcNow.AddDays(-1))
       .With(c => c.CourseStartDate, DateTime.UtcNow.AddDays(1))
@@ -95,7 +97,7 @@ public class EnrollStudentToClassCommandHandlerTests
     {
       CourseId = cls.CourseId,
       ClassId = cls.Id,
-      StudentId = "student-1",
+      StudentId = studentId,
       FirstName = "John",
       LastName = "Doe"
     };
@@ -110,6 +112,8 @@ public class EnrollStudentToClassCommandHandlerTests
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenClassIsFull()
   {
+    var student1Id = Guid.NewGuid();
+    var student2Id = Guid.NewGuid();
     var cls = Builder<Class>.CreateNew()
       .With(c => c.RegistrationDeadline, DateTime.UtcNow.AddDays(1))
       .With(c => c.CourseStartDate, DateTime.UtcNow.AddDays(2))
@@ -122,7 +126,7 @@ public class EnrollStudentToClassCommandHandlerTests
     var enrollment = Builder<Enrollment>.CreateNew()
       .With(e => e.CourseId, cls.CourseId)
       .With(e => e.ClassId, cls.Id)
-      .With(e => e.StudentId, "student-1")
+      .With(e => e.StudentId, student1Id)
       .Build();
     await _dbContext.Enrollments.AddAsync(enrollment);
     await _dbContext.SaveChangesAsync();
@@ -131,7 +135,7 @@ public class EnrollStudentToClassCommandHandlerTests
     {
       CourseId = cls.CourseId,
       ClassId = cls.Id,
-      StudentId = "student-2",
+      StudentId = student2Id,
       FirstName = "Jane",
       LastName = "Doe"
     };
@@ -143,13 +147,14 @@ public class EnrollStudentToClassCommandHandlerTests
   }
 
   [Test]
-  public async Task Handle_ShouldCreateEnrollment_WhenValid()
+  public async Task Handle_ShouldEnrollStudentSuccessfully()
   {
+    var studentId = Guid.NewGuid();
     var cls = Builder<Class>.CreateNew()
+      .With(c => c.MaxStudents, 2)
       .With(c => c.RegistrationDeadline, DateTime.UtcNow.AddDays(1))
       .With(c => c.CourseStartDate, DateTime.UtcNow.AddDays(2))
       .With(c => c.CourseEndDate, DateTime.UtcNow.AddDays(3))
-      .With(c => c.MaxStudents, 2)
       .Build();
     await _dbContext.Classes.AddAsync(cls);
     await _dbContext.SaveChangesAsync();
@@ -158,7 +163,7 @@ public class EnrollStudentToClassCommandHandlerTests
     {
       CourseId = cls.CourseId,
       ClassId = cls.Id,
-      StudentId = "student-1",
+      StudentId = studentId,
       FirstName = "John",
       LastName = "Doe"
     };
@@ -166,6 +171,13 @@ public class EnrollStudentToClassCommandHandlerTests
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
     Assert.That(result.IsError, Is.False);
-    Assert.That(await _dbContext.Enrollments.CountAsync(), Is.EqualTo(1));
+
+    var enrollment = await _dbContext.Enrollments.FirstOrDefaultAsync(e =>
+      e.StudentId == studentId && e.ClassId == cls.Id);
+
+    Assert.That(enrollment, Is.Not.Null);
+    Assert.That(enrollment.StudentId, Is.EqualTo(studentId));
+    Assert.That(enrollment.CourseId, Is.EqualTo(cls.CourseId));
+    Assert.That(enrollment.ClassId, Is.EqualTo(cls.Id));
   }
 }

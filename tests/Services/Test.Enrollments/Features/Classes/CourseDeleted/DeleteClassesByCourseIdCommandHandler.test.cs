@@ -32,7 +32,7 @@ public class DeleteClassesByCourseIdCommandHandlerTest
   [Test]
   public async Task Handle_ShouldReturnDeletedWhenNoClassesWithThisCourseIdExist()
   {
-    var request = new DeleteClassesByCourseIdCommand(Guid.NewGuid().ToString());
+    var request = new DeleteClassesByCourseIdCommand(Guid.NewGuid());
 
     var result = await _handler.Handle(request, CancellationToken.None);
 
@@ -44,13 +44,12 @@ public class DeleteClassesByCourseIdCommandHandlerTest
   {
     var existingCourse = Builder<Class>.CreateNew().Build();
     var existingEnrollment = Builder<Enrollment>.CreateNew()
-      .With(e => e.CourseId = existingCourse.CourseId)
-      .With(e => e.ClassId = existingCourse.Id)
+      .With(e => e.CourseId, existingCourse.CourseId)
+      .With(e => e.ClassId, existingCourse.Id)
       .Build();
 
     await _dbContext.Classes.AddAsync(existingCourse);
     await _dbContext.Enrollments.AddAsync(existingEnrollment);
-    ;
     await _dbContext.SaveChangesAsync();
 
     var request = new DeleteClassesByCourseIdCommand(existingCourse.CourseId);

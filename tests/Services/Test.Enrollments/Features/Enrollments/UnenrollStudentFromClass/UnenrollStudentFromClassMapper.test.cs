@@ -10,12 +10,15 @@ public class UnenrollStudentFromClassMapperTests
   [Test]
   public void MapToUnenrollStudentFromClassCommand_MapsAllFields()
   {
-    var req = new DeleteEnrollmentCommand { CourseId = "course-1", ClassId = "class-1", StudentId = "student-1" };
+    var courseId = Guid.NewGuid();
+    var classId = Guid.NewGuid();
+    var studentId = Guid.NewGuid();
+    var req = new DeleteEnrollmentCommand { CourseId = courseId, ClassId = classId, StudentId = studentId };
 
     var cmd = req.MapToUnenrollStudentFromClassCommand();
 
-    Assert.That(cmd.CourseId, Is.EqualTo("course-1"));
-    Assert.That(cmd.ClassId, Is.EqualTo("class-1"));
-    Assert.That(cmd.StudentId, Is.EqualTo("student-1"));
+    Assert.That(cmd.CourseId, Is.EqualTo(courseId));
+    Assert.That(cmd.ClassId, Is.EqualTo(classId));
+    Assert.That(cmd.StudentId, Is.EqualTo(studentId));
   }
 }

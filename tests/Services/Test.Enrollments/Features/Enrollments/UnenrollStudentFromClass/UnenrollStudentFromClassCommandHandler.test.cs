@@ -55,7 +55,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
     var cmd = new UnenrollStudentFromClassCommand
     {
-      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = Guid.NewGuid()
     };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
@@ -73,20 +73,18 @@ public class UnenrollStudentFromClassCommandHandlerTests
       .Build();
     await _dbContext.Classes.AddAsync(cls);
 
+    var studentId = Guid.NewGuid();
     var enrollment = Builder<Enrollment>.CreateNew()
       .With(e => e.CourseId, cls.CourseId)
       .With(e => e.ClassId, cls.Id)
-      .With(e => e.StudentId, "student-1")
+      .With(e => e.StudentId, studentId)
       .With(e => e.StudentFirstName, "John")
       .With(e => e.StudentLastName, "Doe")
       .Build();
     await _dbContext.Enrollments.AddAsync(enrollment);
     await _dbContext.SaveChangesAsync();
 
-    var cmd = new UnenrollStudentFromClassCommand
-    {
-      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
-    };
+    var cmd = new UnenrollStudentFromClassCommand { CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
@@ -104,20 +102,18 @@ public class UnenrollStudentFromClassCommandHandlerTests
       .Build();
     await _dbContext.Classes.AddAsync(cls);
 
+    var studentId = Guid.NewGuid();
     var enrollment = Builder<Enrollment>.CreateNew()
       .With(e => e.CourseId, cls.CourseId)
       .With(e => e.ClassId, cls.Id)
-      .With(e => e.StudentId, "student-1")
+      .With(e => e.StudentId, studentId)
       .With(e => e.StudentFirstName, "John")
       .With(e => e.StudentLastName, "Doe")
       .Build();
     await _dbContext.Enrollments.AddAsync(enrollment);
     await _dbContext.SaveChangesAsync();
 
-    var cmd = new UnenrollStudentFromClassCommand
-    {
-      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = "student-1"
-    };
+    var cmd = new UnenrollStudentFromClassCommand { CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 

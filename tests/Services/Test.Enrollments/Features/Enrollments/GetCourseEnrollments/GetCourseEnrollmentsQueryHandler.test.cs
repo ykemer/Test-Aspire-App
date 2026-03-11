@@ -27,18 +27,21 @@ public class GetCourseEnrollmentsQueryHandlerTests
   [Test]
   public async Task Handle_ShouldReturnEnrollmentsForCourse()
   {
-    var e1 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, "course-1").Build();
-    var e2 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, "course-1").Build();
-    var eOther = Builder<Enrollment>.CreateNew().With(e => e.CourseId, "course-2").Build();
+    var courseId1 = Guid.NewGuid();
+    var courseId2 = Guid.NewGuid();
+
+    var e1 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, courseId1).Build();
+    var e2 = Builder<Enrollment>.CreateNew().With(e => e.CourseId, courseId1).Build();
+    var eOther = Builder<Enrollment>.CreateNew().With(e => e.CourseId, courseId2).Build();
 
     await _dbContext.Enrollments.AddRangeAsync(e1, e2, eOther);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseEnrollmentsQuery("course-1");
+    var query = new GetCourseEnrollmentsQuery(courseId1);
     var result = await _handler.Handle(query, CancellationToken.None);
 
     Assert.That(result.IsError, Is.False);
     Assert.That(result.Value.Count, Is.EqualTo(2));
-    Assert.That(result.Value.All(e => e.CourseId == "course-1"), Is.True);
+    Assert.That(result.Value.All(e => e.CourseId == courseId1), Is.True);
   }
 }

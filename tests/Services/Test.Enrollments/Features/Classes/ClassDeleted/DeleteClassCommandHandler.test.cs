@@ -33,7 +33,7 @@ public class DeleteClassByClassIdCommandHandlerTest
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenClassDoesNotExist()
   {
-    var request = new DeleteClassByClassIdCommand(Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
+    var request = new DeleteClassByClassIdCommand(Guid.NewGuid(), Guid.NewGuid());
 
     var result = await _handler.Handle(request, CancellationToken.None);
 
@@ -47,8 +47,8 @@ public class DeleteClassByClassIdCommandHandlerTest
   {
     var existingClass = Builder<Class>
       .CreateNew()
-      .With(c => c.Id, Guid.NewGuid().ToString())
-      .With(c => c.CourseId, Guid.NewGuid().ToString())
+      .With(c => c.Id, Guid.NewGuid())
+      .With(c => c.CourseId, Guid.NewGuid())
       .Build();
 
     var existingEnrollments = Builder<Enrollment>
@@ -77,8 +77,8 @@ public class DeleteClassByClassIdCommandHandlerTest
   {
     var existingClass = Builder<Class>
       .CreateNew()
-      .With(c => c.Id, Guid.NewGuid().ToString())
-      .With(c => c.CourseId, Guid.NewGuid().ToString())
+      .With(c => c.Id, Guid.NewGuid())
+      .With(c => c.CourseId, Guid.NewGuid())
       .Build();
 
 
