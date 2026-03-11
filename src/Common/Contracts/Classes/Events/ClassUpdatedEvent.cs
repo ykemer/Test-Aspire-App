@@ -2,8 +2,8 @@
 
 public record ClassUpdatedEvent
 {
-  public required string Id { get; init; }
-  public required string CourseId { get; init; }
+  public required Guid Id { get; init; }
+  public required Guid CourseId { get; init; }
 
   public required int MaxStudents { get; init; }
 

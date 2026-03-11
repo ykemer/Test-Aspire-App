@@ -1,4 +1,4 @@
-﻿namespace Contracts.Courses.Responses;
+﻿namespace Contracts.Classes.Responses;
 
 public class ClassListItemResponse
 {

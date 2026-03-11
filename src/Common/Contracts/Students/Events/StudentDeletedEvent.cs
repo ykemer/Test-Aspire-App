@@ -2,5 +2,5 @@
 
 public record StudentDeletedEvent
 {
-  public string StudentId { get; set; }
+  public Guid StudentId { get; set; }
 }

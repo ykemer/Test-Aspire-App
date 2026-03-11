@@ -4,5 +4,5 @@ namespace Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
 
 public class IncreaseStudentEnrollmentsCountSuccessEvent : Event
 {
-  public string StudentId { get; set; }
+  public Guid StudentId { get; set; }
 }

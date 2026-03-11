@@ -4,8 +4,8 @@ public class EnrollmentResponse
 {
   public string Id { get; init; }
 
-  public string CourseId { get; init; }
-  public string StudentId { get; init; }
+  public Guid CourseId { get; init; }
+  public Guid StudentId { get; init; }
   public DateTime EnrollmentDateTime { get; init; }
 
   public string FirstName { get; init; }

@@ -2,6 +2,6 @@
 
 public class DeleteCourseCommand
 {
-  public string CourseId { get; set; }
+  public Guid CourseId { get; set; }
   public string UserId { get; init; }
 }

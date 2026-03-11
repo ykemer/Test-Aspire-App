@@ -1,9 +1,9 @@
-﻿namespace Contracts.Courses.Responses;
+﻿namespace Contracts.Classes.Responses;
 
 public class ClassResponse
 {
-  public required string Id { get; init; }
-  public required string CourseId { get; init; }
+  public required Guid Id { get; init; }
+  public required Guid CourseId { get; init; }
 
   public required DateTime RegistrationDeadline { get; set; }
   public required DateTime CourseStartDate { get; set; }

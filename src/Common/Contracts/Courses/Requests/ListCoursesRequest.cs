@@ -4,5 +4,5 @@ namespace Contracts.Courses.Requests;
 
 public class ListCoursesRequest : PagedQuery
 {
-  public required string ClassId { get; set; }
+  public required Guid ClassId { get; set; }
 }

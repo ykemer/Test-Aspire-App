@@ -2,8 +2,8 @@
 
 public class ClassUpdateRejectionEvent
 {
-  public string CourseId { get; init; }
-  public string ClassId { get; init; }
+  public Guid CourseId { get; init; }
+  public Guid ClassId { get; init; }
   public string UserId { get; init; }
   public string Reason { get; init; }
 }
