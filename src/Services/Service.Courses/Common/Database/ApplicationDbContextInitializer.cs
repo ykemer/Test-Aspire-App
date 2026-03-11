@@ -34,7 +34,7 @@ public sealed class ApplicationDbContextInitializer
   {
     try
     {
-      // await TrySeedAsync();
+      await TrySeedAsync();
     }
     catch (Exception ex)
     {
@@ -52,31 +52,37 @@ public sealed class ApplicationDbContextInitializer
         {
           new()
           {
-            Name = "C#", Description = "C# course", TotalStudents = 0, Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"
+            Name = "C#",
+            Description = "C# course",
+            TotalStudents = 0,
+            Id = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0")
           },
           new()
           {
-            Name = "Java", Description = "Java course", TotalStudents = 0, Id = "363fa2a4-70a8-4391-bc54-a8b5267fb68a"
+            Name = "Java",
+            Description = "Java course",
+            TotalStudents = 0,
+            Id = Guid.Parse("363fa2a4-70a8-4391-bc54-a8b5267fb68a")
           },
           new()
           {
             Name = "Python",
             Description = "Python course",
             TotalStudents = 0,
-            Id = "e1a1c2b3-4d5e-6f7a-8b9c-0d1e2f3a4b5c"
-          } // <-- Unique Id
+            Id = Guid.Parse("e1a1c2b3-4d5e-6f7a-8b9c-0d1e2f3a4b5c")
+          }
         };
 
         await _context.Courses.AddRangeAsync(courses);
 
         var sharpClass = new Class
         {
-          CourseId = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
+          CourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"),
           CourseStartDate = DateTime.Now.AddDays(3),
           CourseEndDate = DateTime.Now.AddDays(15),
           RegistrationDeadline = DateTime.Now.AddDays(5),
           MaxStudents = 100,
-          Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"
+          Id = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626")
         };
 
         _context.Classes.Add(sharpClass);

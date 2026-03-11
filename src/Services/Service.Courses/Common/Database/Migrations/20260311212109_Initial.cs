@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Service.Courses.Migrations
+namespace Service.Courses.Common.Database.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -16,10 +16,11 @@ namespace Service.Courses.Migrations
                 name: "Courses",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    Name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Description = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
+                    Name = table.Column<string>(type: "text", maxLength: 255, nullable: false, comment: "Name of the course"),
+                    Description = table.Column<string>(type: "text", maxLength: 2048, nullable: false, comment: "Description of the course"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was created"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was last updated"),
                     TotalStudents = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -70,15 +71,15 @@ namespace Service.Courses.Migrations
                 name: "Classes",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    CourseId = table.Column<string>(type: "text", nullable: false),
-                    RegistrationDeadline = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CourseStartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CourseEndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    MaxStudents = table.Column<int>(type: "integer", nullable: false),
-                    TotalStudents = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Foreign key to the course"),
+                    RegistrationDeadline = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "Deadline for students to register for the class"),
+                    CourseStartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "Start date of the course"),
+                    CourseEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "End date of the course"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was created"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was last updated"),
+                    MaxStudents = table.Column<int>(type: "integer", nullable: false, comment: "Maximum number of students allowed in the class"),
+                    TotalStudents = table.Column<int>(type: "integer", nullable: false, defaultValue: 0, comment: "Total number of students currently enrolled in the class")
                 },
                 constraints: table =>
                 {
@@ -87,7 +88,8 @@ namespace Service.Courses.Migrations
                         name: "FK_Classes_Courses",
                         column: x => x.CourseId,
                         principalTable: "Courses",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(

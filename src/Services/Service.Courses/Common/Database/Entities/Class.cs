@@ -1,21 +1,18 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Service.Courses.Common.Database.Entities;
 
-[Index(nameof(CourseId))]
 public class Class
 {
-  [Key] [Required] public string Id { get; set; } = Guid.CreateVersion7().ToString();
-  [Required] public required string CourseId { get; set; }
+  public Guid Id { get; set; } = Guid.CreateVersion7();
+  public required Guid CourseId { get; set; }
 
-  [Required] public DateTime RegistrationDeadline { get; set; }
-  [Required] public DateTime CourseStartDate { get; set; }
-  [Required] public DateTime CourseEndDate { get; set; }
-  [Required] public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-  [Required] public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+  public DateTime RegistrationDeadline { get; set; }
+  public DateTime CourseStartDate { get; set; }
+  public DateTime CourseEndDate { get; set; }
+  public DateTime CreatedAt { get; set; }
+  public DateTime UpdatedAt { get; set; }
 
-  public int MaxStudents { get; set; } = 0;
+  public int MaxStudents { get; set; }
 
-  public int TotalStudents { get; set; } = 0;
+  public int TotalStudents { get; set; }
   public Course Course { get; set; }
 }

@@ -2,4 +2,4 @@
 
 namespace Service.Courses.Features.Courses.GetCourse;
 
-public record GetCourseQuery(string Id, List<string> EnrolledClasses, bool ShowAll) : IRequest<ErrorOr<Course>>;
+public record GetCourseQuery(Guid Id, List<Guid> EnrolledClasses, bool ShowAll) : IRequest<ErrorOr<Course>>;

@@ -4,10 +4,16 @@ using Service.Courses.Features.Courses.CreateCourse;
 
 namespace Service.Courses.Features.Courses.UpdateCourse;
 
-public class UpdateCourseValidator : AbstractValidator<CreateCourseCommand>
+public class UpdateCourseValidator : AbstractValidator<UpdateCourseCommand>
 {
   public UpdateCourseValidator()
   {
+    RuleFor(x => x.Id)
+      .NotNull().WithMessage("Id is required.")
+      .NotEmpty().WithMessage("Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Id cannot be the empty GUID.");
+
     RuleFor(x => x.Name)
       .NotNull()
       .NotEmpty()

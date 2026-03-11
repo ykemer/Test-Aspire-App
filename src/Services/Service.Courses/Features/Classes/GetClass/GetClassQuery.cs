@@ -2,5 +2,5 @@
 
 namespace Service.Courses.Features.Classes.GetClass;
 
-public record GetClassQuery(string Id, string CourseId, List<string> EnrolledClasses, bool ShowAll)
+public record GetClassQuery(Guid Id, Guid CourseId, List<Guid> EnrolledClasses, bool ShowAll)
   : IRequest<ErrorOr<Class>>;

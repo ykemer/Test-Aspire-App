@@ -29,7 +29,9 @@ public class DecreaseCourseEnrollmentsCountEventConsumer : IConsumer<DecreaseCla
     {
       await context.Publish(new DecreaseClassEnrollmentsCountSuccessEvent
       {
-        CourseId = context.Message.CourseId, EventId = context.Message.EventId
+        CourseId = context.Message.CourseId,
+        ClassId = context.Message.ClassId,
+        EventId = context.Message.EventId
       });
     }
   }

@@ -5,15 +5,14 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-
 using Service.Courses.Common.Database;
 
 #nullable disable
 
-namespace Service.Courses.Migrations
+namespace Service.Courses.Common.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251012220210_Initial")]
+    [Migration("20260311212109_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -21,7 +20,7 @@ namespace Service.Courses.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -194,35 +193,50 @@ namespace Service.Courses.Migrations
                     b.ToTable("OutboxState");
                 });
 
-            modelBuilder.Entity("Service.Courses.Database.Entities.Class", b =>
+            modelBuilder.Entity("Service.Courses.Common.Database.Entities.Class", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier");
 
                     b.Property<DateTime>("CourseEndDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("End date of the course");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid")
+                        .HasComment("Foreign key to the course");
 
                     b.Property<DateTime>("CourseStartDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Start date of the course");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was created");
 
                     b.Property<int>("MaxStudents")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Maximum number of students allowed in the class");
 
                     b.Property<DateTime>("RegistrationDeadline")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Deadline for students to register for the class");
 
                     b.Property<int>("TotalStudents")
-                        .HasColumnType("integer");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0)
+                        .HasComment("Total number of students currently enrolled in the class");
 
                     b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was last updated");
 
                     b.HasKey("Id");
 
@@ -231,26 +245,39 @@ namespace Service.Courses.Migrations
                     b.ToTable("Classes");
                 });
 
-            modelBuilder.Entity("Service.Courses.Database.Entities.Course", b =>
+            modelBuilder.Entity("Service.Courses.Common.Database.Entities.Course", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was created");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                        .HasMaxLength(2048)
+                        .HasColumnType("text")
+                        .HasComment("Description of the course");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                        .HasMaxLength(255)
+                        .HasColumnType("text")
+                        .HasComment("Name of the course");
 
                     b.Property<int>("TotalStudents")
                         .HasColumnType("integer");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was last updated");
 
                     b.HasKey("Id");
 
@@ -274,18 +301,19 @@ namespace Service.Courses.Migrations
                         .HasPrincipalKey("MessageId", "ConsumerId");
                 });
 
-            modelBuilder.Entity("Service.Courses.Database.Entities.Class", b =>
+            modelBuilder.Entity("Service.Courses.Common.Database.Entities.Class", b =>
                 {
-                    b.HasOne("Service.Courses.Database.Entities.Course", "Course")
+                    b.HasOne("Service.Courses.Common.Database.Entities.Course", "Course")
                         .WithMany("CourseClasses")
                         .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_Classes_Courses");
 
                     b.Navigation("Course");
                 });
 
-            modelBuilder.Entity("Service.Courses.Database.Entities.Course", b =>
+            modelBuilder.Entity("Service.Courses.Common.Database.Entities.Course", b =>
                 {
                     b.Navigation("CourseClasses");
                 });

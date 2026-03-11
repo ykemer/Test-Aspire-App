@@ -10,7 +10,7 @@ public static class ListCoursesMapper
       PageSize = request.PageSize,
       PageNumber = request.Page,
       Query = request.Query,
-      EnrolledClasses = [.. request.EnrolledClasses],
+      EnrolledClasses = request.EnrolledClasses.Select(Guid.Parse).ToList(),
       ShowAll = request.ShowAll
     };
 }

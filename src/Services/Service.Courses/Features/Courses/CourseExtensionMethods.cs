@@ -15,7 +15,10 @@ public static class CourseExtensionMethods
   public static GrpcCourseResponse MapToGrpcCourseResponse(this Course course) =>
     new()
     {
-      Id = course.Id, Name = course.Name, Description = course.Description, TotalStudents = course.TotalStudents
+      Id = course.Id.ToString(),
+      Name = course.Name,
+      Description = course.Description,
+      TotalStudents = course.TotalStudents
     };
 
   public static GrpcListCoursesResponse MapToGrpcListCoursesResponse(this PagedList<Course> coursesResponse) =>
@@ -32,8 +35,8 @@ public static class CourseExtensionMethods
   public static GrpcClassResponse MapToGrpcClassResponse(this Class courseClass) =>
     new()
     {
-      Id = courseClass.Id,
-      CourseId = courseClass.CourseId,
+      Id = courseClass.Id.ToString(),
+      CourseId = courseClass.CourseId.ToString(),
       RegistrationDeadline = DateTime.SpecifyKind(courseClass.RegistrationDeadline, DateTimeKind.Utc).ToTimestamp(),
       CourseStartDate = DateTime.SpecifyKind(courseClass.CourseStartDate, DateTimeKind.Utc).ToTimestamp(),
       CourseEndDate = DateTime.SpecifyKind(courseClass.CourseEndDate, DateTimeKind.Utc).ToTimestamp(),

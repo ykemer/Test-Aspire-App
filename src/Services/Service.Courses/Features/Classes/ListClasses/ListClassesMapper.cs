@@ -7,10 +7,10 @@ public static class ListClassesMapper
   public static ListClassesQuery MapToListClassesRequest(this GrpcListClassRequest request) =>
     new()
     {
-      CourseId = request.CourseId,
+      CourseId = Guid.Parse(request.CourseId),
       PageSize = request.PageSize,
       PageNumber = request.Page,
-      EnrolledClasses = [.. request.EnrolledClasses],
+      EnrolledClasses = request.EnrolledClasses.Select(Guid.Parse).ToList(),
       ShowAll = request.ShowAll
     };
 }

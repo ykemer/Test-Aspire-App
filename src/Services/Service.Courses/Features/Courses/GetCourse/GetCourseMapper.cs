@@ -5,5 +5,9 @@ namespace Service.Courses.Features.Courses.GetCourse;
 public static class GetCourseMapper
 {
   public static GetCourseQuery ToGetCourseQuery(this GrpcGetCourseRequest request) =>
-    new(request.Id, [.. request.EnrolledClasses], request.ShowAll);
+    new(
+      Guid.Parse(request.Id),
+      request.EnrolledClasses.Select(Guid.Parse).ToList(),
+      request.ShowAll
+    );
 }

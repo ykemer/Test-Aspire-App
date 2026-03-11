@@ -7,9 +7,10 @@ public class CreateClassCommandValidator : AbstractValidator<CreateClassCommand>
   public CreateClassCommandValidator()
   {
     RuleFor(x => x.CourseId)
-      .NotNull()
-      .NotEmpty()
-      .WithMessage("CourseId is required.");
+      .NotNull().WithMessage("CourseId is required.")
+      .NotEmpty().WithMessage("CourseId is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("CourseId cannot be the empty GUID.");
 
     RuleFor(x => x.RegistrationDeadline)
       .NotNull()
