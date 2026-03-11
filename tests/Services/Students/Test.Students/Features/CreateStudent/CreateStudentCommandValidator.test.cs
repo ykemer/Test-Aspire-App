@@ -17,7 +17,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = "john.doe@example.com",
@@ -33,7 +33,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.Empty.ToString(),
+      Id = Guid.Empty,
       FirstName = "John",
       LastName = "Doe",
       Email = "john.doe@example.com",
@@ -49,7 +49,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = null,
       LastName = "Doe",
       Email = "john.doe@example.com",
@@ -65,7 +65,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "",
       LastName = "Doe",
       Email = "john.doe@example.com",
@@ -81,7 +81,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = null,
       Email = "john.doe@example.com",
@@ -97,7 +97,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "",
       Email = "john.doe@example.com",
@@ -113,7 +113,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = null,
@@ -129,7 +129,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = "",
@@ -145,7 +145,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = "invalid-email",
@@ -161,7 +161,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = "john.doe@example.com",
@@ -177,7 +177,7 @@ public class CreateStudentCommandValidatorTests
   {
     var command = new CreateStudentCommand
     {
-      Id = Guid.NewGuid().ToString(),
+      Id = Guid.NewGuid(),
       FirstName = "John",
       LastName = "Doe",
       Email = "john.doe@example.com",

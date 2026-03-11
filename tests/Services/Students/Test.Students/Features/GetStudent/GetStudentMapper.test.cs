@@ -11,12 +11,13 @@ public class GetStudentMapperTest
   public void MapToGetStudentQuery_MapsId()
   {
     // Arrange
-    var request = new GrpcGetStudentByIdRequest { Id = "stud-123" };
+    var id = Guid.NewGuid();
+    var request = new GrpcGetStudentByIdRequest { Id = id.ToString() };
 
     // Act
     var result = request.MapToGetStudentQuery();
 
     // Assert
-    Assert.That(result.StudentId, Is.EqualTo("stud-123"));
+    Assert.That(result.StudentId, Is.EqualTo(id));
   }
 }

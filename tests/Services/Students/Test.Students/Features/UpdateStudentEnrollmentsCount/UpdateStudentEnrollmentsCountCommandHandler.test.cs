@@ -57,7 +57,7 @@ public class UpdateStudentEnrollmentsCountCommandHandlerTest
   public async Task Handle_ShouldReturnNotFound_WhenStudentDoesNotExist()
   {
     // Arrange
-    var command = new UpdateStudentEnrollmentsCountCommand("non-existing-student-id", true);
+    var command = new UpdateStudentEnrollmentsCountCommand(Guid.NewGuid(), true);
 
     // Act
     var result = await _commandHandler.Handle(command, CancellationToken.None);

@@ -10,7 +10,7 @@ public class CreateStudentMapperTest
   {
     var command = new CreateStudentCommand
     {
-      Id = "id-1",
+      Id = Guid.NewGuid(),
       FirstName = "First",
       LastName = "Last",
       Email = "some-email@email.com",

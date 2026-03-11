@@ -75,7 +75,7 @@ public class DeleteStudentCommandHandlerTest
   public async Task Handle_ShouldReturnNotFound_WhenStudentDoesNotExist()
   {
     // Arrange
-    var command = new DeleteStudentCommand("non-existing-student-id");
+    var command = new DeleteStudentCommand(Guid.NewGuid());
 
     // Act
     var result = await _commandHandler.Handle(command, CancellationToken.None);

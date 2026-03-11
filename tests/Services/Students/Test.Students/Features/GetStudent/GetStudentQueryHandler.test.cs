@@ -52,7 +52,7 @@ public class GetStudentQueryHandlerTest
   public async Task Handle_ShouldReturnNotFound_WhenStudentDoesNotExist()
   {
     // Arrange
-    var query = new GetStudentQuery("non-existing-student-id");
+    var query = new GetStudentQuery(Guid.NewGuid());
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);

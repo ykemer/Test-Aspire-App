@@ -46,7 +46,7 @@ public class StudentsServiceTests
     var student = Builder<Student>.CreateNew()
       .Build();
 
-    var request = new GrpcGetStudentByIdRequest { Id = student.Id };
+    var request = new GrpcGetStudentByIdRequest { Id = student.Id.ToString() };
 
 
     _mediatorMock
@@ -57,7 +57,7 @@ public class StudentsServiceTests
     var response = await _studentsService.GetStudentById(request, _context);
 
     // Assert
-    Assert.That(response.Id, Is.EqualTo(student.Id));
+    Assert.That(response.Id, Is.EqualTo(student.Id.ToString()));
   }
 
   [Test]

@@ -11,12 +11,13 @@ public class DeleteHandlerMapperTest
   public void MapToDeleteStudentCommand_MapsId()
   {
     // Arrange
-    var request = new GrpcDeleteStudentRequest { Id = "stud-xyz" };
+    var id = Guid.NewGuid();
+    var request = new GrpcDeleteStudentRequest { Id = id.ToString() };
 
     // Act
     var result = request.MapToDeleteStudentCommand();
 
     // Assert
-    Assert.That(result.StudentId, Is.EqualTo("stud-xyz"));
+    Assert.That(result.StudentId, Is.EqualTo(id));
   }
 }
