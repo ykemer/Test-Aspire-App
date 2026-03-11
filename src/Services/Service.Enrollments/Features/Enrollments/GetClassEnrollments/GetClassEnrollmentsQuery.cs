@@ -2,4 +2,4 @@
 
 namespace Service.Enrollments.Features.Enrollments.GetClassEnrollments;
 
-public record GetClassEnrollmentsQuery(string CourseId, string ClassId) : IRequest<ErrorOr<List<Enrollment>>>;
+public record GetClassEnrollmentsQuery(Guid CourseId, Guid ClassId) : IRequest<ErrorOr<List<Enrollment>>>;

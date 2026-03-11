@@ -9,19 +9,22 @@ public class EnrollStudentToClassCommandValidator : AbstractValidator<EnrollStud
   public EnrollStudentToClassCommandValidator()
   {
     RuleFor(x => x.CourseId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Course Id is required.")
+      .NotEmpty().WithMessage("Course Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Course id cannot be the empty GUID.");
 
     RuleFor(x => x.ClassId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Class Id is required.")
+      .NotEmpty().WithMessage("Class Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Class id cannot be the empty GUID.");
 
     RuleFor(x => x.StudentId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Student Id is required.")
+      .NotEmpty().WithMessage("Student Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Student id cannot be the empty GUID.");
 
     RuleFor(x => x.FirstName)
       .NotEmpty()

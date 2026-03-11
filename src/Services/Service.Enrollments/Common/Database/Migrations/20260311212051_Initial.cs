@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Service.Enrollments.Migrations
+namespace Service.Enrollments.Common.Database.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -16,12 +16,14 @@ namespace Service.Enrollments.Migrations
                 name: "Classes",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    CourseId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    MaxStudents = table.Column<int>(type: "integer", nullable: false),
-                    RegistrationDeadline = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CourseStartDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CourseEndDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Foreign key to the course"),
+                    MaxStudents = table.Column<int>(type: "integer", nullable: false, comment: "Maximum number of students allowed in the class"),
+                    RegistrationDeadline = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "Deadline for students to register for the class"),
+                    CourseStartDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "Start date of the course"),
+                    CourseEndDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "End date of the course"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was created"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was last updated")
                 },
                 constraints: table =>
                 {
@@ -71,13 +73,15 @@ namespace Service.Enrollments.Migrations
                 name: "Enrollments",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
                     EnrollmentDateTime = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    CourseId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    ClassId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    StudentId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    StudentFirstName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    StudentLastName = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false)
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Course identifier"),
+                    ClassId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Class foreign key"),
+                    StudentId = table.Column<Guid>(type: "uuid", nullable: false, comment: "Student identifier"),
+                    StudentFirstName = table.Column<string>(type: "text", maxLength: 100, nullable: false, comment: "Student's first name"),
+                    StudentLastName = table.Column<string>(type: "text", maxLength: 100, nullable: false, comment: "Student's last name"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was created"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was last updated")
                 },
                 constraints: table =>
                 {
@@ -132,11 +136,6 @@ namespace Service.Enrollments.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Classes_CourseId",
-                table: "Classes",
-                column: "CourseId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_ClassId",
                 table: "Enrollments",
                 column: "ClassId");
@@ -144,7 +143,8 @@ namespace Service.Enrollments.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_CourseId",
                 table: "Enrollments",
-                column: "CourseId");
+                column: "CourseId")
+                .Annotation("Npgsql:IndexMethod", "BTREE");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_StudentFirstName_StudentLastName",
@@ -156,7 +156,8 @@ namespace Service.Enrollments.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Enrollments_StudentId",
                 table: "Enrollments",
-                column: "StudentId");
+                column: "StudentId")
+                .Annotation("Npgsql:IndexMethod", "BTREE");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",

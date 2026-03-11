@@ -7,14 +7,16 @@ public class UpdateClassCommandValidator : AbstractValidator<UpdateClassCommand>
   public UpdateClassCommandValidator()
   {
     RuleFor(x => x.Id)
-      .NotNull()
-      .NotEmpty()
-      .WithMessage("Id is required.");
+      .NotNull().WithMessage("Id is required.")
+      .NotEmpty().WithMessage("Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Id cannot be the empty GUID.");
 
     RuleFor(x => x.CourseId)
-      .NotNull()
-      .NotEmpty()
-      .WithMessage("CourseId is required.");
+      .NotNull().WithMessage("Course Id is required.")
+      .NotEmpty().WithMessage("Course Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Course Id cannot be the empty GUID.");
 
     RuleFor(x => x.RegistrationDeadline)
       .NotNull()

@@ -22,7 +22,7 @@ public class ApplicationDbContext : DbContext
     modelBuilder.AddOutboxMessageEntity();
     modelBuilder.AddOutboxStateEntity();
 
-    modelBuilder.ApplyConfiguration(new CourseClassesConfiguration());
+    modelBuilder.ApplyConfiguration(new ClassConfiguration());
     modelBuilder.ApplyConfiguration(new EnrollmentConfiguration());
   }
 }

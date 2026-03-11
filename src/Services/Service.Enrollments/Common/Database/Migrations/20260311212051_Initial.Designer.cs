@@ -9,10 +9,10 @@ using Service.Enrollments.Common.Database;
 
 #nullable disable
 
-namespace Service.Enrollments.Migrations
+namespace Service.Enrollments.Common.Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20251012220609_Initial")]
+    [Migration("20260311212051_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace Service.Enrollments.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -195,65 +195,93 @@ namespace Service.Enrollments.Migrations
 
             modelBuilder.Entity("Service.Enrollments.Common.Database.Entities.Class", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier");
 
                     b.Property<DateTime>("CourseEndDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("End date of the course");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid")
+                        .HasComment("Foreign key to the course");
 
                     b.Property<DateTime>("CourseStartDate")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Start date of the course");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was created");
 
                     b.Property<int>("MaxStudents")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasComment("Maximum number of students allowed in the class");
 
                     b.Property<DateTime>("RegistrationDeadline")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Deadline for students to register for the class");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was last updated");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
 
                     b.ToTable("Classes");
                 });
 
             modelBuilder.Entity("Service.Enrollments.Common.Database.Entities.Enrollment", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier");
 
-                    b.Property<string>("ClassId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid")
+                        .HasComment("Class foreign key");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid")
+                        .HasComment("Course identifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was created");
 
                     b.Property<DateTime>("EnrollmentDateTime")
                         .HasColumnType("timestamp without time zone");
 
                     b.Property<string>("StudentFirstName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("text")
+                        .HasComment("Student's first name");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid")
+                        .HasComment("Student identifier");
 
                     b.Property<string>("StudentLastName")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                        .HasMaxLength(100)
+                        .HasColumnType("text")
+                        .HasComment("Student's last name");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Date and time when the class was last updated");
 
                     b.HasKey("Id");
 
@@ -261,7 +289,11 @@ namespace Service.Enrollments.Migrations
 
                     b.HasIndex("CourseId");
 
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("CourseId"), "BTREE");
+
                     b.HasIndex("StudentId");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("StudentId"), "BTREE");
 
                     b.HasIndex("StudentFirstName", "StudentLastName")
                         .HasAnnotation("Npgsql:TsVectorConfig", "english");

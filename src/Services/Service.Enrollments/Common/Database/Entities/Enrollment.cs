@@ -1,25 +1,26 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Service.Enrollments.Common.Database.Entities;
+﻿namespace Service.Enrollments.Common.Database.Entities;
 
 [Index(nameof(StudentId))]
 [Index(nameof(CourseId))]
 [Index(nameof(ClassId))]
 public class Enrollment
 {
-  [Key] public string Id { get; init; } = Guid.CreateVersion7().ToString();
+  public Guid Id { get; init; } = Guid.CreateVersion7();
 
   public DateTime EnrollmentDateTime { get; set; } = DateTime.Now;
 
-  [MaxLength(50)] public required string CourseId { get; set; }
+  public required Guid CourseId { get; set; }
 
-  [MaxLength(50)] public required string ClassId { get; set; }
+  public required Guid ClassId { get; set; }
 
-  [MaxLength(50)] public required string StudentId { get; set; }
+  public required Guid StudentId { get; set; }
 
-  [MaxLength(50)] public required string StudentFirstName { get; set; }
+  public required string StudentFirstName { get; set; }
 
-  [MaxLength(50)] public required string StudentLastName { get; set; }
+  public required string StudentLastName { get; set; }
+
+  public DateTime CreatedAt { get; set; }
+  public DateTime UpdatedAt { get; set; }
 
   public Class Class { get; set; }
 }

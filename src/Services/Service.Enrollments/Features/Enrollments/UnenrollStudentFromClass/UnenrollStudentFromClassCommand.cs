@@ -2,7 +2,7 @@
 
 public class UnenrollStudentFromClassCommand : IRequest<ErrorOr<Deleted>>
 {
-  public required string CourseId { get; init; }
-  public required string ClassId { get; init; }
-  public required string StudentId { get; init; }
+  public required Guid CourseId { get; init; }
+  public required Guid ClassId { get; init; }
+  public required Guid StudentId { get; init; }
 }

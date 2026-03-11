@@ -22,7 +22,7 @@ public class GetStudentEnrollmentsQueryHandler : IRequestHandler<GetStudentEnrol
       .AsNoTracking()
       .Where(e =>
         e.StudentId == request.StudentId &&
-        (string.IsNullOrEmpty(request.CourseId) || e.CourseId == request.CourseId)
+        (request.CourseId == null || e.CourseId == request.CourseId)
       )
       .ToListAsync(cancellationToken);
 

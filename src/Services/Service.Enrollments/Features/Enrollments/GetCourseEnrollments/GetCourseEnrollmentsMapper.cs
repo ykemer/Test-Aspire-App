@@ -5,5 +5,5 @@ namespace Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 public static class GetCourseEnrollmentsMapper
 {
   public static GetCourseEnrollmentsQuery
-    MapToGetCourseEnrollmentsQuery(this GrpcGetCourseEnrollmentsRequest request) => new(request.CourseId);
+    MapToGetCourseEnrollmentsQuery(this GrpcGetCourseEnrollmentsRequest request) => new(Guid.Parse(request.CourseId));
 }

@@ -9,18 +9,21 @@ public class UnenrollStudentFromClassCommandValidator : AbstractValidator<Unenro
   public UnenrollStudentFromClassCommandValidator()
   {
     RuleFor(x => x.CourseId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Course Id is required.")
+      .NotEmpty().WithMessage("Course Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Course Id cannot be the empty GUID.");
 
     RuleFor(x => x.ClassId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Class Id is required.")
+      .NotEmpty().WithMessage("Class Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Class Id cannot be the empty GUID.");
 
     RuleFor(x => x.StudentId)
-      .NotEmpty()
-      .MaximumLength(50)
-      .Must(Validators.IsValidGuid).WithMessage("Must be a valid GUID.");
+      .NotNull().WithMessage("Student Id is required.")
+      .NotEmpty().WithMessage("Student Id is required.")
+      .NotEqual(Guid.Empty)
+      .WithMessage("Student Id cannot be the empty GUID.");
   }
 }

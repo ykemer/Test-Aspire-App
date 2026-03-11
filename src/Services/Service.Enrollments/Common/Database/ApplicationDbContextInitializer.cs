@@ -34,7 +34,7 @@ public sealed class ApplicationDbContextInitializer
   {
     try
     {
-      // await TrySeedAsync();
+      await TrySeedAsync();
     }
     catch (Exception ex)
     {
@@ -50,12 +50,12 @@ public sealed class ApplicationDbContextInitializer
       {
         var sharpClass = new Class
         {
-          CourseId = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0",
+          CourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"),
           CourseStartDate = DateTime.Now.AddDays(3),
           CourseEndDate = DateTime.Now.AddDays(15),
           RegistrationDeadline = DateTime.Now.AddDays(5),
           MaxStudents = 100,
-          Id = "0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"
+          Id = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626")
         };
 
         _context.Classes.Add(sharpClass);
