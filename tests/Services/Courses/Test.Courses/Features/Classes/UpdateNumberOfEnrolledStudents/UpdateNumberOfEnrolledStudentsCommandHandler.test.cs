@@ -33,7 +33,7 @@ public class UpdateNumberOfEnrolledStudentsCommandHandlerTests
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
     // Arrange
-    var command = new UpdateNumberOfEnrolledStudentsCommand("bad-course-id", "bad-class-id", true);
+    var command = new UpdateNumberOfEnrolledStudentsCommand(Guid.NewGuid(), Guid.NewGuid(), true);
 
     // Act
     var result = await _commandHandler.Handle(command, CancellationToken.None);
@@ -51,7 +51,7 @@ public class UpdateNumberOfEnrolledStudentsCommandHandlerTests
     var course = Builder<Course>.CreateNew().Build();
     await _dbContext.Courses.AddAsync(course);
     await _dbContext.SaveChangesAsync();
-    var command = new UpdateNumberOfEnrolledStudentsCommand(course.Id, "bad-class-id", true);
+    var command = new UpdateNumberOfEnrolledStudentsCommand(course.Id, Guid.NewGuid(), true);
 
     // Act
     var result = await _commandHandler.Handle(command, CancellationToken.None);

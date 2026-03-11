@@ -18,7 +18,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow.AddMinutes(1);
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(1),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(3),
@@ -34,7 +34,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow;
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(-1),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(3),
@@ -50,7 +50,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow.AddMinutes(1);
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(3),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(4),
@@ -66,7 +66,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow.AddMinutes(1);
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(5),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(4),
@@ -82,7 +82,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow;
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(1),
       CourseStartDate = now.AddDays(-1),
       CourseEndDate = now.AddDays(3),
@@ -98,7 +98,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow.AddMinutes(1);
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(1),
       CourseStartDate = now.AddDays(5),
       CourseEndDate = now.AddDays(4),
@@ -114,7 +114,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow;
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(1),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(-1),
@@ -130,7 +130,7 @@ public class CreateClassCommandValidatorTests
     var now = DateTime.UtcNow.AddMinutes(1);
     var request = new CreateClassCommand
     {
-      CourseId = Guid.NewGuid().ToString(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = now.AddDays(1),
       CourseStartDate = now.AddDays(2),
       CourseEndDate = now.AddDays(3),

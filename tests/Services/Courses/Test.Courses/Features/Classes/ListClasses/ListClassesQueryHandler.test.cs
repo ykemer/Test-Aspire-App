@@ -28,7 +28,7 @@ public class ListClassesQueryHandlerTests
   public async Task Handle_NotEnrolled_ShouldFilterClosedOrFull()
   {
     var now = DateTime.UtcNow;
-    var courseId = Guid.CreateVersion7().ToString();
+    var courseId = Guid.CreateVersion7();
 
     var open = Builder<Class>.CreateNew()
       .With(c => c.CourseId, courseId)
@@ -59,7 +59,7 @@ public class ListClassesQueryHandlerTests
       CourseId = courseId,
       PageNumber = 1,
       PageSize = 10,
-      EnrolledClasses = new List<string>(),
+      EnrolledClasses = new List<Guid>(),
       ShowAll = false
     };
 
@@ -74,7 +74,7 @@ public class ListClassesQueryHandlerTests
   public async Task Handle_Enrolled_ShouldIncludeSpecifiedIds()
   {
     var now = DateTime.UtcNow;
-    var courseId = Guid.CreateVersion7().ToString();
+    var courseId = Guid.CreateVersion7();
 
     var closedFull = Builder<Class>.CreateNew()
       .With(c => c.CourseId, courseId)
@@ -91,7 +91,7 @@ public class ListClassesQueryHandlerTests
       CourseId = courseId,
       PageNumber = 1,
       PageSize = 10,
-      EnrolledClasses = new List<string> { closedFull.Id },
+      EnrolledClasses = new List<Guid> { closedFull.Id },
       ShowAll = false
     };
 
@@ -105,7 +105,7 @@ public class ListClassesQueryHandlerTests
   public async Task Handle_ShowAllTrue_ShouldReturnAllClasses_EvenIfClosedOrFull()
   {
     var now = DateTime.UtcNow;
-    var courseId = Guid.CreateVersion7().ToString();
+    var courseId = Guid.CreateVersion7();
 
     var open = Builder<Class>.CreateNew()
       .With(c => c.CourseId, courseId)
@@ -136,7 +136,7 @@ public class ListClassesQueryHandlerTests
       CourseId = courseId,
       PageNumber = 1,
       PageSize = 10,
-      EnrolledClasses = new List<string>(),
+      EnrolledClasses = new List<Guid>(),
       ShowAll = true
     };
 

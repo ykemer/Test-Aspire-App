@@ -46,11 +46,11 @@ public class ClassesServiceTests
     var cls = Builder<Class>.CreateNew().Build();
     _mediatorMock.Send(Arg.Any<GetClassQuery>(), Arg.Any<CancellationToken>()).Returns(cls);
 
-    var grpcReq = new GrpcGetClassRequest { Id = cls.Id, CourseId = cls.CourseId };
+    var grpcReq = new GrpcGetClassRequest { Id = cls.Id.ToString(), CourseId = cls.CourseId.ToString() };
     var resp = await _service.GetClass(grpcReq, _context);
 
-    Assert.That(resp.Id, Is.EqualTo(cls.Id));
-    Assert.That(resp.CourseId, Is.EqualTo(cls.CourseId));
+    Assert.That(resp.Id, Is.EqualTo(cls.Id.ToString()));
+    Assert.That(resp.CourseId, Is.EqualTo(cls.CourseId.ToString()));
   }
 
   [Test]
@@ -58,7 +58,7 @@ public class ClassesServiceTests
   {
     _mediatorMock.Send(Arg.Any<GetClassQuery>(), Arg.Any<CancellationToken>()).Returns(_testError);
 
-    var grpcReq = new GrpcGetClassRequest { Id = "x", CourseId = "y" };
+    var grpcReq = new GrpcGetClassRequest { Id = Guid.NewGuid().ToString(), CourseId = Guid.NewGuid().ToString() };
     Assert.ThrowsAsync<RpcException>(async () => await _service.GetClass(grpcReq, _context));
   }
 
@@ -69,11 +69,11 @@ public class ClassesServiceTests
     var paged = PagedList<Class>.Create(new List<Class> { cls }.AsQueryable(), 1, 10);
     _mediatorMock.Send(Arg.Any<ListClassesQuery>(), Arg.Any<CancellationToken>()).Returns(paged);
 
-    var grpcReq = new GrpcListClassRequest { CourseId = cls.CourseId, Page = 1, PageSize = 10 };
+    var grpcReq = new GrpcListClassRequest { CourseId = cls.CourseId.ToString(), Page = 1, PageSize = 10 };
     var resp = await _service.ListClasses(grpcReq, _context);
 
     Assert.That(resp.Items.Count, Is.EqualTo(1));
-    Assert.That(resp.Items[0].Id, Is.EqualTo(cls.Id));
+    Assert.That(resp.Items[0].Id, Is.EqualTo(cls.Id.ToString()));
   }
 
   [Test]
@@ -81,7 +81,7 @@ public class ClassesServiceTests
   {
     _mediatorMock.Send(Arg.Any<ListClassesQuery>(), Arg.Any<CancellationToken>()).Returns(_testError);
 
-    var grpcReq = new GrpcListClassRequest { CourseId = "c1" };
+    var grpcReq = new GrpcListClassRequest { CourseId =  Guid.NewGuid().ToString() };
     Assert.ThrowsAsync<RpcException>(async () => await _service.ListClasses(grpcReq, _context));
   }
 }

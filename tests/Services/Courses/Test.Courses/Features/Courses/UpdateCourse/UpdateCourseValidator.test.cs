@@ -1,3 +1,5 @@
+using FizzWare.NBuilder;
+
 using Service.Courses.Features.Courses.CreateCourse;
 using Service.Courses.Features.Courses.UpdateCourse;
 
@@ -15,7 +17,11 @@ public class UpdateCourseValidatorTests
   public void Validate_ValidInput_ShouldBeValid()
   {
     // Arrange
-    var command = new CreateCourseCommand("Valid Name", "Valid Description");
+    var command =  Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "Valid Course Name")
+      .With(c => c.Description = "Valid course description.")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -28,7 +34,12 @@ public class UpdateCourseValidatorTests
   public void Validate_NameNull_ShouldBeInvalid()
   {
     // Arrange
-    var command = new CreateCourseCommand(null!, "Some description");
+
+    var command =  Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = null!)
+      .With(c => c.Description = "Valid course description.")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -42,7 +53,11 @@ public class UpdateCourseValidatorTests
   public void Validate_NameEmpty_ShouldBeInvalid()
   {
     // Arrange
-    var command = new CreateCourseCommand(string.Empty, "Some description");
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = string.Empty)
+      .With(c => c.Description = "Valid course description.")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -56,7 +71,11 @@ public class UpdateCourseValidatorTests
   public void Validate_NameTooShort_ShouldHaveRequiredMessage()
   {
     // Arrange (2 chars < MinimumLength 3)
-    var command = new CreateCourseCommand("ab", "Some description");
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "ab")
+      .With(c => c.Description = "Valid course description.")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -73,7 +92,11 @@ public class UpdateCourseValidatorTests
   {
     // Arrange (101 chars > MaximumLength 100)
     var longName = new string('n', 101);
-    var command = new CreateCourseCommand(longName, "Some description");
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = longName)
+      .With(c => c.Description = "Valid course description.")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -90,7 +113,11 @@ public class UpdateCourseValidatorTests
   public void Validate_DescriptionNull_ShouldBeInvalid()
   {
     // Arrange
-    var command = new CreateCourseCommand("Some name", null!);
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "Valid Course Name")
+      .With(c => c.Description = null!)
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -104,7 +131,11 @@ public class UpdateCourseValidatorTests
   public void Validate_DescriptionEmpty_ShouldBeInvalid()
   {
     // Arrange
-    var command = new CreateCourseCommand("Some name", string.Empty);
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "Valid Course Name")
+      .With(c => c.Description = string.Empty)
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -118,7 +149,11 @@ public class UpdateCourseValidatorTests
   public void Validate_DescriptionTooShort_ShouldHaveRequiredMessage()
   {
     // Arrange
-    var command = new CreateCourseCommand("Some name", "ab");
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "Valid Course Name")
+      .With(c => c.Description = "ab")
+      .Build();
 
     // Act
     var result = _validator.Validate(command);
@@ -136,7 +171,11 @@ public class UpdateCourseValidatorTests
   {
     // Arrange (501 chars)
     var longDesc = new string('d', 501);
-    var command = new CreateCourseCommand("Some name", longDesc);
+    var command = Builder<UpdateCourseCommand>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = "Valid Course Name")
+      .With(c => c.Description = longDesc)
+      .Build();
 
     // Act
     var result = _validator.Validate(command);

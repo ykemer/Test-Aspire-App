@@ -39,7 +39,7 @@ public class DeleteCourseCommandHandlerTests
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
     // Arrange
-    var command = new DeleteCourseCommand("bad-id");
+    var command = new DeleteCourseCommand(Guid.NewGuid());
 
     // Act
     var result = await _commandHandler.Handle(command, CancellationToken.None);

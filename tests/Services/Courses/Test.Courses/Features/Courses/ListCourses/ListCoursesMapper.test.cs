@@ -11,13 +11,14 @@ public class ListCoursesMapperTest
   public void MapToListCoursesRequest_MapsPagingAndQuery()
   {
     // Arrange
+    var classGuid1 = Guid.NewGuid();
     var request = new GrpcListCoursesRequest
     {
       Page = 3,
       PageSize = 20,
       Query = "search text",
       ShowAll = true,
-      EnrolledClasses = { "course1" }
+      EnrolledClasses = { classGuid1.ToString() }
     };
 
     // Act
@@ -28,6 +29,6 @@ public class ListCoursesMapperTest
     Assert.That(result.PageSize, Is.EqualTo(20));
     Assert.That(result.Query, Is.EqualTo("search text"));
     Assert.That(result.ShowAll, Is.True);
-    Assert.That(result.EnrolledClasses, Is.EquivalentTo(new[] { "course1" }));
+    Assert.That(result.EnrolledClasses, Is.EquivalentTo(new[] { classGuid1 }));
   }
 }

@@ -120,7 +120,7 @@ public class ListCoursesQueryHandlerTests
 
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string>() };
+    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 10, EnrolledClasses = new List<Guid>() };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);
@@ -149,7 +149,7 @@ public class ListCoursesQueryHandlerTests
 
     var request = new ListCoursesRequest
     {
-      PageNumber = 1, PageSize = 10, EnrolledClasses = new List<string> { closedFullClass.Id }
+      PageNumber = 1, PageSize = 10, EnrolledClasses = new List<Guid> { closedFullClass.Id }
     };
 
     // Act

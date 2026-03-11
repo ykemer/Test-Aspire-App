@@ -47,7 +47,7 @@ public class GetCourseQueryHandlerTests
     });
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseQuery(course.Id, new List<string>(), false);
+    var query = new GetCourseQuery(course.Id, new List<Guid>(), false);
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -62,7 +62,7 @@ public class GetCourseQueryHandlerTests
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
     // Arrange
-    var query = new GetCourseQuery("bad-id", new List<string>(), false);
+    var query = new GetCourseQuery(Guid.NewGuid(), new List<Guid>(), false);
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -90,7 +90,7 @@ public class GetCourseQueryHandlerTests
     );
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseQuery(course.Id, new List<string>(), false); // Not enrolled
+    var query = new GetCourseQuery(course.Id, new List<Guid>(), false); // Not enrolled
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -123,7 +123,7 @@ public class GetCourseQueryHandlerTests
     );
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseQuery(course.Id, new List<string>(), false); // Not enrolled
+    var query = new GetCourseQuery(course.Id, new List<Guid>(), false); // Not enrolled
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -151,7 +151,7 @@ public class GetCourseQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFullClass);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseQuery(course.Id, new List<string> { closedFullClass.Id }, false); // Enrolled in that class
+    var query = new GetCourseQuery(course.Id, new List<Guid> { closedFullClass.Id }, false); // Enrolled in that class
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);
@@ -179,7 +179,7 @@ public class GetCourseQueryHandlerTests
     );
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetCourseQuery(course.Id, new List<string>(), true); // ShowAll = true
+    var query = new GetCourseQuery(course.Id, new List<Guid>(), true); // ShowAll = true
 
     // Act
     var result = await _queryHandler.Handle(query, CancellationToken.None);

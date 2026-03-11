@@ -45,14 +45,16 @@ public class CoursesServiceTests
   public async Task GetCourse_Success_ReturnsCourseResponse()
   {
     // Arrange
+    var courseId = Guid.NewGuid();
+
     var request = Builder<GrpcGetCourseRequest>
       .CreateNew()
-      .With(x => x.Id, "course-id")
+      .With(x => x.Id, courseId.ToString())
       .Build();
 
     var course = Builder<Course>
       .CreateNew()
-      .With(x => x.Id, "course-id")
+      .With(x => x.Id, courseId)
       .Build();
 
     _mediatorMock
@@ -66,7 +68,7 @@ public class CoursesServiceTests
     Assert.Multiple(() =>
     {
       Assert.That(response, Is.Not.Null);
-      Assert.That(response.Id, Is.EqualTo(course.Id));
+      Assert.That(response.Id, Is.EqualTo(course.Id.ToString()));
       Assert.That(response.Name, Is.EqualTo(course.Name));
       Assert.That(response.Description, Is.EqualTo(course.Description));
       Assert.That(response.TotalStudents, Is.EqualTo(course.TotalStudents));
@@ -77,9 +79,10 @@ public class CoursesServiceTests
   public void GetCourse_Error_ThrowsRpcException()
   {
     // Arrange
+    var courseId = Guid.NewGuid();
     var request = Builder<GrpcGetCourseRequest>
       .CreateNew()
-      .With(x => x.Id, "course-id")
+      .With(x => x.Id, courseId.ToString())
       .Build();
 
     _mediatorMock
@@ -97,7 +100,7 @@ public class CoursesServiceTests
   public async Task ListCourses_Success_ReturnsListResponse()
   {
     // Arrange
-    GrpcListCoursesRequest? request = new();
+    GrpcListCoursesRequest request = new();
     var courses = Builder<Course>
       .CreateListOfSize(2)
       .All()
@@ -117,12 +120,12 @@ public class CoursesServiceTests
       Assert.That(response, Is.Not.Null);
       Assert.That(response.Items, Has.Count.EqualTo(2));
 
-      Assert.That(response.Items[0].Id, Is.EqualTo(courses[0].Id));
+      Assert.That(response.Items[0].Id, Is.EqualTo(courses[0].Id.ToString()));
       Assert.That(response.Items[0].Name, Is.EqualTo(courses[0].Name));
       Assert.That(response.Items[0].Description, Is.EqualTo(courses[0].Description));
       Assert.That(response.Items[0].TotalStudents, Is.EqualTo(courses[0].TotalStudents));
 
-      Assert.That(response.Items[1].Id, Is.EqualTo(courses[1].Id));
+      Assert.That(response.Items[1].Id, Is.EqualTo(courses[1].Id.ToString()));
       Assert.That(response.Items[1].Name, Is.EqualTo(courses[1].Name));
       Assert.That(response.Items[1].Description, Is.EqualTo(courses[1].Description));
       Assert.That(response.Items[1].TotalStudents, Is.EqualTo(courses[1].TotalStudents));
@@ -133,7 +136,7 @@ public class CoursesServiceTests
   public void ListCourses_Error_ThrowsRpcException()
   {
     // Arrange
-    GrpcListCoursesRequest? request = new();
+    GrpcListCoursesRequest request = new();
 
     _mediatorMock
       .Send(Arg.Any<ListCoursesRequest>(), Arg.Any<CancellationToken>())

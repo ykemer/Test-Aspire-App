@@ -19,8 +19,8 @@ public class UpdateClassMapperTests
 
     var cmd = new UpdateClassCommand
     {
-      Id = "class-1",
-      CourseId = "course-1",
+      Id = Guid.NewGuid(),
+      CourseId = Guid.NewGuid(),
       RegistrationDeadline = DateTime.UtcNow.AddDays(-3),
       CourseStartDate = DateTime.UtcNow.AddDays(-2),
       CourseEndDate = DateTime.UtcNow.AddDays(-1),

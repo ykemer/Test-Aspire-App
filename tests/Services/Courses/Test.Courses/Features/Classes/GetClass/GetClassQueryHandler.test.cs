@@ -46,7 +46,7 @@ public class GetClassQueryHandlerTests
     await _dbContext.Classes.AddAsync(cls);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetClassQuery(cls.Id, course.Id, new List<string>(), false);
+    var query = new GetClassQuery(cls.Id, course.Id, new List<Guid>(), false);
 
     var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -70,7 +70,7 @@ public class GetClassQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFull);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetClassQuery(closedFull.Id, course.Id, new List<string>(), false);
+    var query = new GetClassQuery(closedFull.Id, course.Id, new List<Guid>(), false);
 
     var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -94,7 +94,7 @@ public class GetClassQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFull);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetClassQuery(closedFull.Id, course.Id, new List<string> { closedFull.Id }, false);
+    var query = new GetClassQuery(closedFull.Id, course.Id, new List<Guid> { closedFull.Id }, false);
 
     var result = await _handler.Handle(query, CancellationToken.None);
 
@@ -118,7 +118,7 @@ public class GetClassQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFull);
     await _dbContext.SaveChangesAsync();
 
-    var query = new GetClassQuery(closedFull.Id, course.Id, new List<string>(), true); // ShowAll = true
+    var query = new GetClassQuery(closedFull.Id, course.Id, new List<Guid>(), true); // ShowAll = true
 
     var result = await _handler.Handle(query, CancellationToken.None);
 

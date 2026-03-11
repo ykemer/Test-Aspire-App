@@ -37,7 +37,7 @@ public class DeleteClassCommandHandlerTests
   [Test]
   public async Task Handle_ShouldReturnUnexpected_WhenClassNotFound()
   {
-    var cmd = new DeleteClassCommand("bad-id", "course-x");
+    var cmd = new DeleteClassCommand(Guid.Empty, Guid.Empty);
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
