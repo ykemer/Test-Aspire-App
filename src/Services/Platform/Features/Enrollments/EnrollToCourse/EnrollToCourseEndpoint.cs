@@ -70,9 +70,9 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
 
     await endpoint.Send(new CreateEnrollmentCommand
     {
-      CourseId = courseId.ToString(),
-      ClassId = classId.ToString(),
-      StudentId = userId.ToString(),
+      CourseId = courseId,
+      ClassId = classId,
+      StudentId = userId,
       FirstName = student.FirstName,
       LastName = student.LastName
     });

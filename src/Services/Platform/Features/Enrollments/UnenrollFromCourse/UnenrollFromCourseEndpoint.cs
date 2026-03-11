@@ -68,10 +68,7 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
 
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
 
-    await endpoint.Send(new DeleteEnrollmentCommand
-    {
-      CourseId = courseId.ToString(), ClassId = classId.ToString(), StudentId = userId.ToString()
-    });
+    await endpoint.Send(new DeleteEnrollmentCommand { CourseId = courseId, ClassId = classId, StudentId = userId });
 
     return Result.Deleted;
   }

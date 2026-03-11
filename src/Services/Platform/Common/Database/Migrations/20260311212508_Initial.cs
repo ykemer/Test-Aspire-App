@@ -98,15 +98,15 @@ namespace Platform.Common.Database.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
                     CurrentState = table.Column<string>(type: "text", nullable: false),
-                    StudentId = table.Column<string>(type: "text", nullable: false),
-                    CourseId = table.Column<string>(type: "text", nullable: false),
-                    ClassId = table.Column<string>(type: "text", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsStudentEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     IsClassEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     EnrolledDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    FailureReason = table.Column<string>(type: "text", nullable: false)
+                    FailureReason = table.Column<string>(type: "text", nullable: false),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -118,15 +118,15 @@ namespace Platform.Common.Database.Migrations
                 columns: table => new
                 {
                     EventId = table.Column<Guid>(type: "uuid", nullable: false),
-                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false),
                     CurrentState = table.Column<string>(type: "text", nullable: false),
-                    StudentId = table.Column<string>(type: "text", nullable: false),
-                    CourseId = table.Column<string>(type: "text", nullable: false),
-                    ClassId = table.Column<string>(type: "text", nullable: false),
+                    StudentId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CourseId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ClassId = table.Column<Guid>(type: "uuid", nullable: false),
                     IsStudentEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     IsClassEnrollmentsUpdated = table.Column<bool>(type: "boolean", nullable: false),
                     EnrolledDate = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    FailureReason = table.Column<string>(type: "text", nullable: false)
+                    FailureReason = table.Column<string>(type: "text", nullable: false),
+                    CorrelationId = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -243,18 +243,18 @@ namespace Platform.Common.Database.Migrations
                 name: "RefreshTokens",
                 columns: table => new
                 {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    Token = table.Column<string>(type: "text", nullable: false),
-                    UserId = table.Column<string>(type: "text", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    ExpiresAt = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    IsValid = table.Column<bool>(type: "boolean", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
+                    Token = table.Column<string>(type: "text", maxLength: 256, nullable: false, comment: "Refresh token string"),
+                    UserId = table.Column<string>(type: "text", maxLength: 256, nullable: false, comment: "User Id associated with the refresh token"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Timestamp when the refresh token was created"),
+                    ExpiresAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "Timestamp when the refresh token expires"),
+                    IsValid = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true, comment: "Indicates whether the refresh token is valid")
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RefreshTokens", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_RefreshTokens_AspNetUsers_UserId",
+                        name: "FK_RefreshTokens_ApplicationUsers",
                         column: x => x.UserId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",

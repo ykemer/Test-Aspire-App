@@ -3,6 +3,7 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
+using Platform.Common.Database.Configurations;
 using Platform.Common.Database.Entities;
 using Platform.Common.StateMachines;
 
@@ -33,9 +34,6 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     builder.Entity<StudentUnenrollState>().HasIndex(x => x.CorrelationId);
     builder.Entity<StudentUnenrollState>().HasKey(x => x.EventId);
 
-
-    builder.Entity<RefreshToken>()
-      .HasIndex(r => r.Token)
-      .IsUnique();
+    builder.ApplyConfiguration(new RefreshTokenConfiguration());
   }
 }

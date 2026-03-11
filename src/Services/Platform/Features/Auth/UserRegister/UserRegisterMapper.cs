@@ -20,7 +20,7 @@ public static class UserRegisterMapper
   public static UserCreatedEvent ToUserCreatedEvent(this ApplicationUser user) =>
     new()
     {
-      Id = user.Id,
+      Id = Guid.Parse(user.Id),
       FirstName = user.FirstName,
       LastName = user.LastName,
       DateOfBirth = user.DateOfBirth,

@@ -10,8 +10,8 @@ public static class GetCourseEnrollmentsMapper
     response.Items.Select(i => new EnrollmentResponse
     {
       Id = i.Id,
-      CourseId = i.CourseId,
-      StudentId = i.StudentId,
+      CourseId = Guid.Parse(i.CourseId),
+      StudentId = Guid.Parse(i.StudentId),
       EnrollmentDateTime = i.EnrollmentDateTime.ToDateTime(),
       FirstName = i.StudentFirstName,
       LastName = i.StudentLastName

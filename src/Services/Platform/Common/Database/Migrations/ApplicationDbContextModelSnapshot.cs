@@ -17,7 +17,7 @@ namespace Platform.Common.Database.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.9")
+                .HasAnnotation("ProductVersion", "10.0.4")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -403,24 +403,36 @@ namespace Platform.Common.Database.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
+                        .HasColumnType("uuid")
+                        .HasComment("Unique identifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                        .HasComment("Timestamp when the refresh token was created");
 
                     b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Timestamp when the refresh token expires");
 
                     b.Property<bool>("IsValid")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true)
+                        .HasComment("Indicates whether the refresh token is valid");
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("text")
+                        .HasComment("Refresh token string");
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(256)
+                        .HasColumnType("text")
+                        .HasComment("User Id associated with the refresh token");
 
                     b.HasKey("Id");
 
@@ -438,16 +450,14 @@ namespace Platform.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ClassId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CorrelationId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CurrentState")
                         .IsRequired()
@@ -466,9 +476,8 @@ namespace Platform.Common.Database.Migrations
                     b.Property<bool>("IsStudentEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("EventId");
 
@@ -483,16 +492,14 @@ namespace Platform.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("ClassId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uuid");
 
                     b.Property<Guid>("CorrelationId")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("CourseId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("CourseId")
+                        .HasColumnType("uuid");
 
                     b.Property<string>("CurrentState")
                         .IsRequired()
@@ -511,9 +518,8 @@ namespace Platform.Common.Database.Migrations
                     b.Property<bool>("IsStudentEnrollmentsUpdated")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("StudentId")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("StudentId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("EventId");
 
@@ -591,7 +597,8 @@ namespace Platform.Common.Database.Migrations
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_RefreshTokens_ApplicationUsers");
 
                     b.Navigation("User");
                 });

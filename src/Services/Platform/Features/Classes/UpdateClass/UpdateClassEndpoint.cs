@@ -48,8 +48,8 @@ public class UpdateClassEndpoint : Endpoint<UpdateClassRequest,
     await endpoint.Send(
       new UpdateClassCommand
       {
-        ClassId = classId.ToString(),
-        CourseId = courseId.ToString(),
+        ClassId = classId,
+        CourseId = courseId,
         RegistrationDeadline = updateClassCommand.RegistrationDeadline,
         CourseStartDate = updateClassCommand.CourseStartDate,
         CourseEndDate = updateClassCommand.CourseEndDate,

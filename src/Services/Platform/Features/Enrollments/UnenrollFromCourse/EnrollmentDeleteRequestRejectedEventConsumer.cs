@@ -15,6 +15,6 @@ public class EnrollmentDeleteRequestRejectedEventConsumer : IConsumer<Enrollment
     _hubContext = hubContext;
 
   public async Task Consume(ConsumeContext<EnrollmentDeleteRequestRejectedEvent> context) => await _hubContext.Clients
-    .User(context.Message.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
+    .User(context.Message.StudentId.ToString()).SendAsync(EnrollmentHubMessages.EnrollmentDeleteRequestRejected,
       "Failed to unenroll you from the course. Please contact support.");
 }

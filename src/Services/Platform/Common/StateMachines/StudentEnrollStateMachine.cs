@@ -65,7 +65,7 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
         .ThenAsync(async context =>
         {
           context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
+          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(
             EnrollmentHubMessages.EnrollmentCreateRequestRejected,
             "Failed to enroll you in the class. Please contact support.");
         })
@@ -77,7 +77,7 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
         .ThenAsync(async context =>
         {
           context.Saga.FailureReason = $"Class enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(
+          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(
             EnrollmentHubMessages.EnrollmentCreateRequestRejected,
             "Failed to enroll you in the class. Please contact support.");
         })
@@ -94,7 +94,7 @@ public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollSt
         .ThenAsync(async context =>
         {
           context.Saga.IsClassEnrollmentsUpdated = true;
-          await _hubContext.Clients.User(context.Saga.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreated,
+          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(EnrollmentHubMessages.EnrollmentCreated,
             "You have been successfully enrolled in the class.");
         })
         .TransitionTo(Completed)

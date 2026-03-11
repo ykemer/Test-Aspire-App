@@ -45,7 +45,7 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
     await endpoint.Send(
       new CreateClassCommand
       {
-        CourseId = id.ToString(),
+        CourseId = id,
         CourseStartDate = createClassCommand.CourseStartDate,
         CourseEndDate = createClassCommand.CourseEndDate,
         RegistrationDeadline = createClassCommand.RegistrationDeadline,

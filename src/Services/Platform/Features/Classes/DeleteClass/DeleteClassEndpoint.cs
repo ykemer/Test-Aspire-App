@@ -44,10 +44,7 @@ public class DeleteClassEndpoint : EndpointWithoutRequest<
 
 
     await _outputCache.EvictByTagAsync("classes", ct);
-    await endpoint.Send(new DeleteClassCommand
-    {
-      ClassId = classId.ToString(), CourseId = courseId.ToString(), UserId = userId
-    });
+    await endpoint.Send(new DeleteClassCommand { ClassId = classId, CourseId = courseId, UserId = userId });
 
     return Result.Deleted;
   }

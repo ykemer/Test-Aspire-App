@@ -41,7 +41,7 @@ public class DeleteCourseEndpoint : EndpointWithoutRequest<
     var sendUri = new Uri("queue:delete-course-command");
 
     var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-    await endpoint.Send(new DeleteCourseCommand { CourseId = id.ToString(), UserId = userId }, ct);
+    await endpoint.Send(new DeleteCourseCommand { CourseId = id, UserId = userId }, ct);
 
     return Result.Deleted;
   }

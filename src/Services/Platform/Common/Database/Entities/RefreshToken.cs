@@ -1,17 +1,14 @@
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-
 namespace Platform.Common.Database.Entities;
 
 public class RefreshToken
 {
-  [Key] public Guid Id { get; set; } = Guid.NewGuid();
+  public Guid Id { get; set; } = Guid.CreateVersion7();
 
-  [Required] public string Token { get; set; } = string.Empty;
+  public required string Token { get; set; }
 
-  [Required] public required string UserId { get; set; }
+  public required string UserId { get; set; }
 
-  [ForeignKey(nameof(UserId))] public ApplicationUser User { get; set; } = null!;
+  public ApplicationUser User { get; set; } = null!;
 
   public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

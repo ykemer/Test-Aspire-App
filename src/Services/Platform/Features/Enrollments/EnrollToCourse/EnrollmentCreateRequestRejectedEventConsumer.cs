@@ -15,6 +15,6 @@ public class EnrollmentCreateRequestRejectedEventConsumer : IConsumer<Enrollment
     _hubContext = hubContext;
 
   public async Task Consume(ConsumeContext<EnrollmentCreateRequestRejectedEvent> context) => await _hubContext.Clients
-    .User(context.Message.StudentId).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected,
+    .User(context.Message.StudentId.ToString()).SendAsync(EnrollmentHubMessages.EnrollmentCreateRequestRejected,
       "Failed to enroll you in the course. Please contact support.");
 }

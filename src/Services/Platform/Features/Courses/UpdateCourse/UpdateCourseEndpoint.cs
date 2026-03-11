@@ -46,7 +46,7 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
     await endpoint.Send(
       new UpdateCourseCommand
       {
-        CourseId = id.ToString(),
+        CourseId = id,
         Name = updateCourseCommand.Name,
         Description = updateCourseCommand.Description,
         UserId = userId
