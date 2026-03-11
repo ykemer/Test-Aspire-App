@@ -48,7 +48,7 @@ public sealed class ApplicationDbContextInitializer
     {
       _context.Students.Add(new Student
       {
-        Id = "363fa2a4-70a8-4391-bc54-a8b5267fb68a",
+        Id = Guid.Parse("363fa2a4-70a8-4391-bc54-a8b5267fb68a"),
         Email = "student@localhost",
         FirstName = "Marry",
         LastName = "Doe",

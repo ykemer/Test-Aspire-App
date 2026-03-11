@@ -2,4 +2,4 @@
 
 namespace Service.Students.Features.GetStudent;
 
-public record GetStudentQuery(string StudentId) : IRequest<ErrorOr<Student>>;
+public record GetStudentQuery(Guid StudentId) : IRequest<ErrorOr<Student>>;

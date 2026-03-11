@@ -13,7 +13,7 @@ public static class StudentExtensionMethods
   public static GrpcStudentResponse MapToGrpcStudentResponse(this Student student) =>
     new()
     {
-      Id = student.Id,
+      Id = student.Id.ToString(),
       FirstName = student.FirstName,
       LastName = student.LastName,
       Birthday = DateTime.SpecifyKind(student.DateOfBirth, DateTimeKind.Utc).ToTimestamp(),

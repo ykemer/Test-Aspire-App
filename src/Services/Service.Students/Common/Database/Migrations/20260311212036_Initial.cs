@@ -4,7 +4,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Service.Students.Migrations
+namespace Service.Students.Common.Database.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -55,12 +55,14 @@ namespace Service.Students.Migrations
                 name: "Students",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
-                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    DateOfBirth = table.Column<DateTime>(type: "timestamp without time zone", nullable: false),
-                    EnrollmentsCount = table.Column<int>(type: "integer", nullable: false)
+                    Id = table.Column<Guid>(type: "uuid", nullable: false, comment: "Unique identifier"),
+                    FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, comment: "First name of the student"),
+                    LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, comment: "Last name of the student"),
+                    Email = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false, comment: "Email address of the student"),
+                    DateOfBirth = table.Column<DateTime>(type: "date", nullable: false, comment: "Date of birth of the student"),
+                    EnrollmentsCount = table.Column<int>(type: "integer", nullable: false, defaultValue: 0, comment: "Number of enrollments the student has"),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was created"),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP", comment: "Date and time when the class was last updated")
                 },
                 constraints: table =>
                 {

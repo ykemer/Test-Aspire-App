@@ -9,7 +9,7 @@ public class CreateStudentCommandValidator : AbstractValidator<CreateStudentComm
     RuleFor(x => x.Id)
       .NotNull().WithMessage("Id is required.")
       .NotEmpty().WithMessage("Id is required.")
-      .NotEqual("00000000-0000-0000-0000-000000000000")
+      .NotEqual(Guid.Empty)
       .WithMessage("Id cannot be the empty GUID.");
 
     RuleFor(student => student.FirstName)

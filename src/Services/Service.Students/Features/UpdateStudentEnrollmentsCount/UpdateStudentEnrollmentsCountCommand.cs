@@ -1,3 +1,3 @@
 ﻿namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
-public record UpdateStudentEnrollmentsCountCommand(string StudentId, bool IsIncrease) : IRequest<ErrorOr<Updated>>;
+public record UpdateStudentEnrollmentsCountCommand(Guid StudentId, bool IsIncrease) : IRequest<ErrorOr<Updated>>;
