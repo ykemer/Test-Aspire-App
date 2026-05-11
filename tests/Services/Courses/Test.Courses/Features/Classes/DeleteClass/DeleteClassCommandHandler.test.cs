@@ -2,11 +2,11 @@ using Courses.Application.Setup;
 
 using FizzWare.NBuilder;
 
-using MassTransit;
-
 using Microsoft.Extensions.Logging;
 
 using NSubstitute;
+
+using Rebus.Bus;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
@@ -22,17 +22,21 @@ public class DeleteClassCommandHandlerTests
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
     _loggerMock = Substitute.For<ILogger<DeleteClassCommandHandler>>();
-    _publishMock = Substitute.For<IPublishEndpoint>();
+    _publishMock = Substitute.For<IBus>();
     _handler = new DeleteClassCommandHandler(_dbContext, _loggerMock, _publishMock);
   }
 
   [TearDown]
-  public void TearDown() => _dbContext.Dispose();
+  public void TearDown()
+  {
+    _dbContext.Dispose();
+    _publishMock.Dispose();
+  }
 
   private ApplicationDbContext _dbContext;
   private DeleteClassCommandHandler _handler;
   private ILogger<DeleteClassCommandHandler> _loggerMock;
-  private IPublishEndpoint _publishMock;
+  private IBus _publishMock;
 
   [Test]
   public async Task Handle_ShouldReturnUnexpected_WhenClassNotFound()

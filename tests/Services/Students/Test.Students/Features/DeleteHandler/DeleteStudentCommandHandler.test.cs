@@ -2,12 +2,12 @@
 
 using FizzWare.NBuilder;
 
-using MassTransit;
-
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 using NSubstitute;
+
+using Rebus.Bus;
 
 using Service.Students.Common.Database;
 using Service.Students.Common.Database.Entities;
@@ -22,19 +22,23 @@ public class DeleteStudentCommandHandlerTest
   private DeleteStudentCommandHandler _commandHandler;
   private ApplicationDbContext _dbContext;
   private ILogger<DeleteStudentCommandHandler> _loggerMock;
-  private IPublishEndpoint _publishEndpointMock;
+  private IBus _publishEndpointMock;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
     _loggerMock = Substitute.For<ILogger<DeleteStudentCommandHandler>>();
-    _publishEndpointMock = Substitute.For<IPublishEndpoint>();
+    _publishEndpointMock = Substitute.For<IBus>();
     _commandHandler = new DeleteStudentCommandHandler(_dbContext, _loggerMock, _publishEndpointMock);
   }
 
   [TearDown]
-  public void TearDown() => _dbContext.Dispose();
+  public void TearDown()
+  {
+    _dbContext.Dispose();
+    _publishEndpointMock.Dispose();
+  }
 
   [Test]
   public async Task Handle_ShouldDeleteStudent_WhenStudentExists()
@@ -52,8 +56,7 @@ public class DeleteStudentCommandHandlerTest
     // Assert
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Students.CountAsync(), Is.EqualTo(0));
-    await _publishEndpointMock.Received(1).Publish(
-      Arg.Any<StudentDeletedEvent>(), Arg.Any<CancellationToken>());
+    await _publishEndpointMock.Received(1).Publish(Arg.Any<StudentDeletedEvent>());
   }
 
   [Test]

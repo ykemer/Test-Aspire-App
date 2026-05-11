@@ -4,11 +4,11 @@ using Courses.Application.Setup;
 
 using FizzWare.NBuilder;
 
-using MassTransit;
-
 using Microsoft.Extensions.Logging;
 
 using NSubstitute;
+
+using Rebus.Bus;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
@@ -21,19 +21,23 @@ public class DeleteCourseCommandHandlerTests
   private DeleteCourseCommandHandler _commandHandler;
   private ApplicationDbContext _dbContext;
   private ILogger<DeleteCourseCommandHandler> _loggerMock;
-  private IPublishEndpoint _messageBusClientMock;
+  private IBus _messageBusClientMock;
 
   [SetUp]
   public void Setup()
   {
     _loggerMock = Substitute.For<ILogger<DeleteCourseCommandHandler>>();
-    _messageBusClientMock = Substitute.For<IPublishEndpoint>();
+    _messageBusClientMock = Substitute.For<IBus>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
     _commandHandler = new DeleteCourseCommandHandler(_dbContext, _loggerMock, _messageBusClientMock);
   }
 
   [TearDown]
-  public void TearDown() => _dbContext.Dispose();
+  public void TearDown()
+  {
+    _dbContext.Dispose();
+    _messageBusClientMock.Dispose();
+  }
 
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
@@ -69,7 +73,7 @@ public class DeleteCourseCommandHandlerTests
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Courses.FindAsync(course.Id), Is.Null);
     await _messageBusClientMock.Received(1).Publish(
-      Arg.Is<CourseDeletedEvent>(e => e.CourseId == course.Id), CancellationToken.None);
+      Arg.Is<CourseDeletedEvent>(e => e.CourseId == course.Id));
   }
 
   [Test]
