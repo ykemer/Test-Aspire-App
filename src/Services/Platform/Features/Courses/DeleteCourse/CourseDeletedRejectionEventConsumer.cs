@@ -1,20 +1,19 @@
-﻿using Contracts.Courses.Events;
+using Contracts.Courses.Events;
 using Contracts.Courses.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Courses.DeleteCourse;
 
-public class CourseDeletedRejectionEventConsumer : IConsumer<CourseDeleteRejectionEvent>
+public class CourseDeletedRejectionEventConsumer : IHandleMessages<CourseDeleteRejectionEvent>
 {
   private readonly IHubContext<CoursesHub> _hubContext;
 
   public CourseDeletedRejectionEventConsumer(IHubContext<CoursesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<CourseDeleteRejectionEvent> context) =>
+  public async Task Handle(CourseDeleteRejectionEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(CourseHubMessage.CourseDeleteRequestRejected,
-        context.Message.Reason);
+      .User(message.UserId).SendAsync(CourseHubMessage.CourseDeleteRequestRejected, message.Reason);
 }

@@ -1,20 +1,19 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 using Contracts.Classes.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Classes.CreateClass;
 
-public class ClassCreateRejectionEventConsumer : IConsumer<ClassCreateRejectionEvent>
+public class ClassCreateRejectionEventConsumer : IHandleMessages<ClassCreateRejectionEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
   public ClassCreateRejectionEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassCreateRejectionEvent> context) =>
+  public async Task Handle(ClassCreateRejectionEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassCreateRequestRejected,
-        context.Message.Reason);
+      .User(message.UserId).SendAsync(ClassHubMessage.ClassCreateRequestRejected, message.Reason);
 }

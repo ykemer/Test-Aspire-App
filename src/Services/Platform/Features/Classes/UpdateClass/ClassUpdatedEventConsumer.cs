@@ -1,20 +1,19 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 using Contracts.Classes.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Classes.UpdateClass;
 
-public class ClassUpdatedEventConsumer : IConsumer<ClassUpdatedEvent>
+public class ClassUpdatedEventConsumer : IHandleMessages<ClassUpdatedEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
   public ClassUpdatedEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassUpdatedEvent> context) =>
+  public async Task Handle(ClassUpdatedEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassUpdated,
-        "Class updated successfully.");
+      .User(message.UserId).SendAsync(ClassHubMessage.ClassUpdated, "Class updated successfully.");
 }

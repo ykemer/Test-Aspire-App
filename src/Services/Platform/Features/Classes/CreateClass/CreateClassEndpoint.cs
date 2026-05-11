@@ -1,28 +1,26 @@
-﻿using Contracts.Classes.Commands;
+using Contracts.Classes.Commands;
 using Contracts.Classes.Requests;
 
 using FastEndpoints;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Services.User;
 
+using Rebus.Bus;
+
 namespace Platform.Features.Classes.CreateClass;
 
-public class CreateClassEndpoint : Endpoint<CreateClassRequest,
-  ErrorOr<Success>>
+public class CreateClassEndpoint : Endpoint<CreateClassRequest, ErrorOr<Success>>
 {
+  private readonly IBus _bus;
   private readonly IOutputCacheStore _outputCache;
-  private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public CreateClassEndpoint(IOutputCacheStore outputCache,
-    ISendEndpointProvider sendEndpointProvider, IUserService userService)
+  public CreateClassEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
   {
     _outputCache = outputCache;
-    _sendEndpointProvider = sendEndpointProvider;
+    _bus = bus;
     _userService = userService;
   }
 
@@ -33,27 +31,20 @@ public class CreateClassEndpoint : Endpoint<CreateClassRequest,
     Description(x => x.WithTags("Classes"));
   }
 
-  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateClassRequest createClassCommand,
-    CancellationToken ct)
+  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateClassRequest createClassCommand, CancellationToken ct)
   {
     var id = Route<Guid>("CourseId");
     var userId = _userService.GetUserId(User).ToString();
 
-    var sendUri = new Uri("queue:create-class-command");
-    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-
-    await endpoint.Send(
-      new CreateClassCommand
-      {
-        CourseId = id,
-        CourseStartDate = createClassCommand.CourseStartDate,
-        CourseEndDate = createClassCommand.CourseEndDate,
-        RegistrationDeadline = createClassCommand.RegistrationDeadline,
-        MaxStudents = createClassCommand.MaxStudents,
-        UserId = userId
-      },
-      ct);
-
+    await _bus.Send(new CreateClassCommand
+    {
+      CourseId = id,
+      CourseStartDate = createClassCommand.CourseStartDate,
+      CourseEndDate = createClassCommand.CourseEndDate,
+      RegistrationDeadline = createClassCommand.RegistrationDeadline,
+      MaxStudents = createClassCommand.MaxStudents,
+      UserId = userId
+    });
 
     await _outputCache.EvictByTagAsync("classes", ct);
     return Result.Success;

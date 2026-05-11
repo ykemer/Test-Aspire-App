@@ -27,7 +27,7 @@ builder.AddRedisDistributedCache("cache");
 // Add services to the container.
 builder.Services.AddGrpcServices();
 builder.Services.AddAuthServices();
-builder.Services.AddMassTransitServices();
+builder.Services.AddRebusServices(builder.Configuration);
 builder.Services.AddApiServices();
 builder.Services.AddCaching();
 builder.Services.AddRateLimiting();
@@ -81,6 +81,7 @@ app.UseMiddleware<ProblemDetailsMiddleware>();
 app.MapHub<EnrollmentHub>("/enrollmentHub");
 app.MapHub<CoursesHub>("/courseHub");
 app.MapHub<ClassesHub>("/classHub");
+
 await app.RunAsync();
 
 // TODO error handling

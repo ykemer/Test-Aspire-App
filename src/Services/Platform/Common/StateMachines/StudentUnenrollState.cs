@@ -1,10 +1,11 @@
-﻿using MassTransit;
+using Rebus.Sagas;
 
 namespace Platform.Common.StateMachines;
 
-public class StudentUnenrollState : SagaStateMachineInstance
+public class StudentUnenrollState : ISagaData
 {
-  public string CurrentState { get; set; }
+  public Guid Id { get; set; }
+  public int Revision { get; set; }
 
   public Guid EventId { get; set; }
   public Guid StudentId { get; set; }
@@ -14,5 +15,5 @@ public class StudentUnenrollState : SagaStateMachineInstance
   public bool IsClassEnrollmentsUpdated { get; set; }
   public DateTime EnrolledDate { get; set; }
   public string FailureReason { get; set; } = "";
-  public Guid CorrelationId { get; set; }
+  public string State { get; set; } = "Initial";
 }

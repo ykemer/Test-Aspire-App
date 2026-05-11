@@ -4,8 +4,6 @@ using FastEndpoints;
 
 using Library.Auth;
 
-using MassTransit;
-
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
@@ -20,16 +18,16 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   private readonly ApplicationDbContext _db;
   private readonly IJwtService _jwtService;
   private readonly ILogger<UserRegisterEndpoint> _logger;
-  private readonly IPublishEndpoint _publishEndpoint;
+  private readonly Rebus.Bus.IBus _bus;
   private readonly UserManager<ApplicationUser> _userManager;
 
   public UserRegisterEndpoint(UserManager<ApplicationUser> signInManager, ILogger<UserRegisterEndpoint> logger,
-    IJwtService jwtService, IPublishEndpoint publishEndpoint, ApplicationDbContext db)
+    IJwtService jwtService, Rebus.Bus.IBus bus, ApplicationDbContext db)
   {
     _userManager = signInManager;
     _logger = logger;
     _jwtService = jwtService;
-    _publishEndpoint = publishEndpoint;
+    _bus = bus;
     _db = db;
   }
 
@@ -70,7 +68,7 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
 
     await _userManager.AddToRolesAsync(user, ["User"]);
 
-    await _publishEndpoint.Publish(user.ToUserCreatedEvent(), ct);
+    await _bus.Publish(user.ToUserCreatedEvent());
     _logger.LogInformation("User {UserName} registered", user.UserName);
     var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
 

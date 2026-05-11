@@ -1,12 +1,12 @@
-﻿using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 
-using MassTransit;
-
 using Platform.Common.Middleware.Grpc;
 using Platform.Common.Services.User;
+
+using Rebus.Bus;
 
 using StudentsGRPCClient;
 
@@ -14,23 +14,21 @@ namespace Platform.Features.Enrollments.EnrollToCourse;
 
 public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Updated>>
 {
+  private readonly IBus _bus;
   private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-
-  private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
   private readonly IUserService _userService;
-
 
   public EnrollToCourseEndpoint(
     IUserService userService,
     IGrpcRequestMiddleware grpcRequestMiddleware,
     GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    ISendEndpointProvider sendEndpointProvider)
+    IBus bus)
   {
     _userService = userService;
     _grpcRequestMiddleware = grpcRequestMiddleware;
     _studentsGrpcService = studentsGrpcService;
-    _sendEndpointProvider = sendEndpointProvider;
+    _bus = bus;
   }
 
   public override void Configure()
@@ -40,8 +38,7 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
     Description(x => x.WithTags("Enrollments"));
   }
 
-  public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
-    CancellationToken ct)
+  public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request, CancellationToken ct)
   {
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
@@ -52,11 +49,9 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
       return Error.Failure(description: "User not found");
     }
 
-
     var studentRequest =
       _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
-    var
-      studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
+    var studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
     if (studentResponse.IsError)
     {
       return studentResponse.Errors[0];
@@ -64,11 +59,7 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
 
     var student = studentResponse.Value;
 
-    var sendUri = new Uri("queue:create-enrollment-command");
-
-    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-
-    await endpoint.Send(new CreateEnrollmentCommand
+    await _bus.Send(new CreateEnrollmentCommand
     {
       CourseId = courseId,
       ClassId = classId,

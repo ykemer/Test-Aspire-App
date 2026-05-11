@@ -1,19 +1,19 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 using Contracts.Classes.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Classes.UpdateClass;
 
-public class ClassUpdateRejectionEventConsumer : IConsumer<ClassUpdateRejectionEvent>
+public class ClassUpdateRejectionEventConsumer : IHandleMessages<ClassUpdateRejectionEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
   public ClassUpdateRejectionEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassUpdateRejectionEvent> context) =>
+  public async Task Handle(ClassUpdateRejectionEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassUpdateRequestRejected, context.Message.Reason);
+      .User(message.UserId).SendAsync(ClassHubMessage.ClassUpdateRequestRejected, message.Reason);
 }

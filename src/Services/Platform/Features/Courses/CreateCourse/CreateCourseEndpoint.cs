@@ -1,28 +1,26 @@
-﻿using Contracts.Courses.Commands;
+using Contracts.Courses.Commands;
 using Contracts.Courses.Requests;
 
 using FastEndpoints;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Services.User;
 
+using Rebus.Bus;
+
 namespace Platform.Features.Courses.CreateCourse;
 
-public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
-  ErrorOr<Success>>
+public class CreateCourseEndpoint : Endpoint<CreateCourseRequest, ErrorOr<Success>>
 {
+  private readonly IBus _bus;
   private readonly IOutputCacheStore _outputCache;
-  private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public CreateCourseEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider,
-    IUserService userService)
+  public CreateCourseEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
   {
     _outputCache = outputCache;
-    _sendEndpointProvider = sendEndpointProvider;
+    _bus = bus;
     _userService = userService;
   }
 
@@ -38,15 +36,11 @@ public class CreateCourseEndpoint : Endpoint<CreateCourseRequest,
   {
     var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("courses", ct);
-    var sendUri = new Uri("queue:create-course-command");
 
-    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-    await endpoint.Send(
-      new CreateCourseCommand
-      {
-        Name = createCourseCommand.Name, Description = createCourseCommand.Description, UserId = userId
-      },
-      ct);
+    await _bus.Send(new CreateCourseCommand
+    {
+      Name = createCourseCommand.Name, Description = createCourseCommand.Description, UserId = userId
+    });
 
     return Result.Success;
   }

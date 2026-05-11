@@ -1,20 +1,19 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 using Contracts.Classes.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Classes.DeleteClass;
 
-public class ClassDeletedRejectionEventConsumer : IConsumer<ClassDeleteRejectionEvent>
+public class ClassDeletedRejectionEventConsumer : IHandleMessages<ClassDeleteRejectionEvent>
 {
   private readonly IHubContext<ClassesHub> _hubContext;
 
   public ClassDeletedRejectionEventConsumer(IHubContext<ClassesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<ClassDeleteRejectionEvent> context) =>
+  public async Task Handle(ClassDeleteRejectionEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(ClassHubMessage.ClassDeleteRequestRejected,
-        context.Message.Reason);
+      .User(message.UserId).SendAsync(ClassHubMessage.ClassDeleteRequestRejected, message.Reason);
 }

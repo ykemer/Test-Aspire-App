@@ -1,122 +1,107 @@
-﻿using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
+using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
 using Contracts.Enrollments.Events;
 using Contracts.Enrollments.Hub;
 using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
 using Platform.Features.Enrollments;
 
+using Rebus.Bus;
+using Rebus.Handlers;
+using Rebus.Sagas;
+
 namespace Platform.Common.StateMachines;
 
-public class StudentEnrollStateMachine : MassTransitStateMachine<StudentEnrollState>
+public class StudentEnrollStateMachine : Saga<StudentEnrollState>,
+  IAmInitiatedBy<EnrollmentCreatedEvent>,
+  IHandleMessages<IncreaseStudentEnrollmentsCountSuccessEvent>,
+  IHandleMessages<IncreaseStudentEnrollmentsCountFailedEvent>,
+  IHandleMessages<IncreaseClassEnrollmentsCountSuccessEvent>,
+  IHandleMessages<IncreaseClassEnrollmentsCountFailedEvent>
 {
+  private readonly IBus _bus;
   private readonly IHubContext<EnrollmentHub> _hubContext;
 
-
-  public StudentEnrollStateMachine(IHubContext<EnrollmentHub> hubContext)
+  public StudentEnrollStateMachine(IBus bus, IHubContext<EnrollmentHub> hubContext)
   {
+    _bus = bus;
     _hubContext = hubContext;
-
-    InstanceState(x => x.CurrentState);
-
-    Event(() => EnrollmentCreated, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => StudentEnrollmentCountChanged, x => x.CorrelateById(m => m.Message.EventId));
-
-    Event(() => IncreaseStudentEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => IncreaseStudentEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
-
-    Event(() => IncreaseClassEnrollmentsCountFailed, x => x.CorrelateById(m => m.Message.EventId));
-    Event(() => IncreaseClassEnrollmentsCountSuccess, x => x.CorrelateById(m => m.Message.EventId));
-
-
-    Initially(
-      When(EnrollmentCreated)
-        .Then(context =>
-        {
-          context.Saga.StudentId = context.Message.StudentId;
-          context.Saga.CourseId = context.Message.CourseId;
-          context.Saga.ClassId = context.Message.ClassId;
-          context.Saga.EventId = context.Message.EventId;
-          context.Saga.EnrolledDate = DateTime.Now;
-        })
-        .TransitionTo(ChangingStudentEnrollmentsCount)
-        .Publish(context => new IncreaseStudentEnrollmentsCountEvent
-        {
-          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId
-        })
-    );
-
-
-    During(ChangingStudentEnrollmentsCount,
-      When(IncreaseStudentEnrollmentsCountSuccess)
-        .Then(context =>
-        {
-          context.Saga.IsStudentEnrollmentsUpdated = true;
-        })
-        .Publish(context => new IncreaseClassEnrollmentsCountEvent
-        {
-          CourseId = context.Saga.CourseId, ClassId = context.Saga.ClassId, EventId = context.Saga.EventId
-        })
-        .TransitionTo(ChangingClassEnrollmentsCount),
-      When(IncreaseStudentEnrollmentsCountFailed)
-        .ThenAsync(async context =>
-        {
-          context.Saga.FailureReason = $"Student enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(
-            EnrollmentHubMessages.EnrollmentCreateRequestRejected,
-            "Failed to enroll you in the class. Please contact support.");
-        })
-        .TransitionTo(Failed)
-    );
-
-    During(ChangingClassEnrollmentsCount,
-      When(IncreaseClassEnrollmentsCountFailed)
-        .ThenAsync(async context =>
-        {
-          context.Saga.FailureReason = $"Class enrollments count update failed: {context.Message.ErrorMessage}";
-          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(
-            EnrollmentHubMessages.EnrollmentCreateRequestRejected,
-            "Failed to enroll you in the class. Please contact support.");
-        })
-        .Publish(context => new IncreaseStudentEnrollmentsCountEvent
-        {
-          StudentId = context.Saga.StudentId, EventId = context.Saga.EventId
-        })
-        .TransitionTo(Failed)
-    );
-
-
-    DuringAny(
-      When(IncreaseClassEnrollmentsCountSuccess)
-        .ThenAsync(async context =>
-        {
-          context.Saga.IsClassEnrollmentsUpdated = true;
-          await _hubContext.Clients.User(context.Saga.StudentId.ToString()).SendAsync(EnrollmentHubMessages.EnrollmentCreated,
-            "You have been successfully enrolled in the class.");
-        })
-        .TransitionTo(Completed)
-        .Finalize());
-
-    SetCompletedWhenFinalized();
   }
 
+  protected override void CorrelateMessages(ICorrelationConfig<StudentEnrollState> config)
+  {
+    config.Correlate<EnrollmentCreatedEvent>(m => m.EventId, d => d.EventId);
+    config.Correlate<IncreaseStudentEnrollmentsCountSuccessEvent>(m => m.EventId, d => d.EventId);
+    config.Correlate<IncreaseStudentEnrollmentsCountFailedEvent>(m => m.EventId, d => d.EventId);
+    config.Correlate<IncreaseClassEnrollmentsCountSuccessEvent>(m => m.EventId, d => d.EventId);
+    config.Correlate<IncreaseClassEnrollmentsCountFailedEvent>(m => m.EventId, d => d.EventId);
+  }
 
-  public Event<EnrollmentCreatedEvent> EnrollmentCreated { get; set; }
-  public Event<StudentEnrollmentCountChangedEvent> StudentEnrollmentCountChanged { get; set; }
-  public Event<IncreaseStudentEnrollmentsCountSuccessEvent> IncreaseStudentEnrollmentsCountSuccess { get; set; }
-  public Event<IncreaseStudentEnrollmentsCountFailedEvent> IncreaseStudentEnrollmentsCountFailed { get; set; }
+  public async Task Handle(EnrollmentCreatedEvent message)
+  {
+    Data.StudentId = message.StudentId;
+    Data.CourseId = message.CourseId;
+    Data.ClassId = message.ClassId;
+    Data.EventId = message.EventId;
+    Data.EnrolledDate = DateTime.Now;
+    Data.State = "ChangingStudentEnrollmentsCount";
 
-  public Event<IncreaseClassEnrollmentsCountFailedEvent> IncreaseClassEnrollmentsCountFailed { get; set; }
-  public Event<IncreaseClassEnrollmentsCountSuccessEvent> IncreaseClassEnrollmentsCountSuccess { get; set; }
+    await _bus.Publish(new IncreaseStudentEnrollmentsCountEvent
+    {
+      StudentId = Data.StudentId,
+      EventId = Data.EventId
+    });
+  }
 
+  public async Task Handle(IncreaseStudentEnrollmentsCountSuccessEvent message)
+  {
+    if (Data.State != "ChangingStudentEnrollmentsCount") return;
 
-  public State ChangingStudentEnrollmentsCount { get; set; }
-  public State ChangingClassEnrollmentsCount { get; set; }
-  public State Completed { get; set; }
-  public State Failed { get; set; }
+    Data.IsStudentEnrollmentsUpdated = true;
+    Data.State = "ChangingClassEnrollmentsCount";
+
+    await _bus.Publish(new IncreaseClassEnrollmentsCountEvent
+    {
+      CourseId = Data.CourseId,
+      ClassId = Data.ClassId,
+      EventId = Data.EventId
+    });
+  }
+
+  public async Task Handle(IncreaseStudentEnrollmentsCountFailedEvent message)
+  {
+    Data.FailureReason = $"Student enrollments count update failed: {message.ErrorMessage}";
+    Data.State = "Failed";
+
+    await _hubContext.Clients.User(Data.StudentId.ToString()).SendAsync(
+      EnrollmentHubMessages.EnrollmentCreateRequestRejected,
+      "Failed to enroll you in the class. Please contact support.");
+
+    MarkAsComplete();
+  }
+
+  public async Task Handle(IncreaseClassEnrollmentsCountSuccessEvent message)
+  {
+    Data.IsClassEnrollmentsUpdated = true;
+    Data.State = "Completed";
+
+    await _hubContext.Clients.User(Data.StudentId.ToString()).SendAsync(
+      EnrollmentHubMessages.EnrollmentCreated,
+      "You have been successfully enrolled in the class.");
+
+    MarkAsComplete();
+  }
+
+  public async Task Handle(IncreaseClassEnrollmentsCountFailedEvent message)
+  {
+    Data.FailureReason = $"Class enrollments count update failed: {message.ErrorMessage}";
+    Data.State = "Failed";
+
+    await _hubContext.Clients.User(Data.StudentId.ToString()).SendAsync(
+      EnrollmentHubMessages.EnrollmentCreateRequestRejected,
+      "Failed to enroll you in the class. Please contact support.");
+
+    MarkAsComplete();
+  }
 }
-
-// TODO: delete enrollment from enrollment service in case of failure

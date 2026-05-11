@@ -3,14 +3,23 @@ using System.Threading.RateLimiting;
 
 using ClassesGRPCClient;
 
+using Contracts.Classes.Commands;
+using Contracts.Classes.Events;
+using Contracts.Classes.Events.DecreaseClassEnrollmentsCount;
+using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
+using Contracts.Courses.Commands;
+using Contracts.Courses.Events;
+using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Events;
+using Contracts.Students.Events.DecreaseStudentEnrollmentCount;
+using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
+
 using CoursesGRPCClient;
 
 using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 using FastEndpoints.Swagger;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -25,7 +34,12 @@ using Platform.Common.Providers;
 using Platform.Common.Services.JWT;
 using Platform.Common.Services.MailService;
 using Platform.Common.Services.User;
-using Platform.Common.StateMachines;
+
+using Rebus.Config;
+using Rebus.PostgreSql.Sagas;
+using Rebus.RabbitMq;
+using Rebus.Routing.TypeBased;
+using Rebus.ServiceProvider;
 
 using StudentsGRPCClient;
 
@@ -35,87 +49,55 @@ namespace Platform;
 
 public static class DependencyInjection
 {
-  public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
+  public static IServiceCollection AddRebusServices(this IServiceCollection services, IConfiguration config)
   {
-    var assembly = typeof(Program).Assembly;
+    var rabbitConn = config.GetConnectionString("messaging")!;
+    var dbConn = config.GetConnectionString("mainDb")!;
 
-    services.Configure<MassTransitHostOptions>(options =>
-    {
-      options.WaitUntilStarted = true;
-    });
-
-
-    services.AddMassTransit(configure =>
-    {
-      configure.SetKebabCaseEndpointNameFormatter();
-      configure.AddConsumers(assembly);
-      configure.AddActivities(assembly);
-
-
-      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+    services.AddRebus(
+      (configure, _) => configure
+        .Transport(t => t.UseRabbitMq(rabbitConn, "queue-platform"))
+        .Sagas(s => s.StoreInPostgres(dbConn, "rebus_saga_data", "rebus_saga_index"))
+        .Routing(r => r.TypeBased()
+          .Map<CreateCourseCommand>("queue-courses")
+          .Map<UpdateCourseCommand>("queue-courses")
+          .Map<DeleteCourseCommand>("queue-courses")
+          .Map<CreateClassCommand>("queue-courses")
+          .Map<UpdateClassCommand>("queue-courses")
+          .Map<DeleteClassCommand>("queue-courses")
+          .Map<CreateEnrollmentCommand>("queue-enrollments")
+          .Map<DeleteEnrollmentCommand>("queue-enrollments"))
+        .Options(o => o.SetNumberOfWorkers(1)),
+      onCreated: async bus =>
       {
-        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-        o.UsePostgres();
-      });
+        await bus.Subscribe<CourseCreatedEvent>();
+        await bus.Subscribe<CourseCreateRejectionEvent>();
+        await bus.Subscribe<CourseUpdatedEvent>();
+        await bus.Subscribe<CourseUpdateRejectionEvent>();
+        await bus.Subscribe<CourseDeletedEvent>();
+        await bus.Subscribe<CourseDeleteRejectionEvent>();
+        await bus.Subscribe<ClassCreatedEvent>();
+        await bus.Subscribe<ClassCreateRejectionEvent>();
+        await bus.Subscribe<ClassUpdatedEvent>();
+        await bus.Subscribe<ClassUpdateRejectionEvent>();
+        await bus.Subscribe<ClassDeletedEvent>();
+        await bus.Subscribe<ClassDeleteRejectionEvent>();
+        await bus.Subscribe<EnrollmentCreatedEvent>();
+        await bus.Subscribe<EnrollmentDeletedEvent>();
+        await bus.Subscribe<EnrollmentCreateRequestRejectedEvent>();
+        await bus.Subscribe<EnrollmentDeleteRequestRejectedEvent>();
+        await bus.Subscribe<IncreaseStudentEnrollmentsCountSuccessEvent>();
+        await bus.Subscribe<IncreaseStudentEnrollmentsCountFailedEvent>();
+        await bus.Subscribe<IncreaseClassEnrollmentsCountSuccessEvent>();
+        await bus.Subscribe<IncreaseClassEnrollmentsCountFailedEvent>();
+        await bus.Subscribe<DecreaseStudentEnrollmentCountSuccessEvent>();
+        await bus.Subscribe<DecreaseStudentEnrollmentCountFailedEvent>();
+        await bus.Subscribe<DecreaseClassEnrollmentsCountSuccessEvent>();
+        await bus.Subscribe<DecreaseClassEnrollmentsCountFailedEvent>();
+      }
+    );
 
-      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
-      {
-        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-      });
-
-
-      configure.SetEntityFrameworkSagaRepositoryProvider(r =>
-      {
-        r.ExistingDbContext<ApplicationDbContext>();
-        r.UsePostgres();
-      });
-
-      configure
-        .AddSagaStateMachine<StudentEnrollStateMachine, StudentEnrollState>()
-        .EntityFrameworkRepository(r =>
-        {
-          r.ConcurrencyMode = ConcurrencyMode.Optimistic;
-          r.ExistingDbContext<ApplicationDbContext>();
-        });
-
-      configure
-        .AddSagaStateMachine<StudentUnenrollStateMachine, StudentUnenrollState>()
-        .EntityFrameworkRepository(r =>
-        {
-          r.ConcurrencyMode = ConcurrencyMode.Optimistic;
-          r.ExistingDbContext<ApplicationDbContext>();
-        });
-
-      configure.UsingRabbitMq((context, cfg) =>
-      {
-        var configService = context.GetRequiredService<IConfiguration>();
-        var connectionString = configService.GetConnectionString("messaging");
-
-        cfg.Host(connectionString);
-
-        cfg.ReceiveEndpoint("queue-platform", e =>
-        {
-          e.ConfigureConsumers(context);
-          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-          e.ConfigureDefaultDeadLetterTransport();
-        });
-
-        cfg.ReceiveEndpoint("saga-enroll-state", e =>
-        {
-          e.ConfigureSaga<StudentEnrollState>(context);
-          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-          e.ConfigureDefaultDeadLetterTransport();
-        });
-
-        cfg.ReceiveEndpoint("saga-unenroll-state", e =>
-        {
-          e.ConfigureSaga<StudentUnenrollState>(context);
-          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-          e.ConfigureDefaultDeadLetterTransport();
-        });
-      });
-    });
-
+    services.AutoRegisterHandlersFromAssemblyOf<Program>();
     return services;
   }
 

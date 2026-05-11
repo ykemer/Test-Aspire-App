@@ -1,20 +1,19 @@
-﻿using Contracts.Courses.Events;
+using Contracts.Courses.Events;
 using Contracts.Courses.Hub;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.SignalR;
 
+using Rebus.Handlers;
+
 namespace Platform.Features.Courses.UpdateCourse;
 
-public class CourseUpdatedEventConsumer : IConsumer<CourseUpdatedEvent>
+public class CourseUpdatedEventConsumer : IHandleMessages<CourseUpdatedEvent>
 {
   private readonly IHubContext<CoursesHub> _hubContext;
 
   public CourseUpdatedEventConsumer(IHubContext<CoursesHub> hubContext) => _hubContext = hubContext;
 
-  public async Task Consume(ConsumeContext<CourseUpdatedEvent> context) =>
+  public async Task Handle(CourseUpdatedEvent message) =>
     await _hubContext.Clients
-      .User(context.Message.UserId).SendAsync(CourseHubMessage.CourseUpdated,
-        "Course updated successfully.");
+      .User(message.UserId).SendAsync(CourseHubMessage.CourseUpdated, "Course updated successfully.");
 }

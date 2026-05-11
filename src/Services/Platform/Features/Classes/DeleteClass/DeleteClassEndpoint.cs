@@ -1,27 +1,25 @@
-﻿using Contracts.Classes.Commands;
+using Contracts.Classes.Commands;
 
 using FastEndpoints;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Services.User;
 
+using Rebus.Bus;
+
 namespace Platform.Features.Classes.DeleteClass;
 
-public class DeleteClassEndpoint : EndpointWithoutRequest<
-  ErrorOr<Deleted>>
+public class DeleteClassEndpoint : EndpointWithoutRequest<ErrorOr<Deleted>>
 {
+  private readonly IBus _bus;
   private readonly IOutputCacheStore _outputCache;
-  private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public DeleteClassEndpoint(IOutputCacheStore outputCache, ISendEndpointProvider sendEndpointProvider,
-    IUserService userService)
+  public DeleteClassEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
   {
     _outputCache = outputCache;
-    _sendEndpointProvider = sendEndpointProvider;
+    _bus = bus;
     _userService = userService;
   }
 
@@ -32,19 +30,14 @@ public class DeleteClassEndpoint : EndpointWithoutRequest<
     Description(x => x.WithTags("Classes"));
   }
 
-  public override async Task<ErrorOr<Deleted>> ExecuteAsync(
-    CancellationToken ct)
+  public override async Task<ErrorOr<Deleted>> ExecuteAsync(CancellationToken ct)
   {
     var courseId = Route<Guid>("CourseId");
     var classId = Route<Guid>("ClassId");
     var userId = _userService.GetUserId(User).ToString();
 
-    var sendUri = new Uri("queue:delete-class-command");
-    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-
-
     await _outputCache.EvictByTagAsync("classes", ct);
-    await endpoint.Send(new DeleteClassCommand { ClassId = classId, CourseId = courseId, UserId = userId });
+    await _bus.Send(new DeleteClassCommand { ClassId = classId, CourseId = courseId, UserId = userId });
 
     return Result.Deleted;
   }

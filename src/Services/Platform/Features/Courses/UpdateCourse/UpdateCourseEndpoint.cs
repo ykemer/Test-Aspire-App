@@ -1,29 +1,26 @@
-﻿using Contracts.Courses.Commands;
+using Contracts.Courses.Commands;
 using Contracts.Courses.Requests;
 
 using FastEndpoints;
-
-using MassTransit;
 
 using Microsoft.AspNetCore.OutputCaching;
 
 using Platform.Common.Services.User;
 
+using Rebus.Bus;
+
 namespace Platform.Features.Courses.UpdateCourse;
 
-public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
-  ErrorOr<Updated>>
+public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest, ErrorOr<Updated>>
 {
+  private readonly IBus _bus;
   private readonly IOutputCacheStore _outputCache;
-  private readonly ISendEndpointProvider _sendEndpointProvider;
   private readonly IUserService _userService;
 
-  public UpdateCourseEndpoint(IOutputCacheStore outputCache,
-    ISendEndpointProvider sendEndpointProvider,
-    IUserService userService)
+  public UpdateCourseEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
   {
     _outputCache = outputCache;
-    _sendEndpointProvider = sendEndpointProvider;
+    _bus = bus;
     _userService = userService;
   }
 
@@ -40,17 +37,14 @@ public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest,
     var id = Route<Guid>("CourseId");
     var userId = _userService.GetUserId(User).ToString();
     await _outputCache.EvictByTagAsync("courses", ct);
-    var sendUri = new Uri("queue:update-course-command");
 
-    var endpoint = await _sendEndpointProvider.GetSendEndpoint(sendUri);
-    await endpoint.Send(
-      new UpdateCourseCommand
-      {
-        CourseId = id,
-        Name = updateCourseCommand.Name,
-        Description = updateCourseCommand.Description,
-        UserId = userId
-      }, ct);
+    await _bus.Send(new UpdateCourseCommand
+    {
+      CourseId = id,
+      Name = updateCourseCommand.Name,
+      Description = updateCourseCommand.Description,
+      UserId = userId
+    });
 
     return Result.Updated;
   }
