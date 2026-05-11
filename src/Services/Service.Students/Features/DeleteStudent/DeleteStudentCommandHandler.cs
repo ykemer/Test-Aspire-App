@@ -1,6 +1,6 @@
 ﻿using Contracts.Students.Events;
 
-using MassTransit;
+using Rebus.Bus;
 
 using Service.Students.Common.Database;
 
@@ -10,14 +10,14 @@ public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand,
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteStudentCommandHandler> _logger;
-  private readonly IPublishEndpoint _publishEndpoint;
+  private readonly IBus _bus;
 
   public DeleteStudentCommandHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentCommandHandler> logger,
-    IPublishEndpoint publishEndpoint)
+    IBus bus)
   {
     _dbContext = dbContext;
     _logger = logger;
-    _publishEndpoint = publishEndpoint;
+    _bus = bus;
   }
 
   public async ValueTask<ErrorOr<Deleted>> Handle(DeleteStudentCommand request, CancellationToken cancellationToken)
@@ -39,7 +39,7 @@ public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand,
 
     _dbContext.Remove(student);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    await _publishEndpoint.Publish(new StudentDeletedEvent { StudentId = request.StudentId }, cancellationToken);
+    await _bus.Publish(new StudentDeletedEvent { StudentId = request.StudentId });
     return Result.Deleted;
   }
 }

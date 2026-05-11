@@ -1,54 +1,32 @@
-﻿using MassTransit;
+using Contracts.Students.Events.DecreaseStudentEnrollmentCount;
+using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
+using Contracts.Users.Events;
 
-using Service.Students.Common.Database;
+using Rebus.Config;
+using Rebus.RabbitMq;
+using Rebus.ServiceProvider;
 
 namespace Service.Students.Common.Setup;
 
 public static class DependencyInjectionMassTransit
 {
-  public static IServiceCollection AddMassTransitServices(this IServiceCollection services)
+  public static IServiceCollection AddRebusServices(this IServiceCollection services, IConfiguration config)
   {
-    services.Configure<MassTransitHostOptions>(options =>
-    {
-      options.WaitUntilStarted = true;
-    });
+    var rabbitConn = config.GetConnectionString("messaging")!;
 
-    services.AddMassTransit(configure =>
-    {
-      var assembly = typeof(DependencyInjection).Assembly;
-      var queue = "queue-students";
-
-      configure.SetKebabCaseEndpointNameFormatter();
-      configure.AddConsumers(assembly);
-
-
-      configure.AddEntityFrameworkOutbox<ApplicationDbContext>(o =>
+    services.AddRebus(
+      (configure, _) => configure
+        .Transport(t => t.UseRabbitMq(rabbitConn, "queue-students"))
+        .Options(o => o.SetNumberOfWorkers(1)),
+      onCreated: async bus =>
       {
-        o.DuplicateDetectionWindow = TimeSpan.FromSeconds(30);
-        o.UsePostgres();
-        //o.UseBusOutbox();
-      });
+        await bus.Subscribe<UserCreatedEvent>();
+        await bus.Subscribe<IncreaseStudentEnrollmentsCountEvent>();
+        await bus.Subscribe<DecreaseStudentEnrollmentCountEvent>();
+      }
+    );
 
-      configure.AddConfigureEndpointsCallback((context, name, cfg) =>
-      {
-        cfg.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-      });
-
-      configure.UsingRabbitMq((context, cfg) =>
-      {
-        var configService = context.GetRequiredService<IConfiguration>();
-        var connectionString = configService.GetConnectionString("messaging");
-        cfg.Host(connectionString);
-
-        cfg.ReceiveEndpoint(queue, e =>
-        {
-          e.ConfigureConsumers(context);
-          e.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
-          e.ConfigureDefaultDeadLetterTransport();
-        });
-      });
-    });
-
+    services.AutoRegisterHandlersFromAssemblyOf<Program>();
     return services;
   }
 }

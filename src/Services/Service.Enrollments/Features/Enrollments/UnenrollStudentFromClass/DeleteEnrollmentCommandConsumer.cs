@@ -1,36 +1,41 @@
-﻿using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Events;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
-public class DeleteEnrollmentCommandConsumer : IConsumer<DeleteEnrollmentCommand>
+public class DeleteEnrollmentCommandConsumer : IHandleMessages<DeleteEnrollmentCommand>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-
-  public DeleteEnrollmentCommandConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<DeleteEnrollmentCommand> context)
+  public DeleteEnrollmentCommandConsumer(IMediator mediator, IBus bus)
   {
-    var result = await _mediator.Send(context.Message.MapToUnenrollStudentFromClassCommand());
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(DeleteEnrollmentCommand message)
+  {
+    var result = await _mediator.Send(message.MapToUnenrollStudentFromClassCommand());
 
     if (result.IsError)
     {
-      await context.Publish(new EnrollmentDeleteRequestRejectedEvent
+      await _bus.Publish(new EnrollmentDeleteRequestRejectedEvent
       {
-        ClassId = context.Message.ClassId,
-        CourseId = context.Message.CourseId,
-        StudentId = context.Message.StudentId,
+        ClassId = message.ClassId,
+        CourseId = message.CourseId,
+        StudentId = message.StudentId,
         Reason = result.FirstError.Description
       });
     }
     else
     {
-      await context.Publish(new EnrollmentDeletedEvent
+      await _bus.Publish(new EnrollmentDeletedEvent
       {
-        CourseId = context.Message.CourseId, ClassId = context.Message.ClassId, StudentId = context.Message.StudentId
+        CourseId = message.CourseId, ClassId = message.ClassId, StudentId = message.StudentId
       });
     }
   }

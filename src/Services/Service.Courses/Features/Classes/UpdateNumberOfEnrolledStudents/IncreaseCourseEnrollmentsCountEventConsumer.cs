@@ -1,35 +1,40 @@
-﻿using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
+using Contracts.Classes.Events.IncreaseClassEnrollmentsCount;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Courses.Features.Classes.UpdateNumberOfEnrolledStudents;
 
-public class IncreaseCourseEnrollmentsCountEventConsumer : IConsumer<IncreaseClassEnrollmentsCountEvent>
+public class IncreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<IncreaseClassEnrollmentsCountEvent>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public IncreaseCourseEnrollmentsCountEventConsumer(IMediator mediator) => _mediator = mediator;
+  public IncreaseCourseEnrollmentsCountEventConsumer(IMediator mediator, IBus bus)
+  {
+    _mediator = mediator;
+    _bus = bus;
+  }
 
-  public async Task Consume(ConsumeContext<IncreaseClassEnrollmentsCountEvent> context)
+  public async Task Handle(IncreaseClassEnrollmentsCountEvent message)
   {
     var result =
-      await _mediator.Send(
-        new UpdateNumberOfEnrolledStudentsCommand(context.Message.CourseId, context.Message.ClassId, true));
+      await _mediator.Send(new UpdateNumberOfEnrolledStudentsCommand(message.CourseId, message.ClassId, true));
     if (result.IsError)
     {
-      await context.Publish(new IncreaseClassEnrollmentsCountFailedEvent
+      await _bus.Publish(new IncreaseClassEnrollmentsCountFailedEvent
       {
-        CourseId = context.Message.CourseId,
-        ClassId = context.Message.ClassId,
-        EventId = context.Message.EventId,
+        CourseId = message.CourseId,
+        ClassId = message.ClassId,
+        EventId = message.EventId,
         ErrorMessage = result.Errors.FirstOrDefault().Description
       });
     }
     else
     {
-      await context.Publish(new IncreaseClassEnrollmentsCountSuccessEvent
+      await _bus.Publish(new IncreaseClassEnrollmentsCountSuccessEvent
       {
-        CourseId = context.Message.CourseId, EventId = context.Message.EventId
+        CourseId = message.CourseId, EventId = message.EventId
       });
     }
   }

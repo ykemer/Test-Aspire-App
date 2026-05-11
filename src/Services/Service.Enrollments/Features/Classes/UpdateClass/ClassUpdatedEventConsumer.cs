@@ -1,23 +1,23 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 
-using MassTransit;
+using Rebus.Handlers;
 
 namespace Service.Enrollments.Features.Classes.UpdateClass;
 
-public class ClassUpdatedEventConsumer : IConsumer<ClassUpdatedEvent>
+public class ClassUpdatedEventConsumer : IHandleMessages<ClassUpdatedEvent>
 {
   private readonly IMediator _mediator;
 
   public ClassUpdatedEventConsumer(IMediator mediator) => _mediator = mediator;
 
-  public async Task Consume(ConsumeContext<ClassUpdatedEvent> context) =>
+  public async Task Handle(ClassUpdatedEvent message) =>
     await _mediator.Send(new UpdateClassCommand
     {
-      MaxStudents = context.Message.MaxStudents,
-      CourseEndDate = context.Message.CourseEndDate,
-      CourseStartDate = context.Message.CourseStartDate,
-      RegistrationDeadline = context.Message.RegistrationDeadline,
-      CourseId = context.Message.CourseId,
-      Id = context.Message.Id
+      MaxStudents = message.MaxStudents,
+      CourseEndDate = message.CourseEndDate,
+      CourseStartDate = message.CourseStartDate,
+      RegistrationDeadline = message.RegistrationDeadline,
+      CourseId = message.CourseId,
+      Id = message.Id
     });
 }

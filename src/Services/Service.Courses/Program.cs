@@ -10,12 +10,13 @@ builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
 builder.AddRedisDistributedCache("cache");
 
 builder.Services.AddServices();
-builder.Services.AddMassTransitServices();
+builder.Services.AddRebusServices(builder.Configuration);
 
 var app = builder.Build();
 
 app.MapGrpcService<CoursesService>();
 app.MapGrpcService<ClassesService>();
+
 
 
 app.MapGet("/",

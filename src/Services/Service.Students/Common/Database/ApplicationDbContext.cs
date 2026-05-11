@@ -1,6 +1,4 @@
-﻿using MassTransit;
-
-using Service.Students.Common.Database.Configurations;
+﻿using Service.Students.Common.Database.Configurations;
 using Service.Students.Common.Database.Entities;
 
 namespace Service.Students.Common.Database;
@@ -13,15 +11,9 @@ public class ApplicationDbContext : DbContext
 
   public virtual DbSet<Student> Students { get; set; }
 
-
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
-
-    modelBuilder.AddInboxStateEntity();
-    modelBuilder.AddOutboxMessageEntity();
-    modelBuilder.AddOutboxStateEntity();
-
     modelBuilder.ApplyConfiguration(new StudentsConfiguration());
   }
 }

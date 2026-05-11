@@ -1,18 +1,23 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Courses.Features.Classes.CreateClass;
 
-public class CreateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.CreateClassCommand>
+public class CreateClassCommandConsumer : IHandleMessages<Contracts.Classes.Commands.CreateClassCommand>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public CreateClassCommandConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<Contracts.Classes.Commands.CreateClassCommand> context)
+  public CreateClassCommandConsumer(IMediator mediator, IBus bus)
   {
-    var message = context.Message;
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(Contracts.Classes.Commands.CreateClassCommand message)
+  {
     var command = new CreateClassCommand
     {
       CourseId = message.CourseId,
@@ -25,14 +30,14 @@ public class CreateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.C
 
     if (result.IsError)
     {
-      await context.Publish(new ClassCreateRejectionEvent
+      await _bus.Publish(new ClassCreateRejectionEvent
       {
         CourseId = message.CourseId, Reason = result.FirstError.Description, UserId = message.UserId
       });
       return;
     }
 
-    await context.Publish(new ClassCreatedEvent
+    await _bus.Publish(new ClassCreatedEvent
     {
       CourseId = result.Value.CourseId,
       Id = result.Value.Id,

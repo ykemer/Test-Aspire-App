@@ -1,6 +1,6 @@
 ﻿using Contracts.Courses.Events;
 
-using MassTransit;
+using Rebus.Bus;
 
 using Service.Courses.Common.Database;
 
@@ -10,14 +10,14 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, E
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteCourseCommandHandler> _logger;
-  private readonly IPublishEndpoint _publishEndpoint;
+  private readonly IBus _bus;
 
   public DeleteCourseCommandHandler(ApplicationDbContext dbContext, ILogger<DeleteCourseCommandHandler> logger,
-    IPublishEndpoint publishEndpoint)
+    IBus bus)
   {
     _dbContext = dbContext;
     _logger = logger;
-    _publishEndpoint = publishEndpoint;
+    _bus = bus;
   }
 
   public async ValueTask<ErrorOr<Deleted>> Handle(DeleteCourseCommand request, CancellationToken cancellationToken)
@@ -42,7 +42,7 @@ public class DeleteCourseCommandHandler : IRequestHandler<DeleteCourseCommand, E
     _dbContext.Classes.RemoveRange(_dbContext.Classes.Where(c => c.CourseId == course.Id));
     _dbContext.Courses.Remove(course);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    await _publishEndpoint.Publish(new CourseDeletedEvent { CourseId = course.Id }, cancellationToken);
+    await _bus.Publish(new CourseDeletedEvent { CourseId = course.Id });
     _logger.Log(LogLevel.Information, "Course with id {RequestId} was deleted", request.Id);
     return Result.Deleted;
   }

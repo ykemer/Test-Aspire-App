@@ -1,35 +1,41 @@
-﻿using Contracts.Enrollments.Commands;
+using Contracts.Enrollments.Commands;
 using Contracts.Enrollments.Events;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
-public class CreateEnrollmentCommandConsumer : IConsumer<CreateEnrollmentCommand>
+public class CreateEnrollmentCommandConsumer : IHandleMessages<CreateEnrollmentCommand>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public CreateEnrollmentCommandConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<CreateEnrollmentCommand> context)
+  public CreateEnrollmentCommandConsumer(IMediator mediator, IBus bus)
   {
-    var result = await _mediator.Send(context.Message.MapToEnrollStudentToClassCommand());
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(CreateEnrollmentCommand message)
+  {
+    var result = await _mediator.Send(message.MapToEnrollStudentToClassCommand());
 
     if (result.IsError)
     {
-      await context.Publish(new EnrollmentCreateRequestRejectedEvent
+      await _bus.Publish(new EnrollmentCreateRequestRejectedEvent
       {
-        ClassId = context.Message.ClassId,
-        CourseId = context.Message.CourseId,
-        StudentId = context.Message.StudentId,
+        ClassId = message.ClassId,
+        CourseId = message.CourseId,
+        StudentId = message.StudentId,
         Reason = result.FirstError.Description
       });
     }
     else
     {
-      await context.Publish(new EnrollmentCreatedEvent
+      await _bus.Publish(new EnrollmentCreatedEvent
       {
-        ClassId = context.Message.ClassId, CourseId = context.Message.CourseId, StudentId = context.Message.StudentId
+        ClassId = message.ClassId, CourseId = message.CourseId, StudentId = message.StudentId
       });
     }
   }

@@ -1,33 +1,38 @@
-﻿using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
+using Contracts.Students.Events.IncreaseStudentEnrollmentsCount;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
-public class IncreaseStudentEnrollmentsEventConsumer
-  : IConsumer<IncreaseStudentEnrollmentsCountEvent>
+public class IncreaseStudentEnrollmentsEventConsumer : IHandleMessages<IncreaseStudentEnrollmentsCountEvent>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public IncreaseStudentEnrollmentsEventConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<IncreaseStudentEnrollmentsCountEvent> context)
+  public IncreaseStudentEnrollmentsEventConsumer(IMediator mediator, IBus bus)
   {
-    var result = await _mediator.Send(new UpdateStudentEnrollmentsCountCommand(context.Message.StudentId, true));
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(IncreaseStudentEnrollmentsCountEvent message)
+  {
+    var result = await _mediator.Send(new UpdateStudentEnrollmentsCountCommand(message.StudentId, true));
     if (result.IsError)
     {
-      await context.Publish(new IncreaseStudentEnrollmentsCountFailedEvent
+      await _bus.Publish(new IncreaseStudentEnrollmentsCountFailedEvent
       {
-        StudentId = context.Message.StudentId,
-        EventId = context.Message.EventId,
+        StudentId = message.StudentId,
+        EventId = message.EventId,
         ErrorMessage = result.Errors.FirstOrDefault().Description
       });
     }
     else
     {
-      await context.Publish(new IncreaseStudentEnrollmentsCountSuccessEvent
+      await _bus.Publish(new IncreaseStudentEnrollmentsCountSuccessEvent
       {
-        StudentId = context.Message.StudentId, EventId = context.Message.EventId
+        StudentId = message.StudentId, EventId = message.EventId
       });
     }
   }

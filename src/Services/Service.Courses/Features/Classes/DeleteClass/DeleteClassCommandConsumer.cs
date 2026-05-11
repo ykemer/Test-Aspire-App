@@ -1,27 +1,29 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Courses.Features.Classes.DeleteClass;
 
-public class DeleteClassCommandConsumer : IConsumer<Contracts.Classes.Commands.DeleteClassCommand>
+public class DeleteClassCommandConsumer : IHandleMessages<Contracts.Classes.Commands.DeleteClassCommand>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public DeleteClassCommandConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<Contracts.Classes.Commands.DeleteClassCommand> context)
+  public DeleteClassCommandConsumer(IMediator mediator, IBus bus)
   {
-    var message = context.Message;
-    var command = new DeleteClassCommand(
-      message.ClassId,
-      message.CourseId
-    );
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(Contracts.Classes.Commands.DeleteClassCommand message)
+  {
+    var command = new DeleteClassCommand(message.ClassId, message.CourseId);
     var result = await _mediator.Send(command);
 
     if (result.IsError)
     {
-      await context.Publish(new ClassDeleteRejectionEvent
+      await _bus.Publish(new ClassDeleteRejectionEvent
       {
         Reason = result.FirstError.Description,
         CourseId = message.CourseId,
@@ -31,7 +33,7 @@ public class DeleteClassCommandConsumer : IConsumer<Contracts.Classes.Commands.D
       return;
     }
 
-    await context.Publish(
+    await _bus.Publish(
       new ClassDeletedEvent { CourseId = message.CourseId, UserId = message.UserId, ClassId = message.ClassId });
   }
 }

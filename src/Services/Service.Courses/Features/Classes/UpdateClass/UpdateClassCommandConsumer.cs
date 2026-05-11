@@ -1,18 +1,23 @@
-﻿using Contracts.Classes.Events;
+using Contracts.Classes.Events;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Courses.Features.Classes.UpdateClass;
 
-public class UpdateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.UpdateClassCommand>
+public class UpdateClassCommandConsumer : IHandleMessages<Contracts.Classes.Commands.UpdateClassCommand>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public UpdateClassCommandConsumer(IMediator mediator) => _mediator = mediator;
-
-  public async Task Consume(ConsumeContext<Contracts.Classes.Commands.UpdateClassCommand> context)
+  public UpdateClassCommandConsumer(IMediator mediator, IBus bus)
   {
-    var message = context.Message;
+    _mediator = mediator;
+    _bus = bus;
+  }
+
+  public async Task Handle(Contracts.Classes.Commands.UpdateClassCommand message)
+  {
     var command = new UpdateClassCommand
     {
       Id = message.ClassId,
@@ -25,7 +30,7 @@ public class UpdateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.U
     var result = await _mediator.Send(command);
     if (result.IsError)
     {
-      await context.Publish(new ClassUpdateRejectionEvent
+      await _bus.Publish(new ClassUpdateRejectionEvent
       {
         CourseId = message.CourseId,
         UserId = message.UserId,
@@ -35,7 +40,7 @@ public class UpdateClassCommandConsumer : IConsumer<Contracts.Classes.Commands.U
       return;
     }
 
-    await context.Publish(new ClassUpdatedEvent
+    await _bus.Publish(new ClassUpdatedEvent
     {
       Id = message.ClassId,
       CourseId = message.CourseId,

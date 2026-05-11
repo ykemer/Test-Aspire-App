@@ -1,6 +1,4 @@
-﻿using MassTransit;
-
-using Service.Courses.Common.Database.Configurations;
+﻿using Service.Courses.Common.Database.Configurations;
 using Service.Courses.Common.Database.Entities;
 
 namespace Service.Courses.Common.Database;
@@ -17,11 +15,6 @@ public class ApplicationDbContext : DbContext
   protected override void OnModelCreating(ModelBuilder modelBuilder)
   {
     base.OnModelCreating(modelBuilder);
-
-    modelBuilder.AddInboxStateEntity();
-    modelBuilder.AddOutboxMessageEntity();
-    modelBuilder.AddOutboxStateEntity();
-
     modelBuilder.ApplyConfiguration(new CourseConfiguration());
     modelBuilder.ApplyConfiguration(new ClassConfiguration());
   }

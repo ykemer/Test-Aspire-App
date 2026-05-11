@@ -1,37 +1,42 @@
-﻿using Contracts.Classes.Events.DecreaseClassEnrollmentsCount;
+using Contracts.Classes.Events.DecreaseClassEnrollmentsCount;
 
-using MassTransit;
+using Rebus.Bus;
+using Rebus.Handlers;
 
 namespace Service.Courses.Features.Classes.UpdateNumberOfEnrolledStudents;
 
-public class DecreaseCourseEnrollmentsCountEventConsumer : IConsumer<DecreaseClassEnrollmentsCountEvent>
+public class DecreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<DecreaseClassEnrollmentsCountEvent>
 {
+  private readonly IBus _bus;
   private readonly IMediator _mediator;
 
-  public DecreaseCourseEnrollmentsCountEventConsumer(IMediator mediator) => _mediator = mediator;
+  public DecreaseCourseEnrollmentsCountEventConsumer(IMediator mediator, IBus bus)
+  {
+    _mediator = mediator;
+    _bus = bus;
+  }
 
-  public async Task Consume(ConsumeContext<DecreaseClassEnrollmentsCountEvent> context)
+  public async Task Handle(DecreaseClassEnrollmentsCountEvent message)
   {
     var result =
-      await _mediator.Send(
-        new UpdateNumberOfEnrolledStudentsCommand(context.Message.CourseId, context.Message.ClassId, false));
+      await _mediator.Send(new UpdateNumberOfEnrolledStudentsCommand(message.CourseId, message.ClassId, false));
     if (result.IsError)
     {
-      await context.Publish(new DecreaseClassEnrollmentsCountFailedEvent
+      await _bus.Publish(new DecreaseClassEnrollmentsCountFailedEvent
       {
-        CourseId = context.Message.CourseId,
-        ClassId = context.Message.ClassId,
-        EventId = context.Message.EventId,
+        CourseId = message.CourseId,
+        ClassId = message.ClassId,
+        EventId = message.EventId,
         ErrorMessage = result.Errors.FirstOrDefault().Description
       });
     }
     else
     {
-      await context.Publish(new DecreaseClassEnrollmentsCountSuccessEvent
+      await _bus.Publish(new DecreaseClassEnrollmentsCountSuccessEvent
       {
-        CourseId = context.Message.CourseId,
-        ClassId = context.Message.ClassId,
-        EventId = context.Message.EventId
+        CourseId = message.CourseId,
+        ClassId = message.ClassId,
+        EventId = message.EventId
       });
     }
   }

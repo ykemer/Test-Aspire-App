@@ -10,7 +10,7 @@ builder.AddRedisDistributedCache("cache");
 
 // Add services to the container.
 builder.Services.AddServices();
-builder.Services.AddMassTransitServices();
+builder.Services.AddRebusServices(builder.Configuration);
 
 
 var app = builder.Build();
@@ -20,6 +20,7 @@ app.MapGrpcService<EnrollmentsService>();
 app.MapGet("/",
   () =>
     "Communication with gRPC endpoints must be made through a gRPC client. To learn how to create a client, visit: https://go.microsoft.com/fwlink/?linkid=2086909");
+
 
 if (app.Environment.IsDevelopment())
 {

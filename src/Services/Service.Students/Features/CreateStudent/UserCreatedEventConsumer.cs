@@ -1,18 +1,17 @@
-﻿using Contracts.Users.Events;
+using Contracts.Users.Events;
 
-using MassTransit;
+using Rebus.Handlers;
 
 namespace Service.Students.Features.CreateStudent;
 
-public class UserCreatedEventConsumer : IConsumer<UserCreatedEvent>
+public class UserCreatedEventConsumer : IHandleMessages<UserCreatedEvent>
 {
   private readonly IMediator _mediator;
 
   public UserCreatedEventConsumer(IMediator mediator) => _mediator = mediator;
 
-  public async Task Consume(ConsumeContext<UserCreatedEvent> context)
+  public async Task Handle(UserCreatedEvent message)
   {
-    var message = context.Message;
     await _mediator.Send(new CreateStudentCommand
     {
       Id = message.Id,
