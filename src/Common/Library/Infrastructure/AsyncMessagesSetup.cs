@@ -1,40 +1,21 @@
-﻿using System.Reflection;
-
-using MassTransit;
-
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+
+using Rebus.Config;
 
 namespace Library.Infrastructure;
 
 public static class AsyncMessagesSetup
 {
-  public static IServiceCollection AddMassTransitServices(this IServiceCollection services, Assembly assembly,
+  public static IServiceCollection AddRebusServices(this IServiceCollection services, IConfiguration config,
     string queue)
   {
-    services.Configure<MassTransitHostOptions>(options =>
-    {
-      options.WaitUntilStarted = true;
-    });
+    var rabbitConn = config.GetConnectionString("messaging")!;
 
-    services.AddMassTransit(configure =>
-    {
-      configure.SetKebabCaseEndpointNameFormatter();
-      configure.AddConsumers(assembly);
-
-      configure.UsingRabbitMq((context, cfg) =>
-      {
-        var configService = context.GetRequiredService<IConfiguration>();
-        var connectionString = configService.GetConnectionString("messaging");
-        cfg.Host(connectionString);
-        cfg.ReceiveEndpoint(queue, e =>
-        {
-          e.ConfigureConsumers(context);
-        });
-        cfg.ConfigureEndpoints(context);
-      });
-    });
-
+    services.AddRebus((configure, _) => configure
+      .Transport(t => t.UseRabbitMq(rabbitConn, queue))
+      .Options(o => o.SetNumberOfWorkers(1))
+    );
 
     return services;
   }
