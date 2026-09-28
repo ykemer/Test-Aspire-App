@@ -7,6 +7,9 @@ public static class UnenrollStudentFromClassMapper
   public static UnenrollStudentFromClassCommand
     MapToUnenrollStudentFromClassCommand(this DeleteEnrollmentCommand command) => new()
   {
-    ClassId = command.ClassId, CourseId = command.CourseId, StudentId = command.StudentId
+    ClassId = command.ClassId,
+    CourseId = command.CourseId,
+    StudentId = command.StudentId,
+    IdempotencyKey = command.IdempotencyKey
   };
 }

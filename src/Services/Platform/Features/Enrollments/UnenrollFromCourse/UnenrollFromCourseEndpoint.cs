@@ -58,7 +58,10 @@ public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest
       return studentResponse.Errors[0];
     }
 
-    await _bus.Send(new DeleteEnrollmentCommand { CourseId = courseId, ClassId = classId, StudentId = userId });
+    await _bus.Send(new DeleteEnrollmentCommand
+    {
+      CourseId = courseId, ClassId = classId, StudentId = userId, IdempotencyKey = request.IdempotencyKey
+    });
 
     return Result.Deleted;
   }

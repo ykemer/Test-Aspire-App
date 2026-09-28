@@ -12,14 +12,14 @@ public class EnrollmentApiService : IEnrollmentApiService
   public async Task EnrollToCourse(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.PostAsJsonAsync($"/api/courses/{courseId}/classes/{classId}/enroll",
-      new ChangeCourseEnrollmentRequest(), cancellationToken);
+      new ChangeCourseEnrollmentRequest { IdempotencyKey = Guid.NewGuid() }, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
 
   public async Task LeaveCourse(Guid courseId, Guid classId, CancellationToken cancellationToken = default)
   {
     var response = await _httpClient.PostAsJsonAsync($"/api/courses/{courseId}/classes/{classId}/unenroll",
-      new ChangeCourseEnrollmentRequest(), cancellationToken);
+      new ChangeCourseEnrollmentRequest { IdempotencyKey = Guid.NewGuid() }, cancellationToken);
     response.EnsureSuccessStatusCode();
   }
 

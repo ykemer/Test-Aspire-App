@@ -47,6 +47,18 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
       .HasColumnType("integer")
       .IsRequired();
 
+    builder.Property(b => b.EnrolledCount)
+      .HasComment("Materialized count of active enrollments, kept in sync with the Enrollments table")
+      .HasColumnType("integer")
+      .HasDefaultValue(0)
+      .IsRequired();
+
+    builder.Property(b => b.ConcurrencyStamp)
+      .HasComment("Optimistic concurrency token, regenerated whenever EnrolledCount changes")
+      .HasColumnType("uuid")
+      .IsConcurrencyToken()
+      .IsRequired();
+
     builder.Property(b => b.CreatedAt)
       .HasComment("Date and time when the class was created")
       .HasColumnType("timestamp with time zone")

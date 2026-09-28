@@ -55,7 +55,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
 
     var cmd = new UnenrollStudentFromClassCommand
     {
-      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = Guid.NewGuid()
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = Guid.NewGuid(), IdempotencyKey = Guid.NewGuid()
     };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
@@ -70,6 +70,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
     var cls = Builder<Class>.CreateNew()
       .With(c => c.CourseStartDate, DateTime.UtcNow.AddMinutes(-1))
       .With(c => c.CourseEndDate, DateTime.UtcNow.AddDays(5))
+      .With(c => c.EnrolledCount, 1)
       .Build();
     await _dbContext.Classes.AddAsync(cls);
 
@@ -84,7 +85,10 @@ public class UnenrollStudentFromClassCommandHandlerTests
     await _dbContext.Enrollments.AddAsync(enrollment);
     await _dbContext.SaveChangesAsync();
 
-    var cmd = new UnenrollStudentFromClassCommand { CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId };
+    var cmd = new UnenrollStudentFromClassCommand
+    {
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId, IdempotencyKey = Guid.NewGuid()
+    };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
@@ -99,6 +103,7 @@ public class UnenrollStudentFromClassCommandHandlerTests
     var cls = Builder<Class>.CreateNew()
       .With(c => c.CourseStartDate, DateTime.UtcNow.AddDays(2))
       .With(c => c.CourseEndDate, DateTime.UtcNow.AddDays(5))
+      .With(c => c.EnrolledCount, 1)
       .Build();
     await _dbContext.Classes.AddAsync(cls);
 
@@ -113,11 +118,46 @@ public class UnenrollStudentFromClassCommandHandlerTests
     await _dbContext.Enrollments.AddAsync(enrollment);
     await _dbContext.SaveChangesAsync();
 
-    var cmd = new UnenrollStudentFromClassCommand { CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId };
+    var cmd = new UnenrollStudentFromClassCommand
+    {
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = studentId, IdempotencyKey = Guid.NewGuid()
+    };
 
     var result = await _handler.Handle(cmd, CancellationToken.None);
 
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Enrollments.CountAsync(), Is.EqualTo(0));
+
+    var updatedClass = await _dbContext.Classes.FirstAsync(c => c.Id == cls.Id);
+    Assert.That(updatedClass.EnrolledCount, Is.EqualTo(0));
+  }
+
+  [Test]
+  public async Task Handle_ShouldReturnSuccess_WithoutTouchingEnrollment_WhenIdempotencyKeyAlreadyProcessed()
+  {
+    var idempotencyKey = Guid.NewGuid();
+    var cls = Builder<Class>.CreateNew()
+      .With(c => c.CourseStartDate, DateTime.UtcNow.AddDays(2))
+      .With(c => c.CourseEndDate, DateTime.UtcNow.AddDays(5))
+      .With(c => c.EnrolledCount, 0)
+      .Build();
+    await _dbContext.Classes.AddAsync(cls);
+    await _dbContext.IdempotencyRecords.AddAsync(new IdempotencyRecord
+    {
+      IdempotencyKey = idempotencyKey, Operation = "Unenroll"
+    });
+    await _dbContext.SaveChangesAsync();
+
+    // No matching Enrollment row exists — simulating a retried unenroll after the row was already
+    // deleted by the original (now-lost) response. Without the idempotency check this would
+    // incorrectly return "not_enrolled".
+    var cmd = new UnenrollStudentFromClassCommand
+    {
+      CourseId = cls.CourseId, ClassId = cls.Id, StudentId = Guid.NewGuid(), IdempotencyKey = idempotencyKey
+    };
+
+    var result = await _handler.Handle(cmd, CancellationToken.None);
+
+    Assert.That(result.IsError, Is.False);
   }
 }

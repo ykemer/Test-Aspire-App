@@ -65,7 +65,8 @@ public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, Er
       ClassId = classId,
       StudentId = userId,
       FirstName = student.FirstName,
-      LastName = student.LastName
+      LastName = student.LastName,
+      IdempotencyKey = request.IdempotencyKey
     });
 
     return Result.Updated;

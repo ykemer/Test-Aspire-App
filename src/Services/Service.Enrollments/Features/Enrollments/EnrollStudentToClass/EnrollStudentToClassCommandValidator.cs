@@ -33,5 +33,9 @@ public class EnrollStudentToClassCommandValidator : AbstractValidator<EnrollStud
     RuleFor(x => x.LastName)
       .NotEmpty()
       .MaximumLength(100);
+
+    RuleFor(x => x.IdempotencyKey)
+      .NotEqual(Guid.Empty)
+      .WithMessage("Idempotency key cannot be the empty GUID.");
   }
 }

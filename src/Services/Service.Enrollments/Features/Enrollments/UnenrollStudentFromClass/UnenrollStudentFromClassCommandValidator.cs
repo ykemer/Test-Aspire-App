@@ -25,5 +25,9 @@ public class UnenrollStudentFromClassCommandValidator : AbstractValidator<Unenro
       .NotEmpty().WithMessage("Student Id is required.")
       .NotEqual(Guid.Empty)
       .WithMessage("Student Id cannot be the empty GUID.");
+
+    RuleFor(x => x.IdempotencyKey)
+      .NotEqual(Guid.Empty)
+      .WithMessage("Idempotency key cannot be the empty GUID.");
   }
 }

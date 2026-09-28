@@ -10,6 +10,10 @@ public class Class
 
   public int MaxStudents { get; set; } = 0;
 
+  public int EnrolledCount { get; set; } = 0;
+
+  public Guid ConcurrencyStamp { get; set; } = Guid.NewGuid();
+
   public DateTime RegistrationDeadline { get; set; }
   public DateTime CourseStartDate { get; set; }
   public DateTime CourseEndDate { get; set; }

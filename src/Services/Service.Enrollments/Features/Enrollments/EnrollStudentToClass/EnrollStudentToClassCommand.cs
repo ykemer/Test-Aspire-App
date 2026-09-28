@@ -8,4 +8,5 @@ public class EnrollStudentToClassCommand : IRequest<ErrorOr<Created>>
   public required Guid StudentId { get; init; }
   public required string FirstName { get; init; }
   public required string LastName { get; init; }
+  public required Guid IdempotencyKey { get; init; }
 }

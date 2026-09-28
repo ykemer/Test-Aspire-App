@@ -11,6 +11,7 @@ public static class EnrollStudentToClassMapper
       CourseId = command.CourseId,
       StudentId = command.StudentId,
       FirstName = command.FirstName,
-      LastName = command.LastName
+      LastName = command.LastName,
+      IdempotencyKey = command.IdempotencyKey
     };
 }

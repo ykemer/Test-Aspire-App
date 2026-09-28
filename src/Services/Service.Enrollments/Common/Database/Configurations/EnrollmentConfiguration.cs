@@ -23,6 +23,9 @@ public class EnrollmentConfiguration : IEntityTypeConfiguration<Enrollment>
     builder.HasIndex(b => b.StudentId)
       .HasMethod("BTREE");
 
+    builder.HasIndex(b => new { b.StudentId, b.ClassId })
+      .IsUnique();
+
 
     builder.HasIndex(b => new { b.StudentFirstName, b.StudentLastName })
       .HasMethod("GIN")

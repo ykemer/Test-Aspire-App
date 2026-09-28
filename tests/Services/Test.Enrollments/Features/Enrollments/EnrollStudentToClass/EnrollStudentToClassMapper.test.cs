@@ -13,13 +13,15 @@ public class EnrollStudentToClassMapperTests
     var courseId = Guid.NewGuid();
     var classId = Guid.NewGuid();
     var studentId = Guid.NewGuid();
+    var idempotencyKey = Guid.NewGuid();
     var req = new CreateEnrollmentCommand
     {
       CourseId = courseId,
       ClassId = classId,
       StudentId = studentId,
       FirstName = "John",
-      LastName = "Doe"
+      LastName = "Doe",
+      IdempotencyKey = idempotencyKey
     };
 
     var cmd = req.MapToEnrollStudentToClassCommand();
@@ -29,5 +31,6 @@ public class EnrollStudentToClassMapperTests
     Assert.That(cmd.StudentId, Is.EqualTo(studentId));
     Assert.That(cmd.FirstName, Is.EqualTo("John"));
     Assert.That(cmd.LastName, Is.EqualTo("Doe"));
+    Assert.That(cmd.IdempotencyKey, Is.EqualTo(idempotencyKey));
   }
 }
