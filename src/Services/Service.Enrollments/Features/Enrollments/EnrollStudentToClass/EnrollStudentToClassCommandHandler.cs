@@ -74,7 +74,6 @@ public class EnrollStudentToClassCommandHandler : IRequestHandler<EnrollStudentT
       }
 
       existingClass.EnrolledCount += 1;
-      existingClass.ConcurrencyStamp = Guid.NewGuid();
 
       var enrollment = new Enrollment
       {
