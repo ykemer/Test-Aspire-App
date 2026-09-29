@@ -29,11 +29,6 @@ namespace Service.Enrollments.Common.Database.Migrations
                         .HasColumnType("uuid")
                         .HasComment("Unique identifier");
 
-                    b.Property<Guid>("ConcurrencyStamp")
-                        .IsConcurrencyToken()
-                        .HasColumnType("uuid")
-                        .HasComment("Optimistic concurrency token, regenerated whenever EnrolledCount changes");
-
                     b.Property<DateTime>("CourseEndDate")
                         .HasColumnType("timestamp with time zone")
                         .HasComment("End date of the course");
@@ -71,6 +66,12 @@ namespace Service.Enrollments.Common.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
                         .HasComment("Date and time when the class was last updated");
+
+                    b.Property<uint>("xmin")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
 
                     b.HasKey("Id");
 

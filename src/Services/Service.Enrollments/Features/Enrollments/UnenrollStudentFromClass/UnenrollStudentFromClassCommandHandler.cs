@@ -64,7 +64,6 @@ public class UnenrollStudentFromClassCommandHandler
       }
 
       existingClass.EnrolledCount = Math.Max(0, existingClass.EnrolledCount - 1);
-      existingClass.ConcurrencyStamp = Guid.NewGuid();
 
       _dbContext.Enrollments.Remove(existingEnrollment);
 

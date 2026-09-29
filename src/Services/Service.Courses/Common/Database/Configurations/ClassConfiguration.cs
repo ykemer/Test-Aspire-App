@@ -15,6 +15,12 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
       .OnDelete(DeleteBehavior.Restrict)
       .HasConstraintName("FK_Classes_Courses");
 
+    // A shadow uint property named "xmin", marked as a row-version concurrency token, is detected by
+    // Npgsql's model-finalizing convention and mapped to Postgres's own xmin system column (which the
+    // database bumps on every write) — guards against two concurrent edits silently lost-updating
+    // each other.
+    builder.Property<uint>("xmin").IsRowVersion();
+
 
     builder.Property(b => b.Id)
       .HasComment("Unique identifier")

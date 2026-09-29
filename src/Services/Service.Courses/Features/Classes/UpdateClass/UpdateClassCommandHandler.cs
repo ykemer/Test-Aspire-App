@@ -36,7 +36,19 @@ public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, Err
 
 
     courseClass.AddCommandValues(request);
-    await _dbContext.SaveChangesAsync(cancellationToken);
+
+    try
+    {
+      await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+    catch (DbUpdateConcurrencyException)
+    {
+      _logger.LogWarning("Class with id {ClassId} for course {CourseId} was modified concurrently",
+        request.Id, request.CourseId);
+      return Error.Conflict("course_service.update_class.concurrent_modification",
+        $"Class {request.Id} was modified by someone else, please reload and try again.");
+    }
+
     return Result.Updated;
   }
 }

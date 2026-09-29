@@ -230,75 +230,8 @@ public class EnrollStudentToClassCommandHandlerTests
     Assert.That(updatedClass.EnrolledCount, Is.EqualTo(1), "a replayed request must not re-claim a seat");
   }
 
-  [Test]
-  public async Task Handle_ShouldRetryAndLoseGracefully_WhenAnotherRequestClaimsTheLastSeatConcurrently()
-  {
-    var classId = Guid.NewGuid();
-    var courseId = Guid.NewGuid();
-    var student1Id = Guid.NewGuid();
-    var student2Id = Guid.NewGuid();
-
-    var cls = new Class
-    {
-      Id = classId,
-      CourseId = courseId,
-      MaxStudents = 1,
-      EnrolledCount = 0,
-      RegistrationDeadline = DateTime.UtcNow.AddDays(1),
-      CourseStartDate = DateTime.UtcNow.AddDays(2),
-      CourseEndDate = DateTime.UtcNow.AddDays(3)
-    };
-    await _dbContext.Classes.AddAsync(cls);
-    await _dbContext.SaveChangesAsync();
-
-    // Our handler's context now has the Class tracked at EnrolledCount=0 (its "stale read").
-    // Force it to stay tracked (not reloaded) by touching it once more before the concurrent write.
-    await _dbContext.Classes.FirstAsync(c => c.Id == classId);
-
-    // A second "request" (separate DbContext instance, same in-memory database) claims the only
-    // seat first and commits. EF Core's identity map means our handler's context will NOT see this
-    // change on its next query — it keeps serving the already-tracked (now stale) instance — which
-    // is exactly what would happen if two real requests raced: the loser's earlier read is stale by
-    // the time it tries to save.
-    await using var otherContext = ApplicationDbContextCreator.GetAdditionalDbContext();
-    var otherHandler =
-      new EnrollStudentToClassCommandHandler(Substitute.For<ILogger<EnrollStudentToClassCommandHandler>>(),
-        otherContext);
-    var winnerResult = await otherHandler.Handle(new EnrollStudentToClassCommand
-    {
-      CourseId = courseId,
-      ClassId = classId,
-      StudentId = student1Id,
-      FirstName = "Winner",
-      LastName = "Student",
-      IdempotencyKey = Guid.NewGuid()
-    }, CancellationToken.None);
-    Assert.That(winnerResult.IsError, Is.False);
-
-    // The loser's handler still has the stale (pre-claim) Class tracked. Its first attempt should
-    // hit a concurrency conflict on SaveChanges, retry, reload fresh, and correctly see the class is
-    // now full instead of overbooking it.
-    var loserResult = await _handler.Handle(new EnrollStudentToClassCommand
-    {
-      CourseId = courseId,
-      ClassId = classId,
-      StudentId = student2Id,
-      FirstName = "Loser",
-      LastName = "Student",
-      IdempotencyKey = Guid.NewGuid()
-    }, CancellationToken.None);
-
-    // EF Core's InMemory provider (unlike a real relational provider) doesn't roll back the other
-    // pending inserts in the same SaveChanges call when only the Class update fails its concurrency
-    // check, so the loser's own Enrollment row can end up persisted despite the exception. On Postgres
-    // the whole SaveChanges call is one real transaction, so that can't happen there. Either conflict
-    // code below means the important invariant held: the loser did not get a successful result.
-    Assert.That(loserResult.IsError, Is.True);
-    Assert.That(loserResult.FirstError.Code, Is.AnyOf(
-      "enrollment_service.enroll_student_to_course.class_full",
-      "enrollment_service.enroll_student_to_course.already_enrolled"));
-
-    var finalClass = await otherContext.Classes.FirstAsync(c => c.Id == classId);
-    Assert.That(finalClass.EnrolledCount, Is.EqualTo(1), "only the winning request should have claimed a seat");
-  }
+  // The true-concurrency "two requests race for the last seat" scenario now lives in
+  // Test.Enrollments.Integration (against a real Postgres container), since the concurrency token is
+  // Postgres's own xmin system column — EF Core's InMemory provider has no way to generate or refresh
+  // it, so InMemory can no longer meaningfully simulate a stale read/conflict for this property.
 }

@@ -17,6 +17,9 @@ public class CourseConfiguration : IEntityTypeConfiguration<Course>
       .WithOne(x => x.Course)
       .HasForeignKey(x => x.CourseId);
 
+    // See ClassConfiguration for why this maps to Postgres's own xmin system column.
+    builder.Property<uint>("xmin").IsRowVersion();
+
 
     builder.Property(b => b.Id)
       .HasComment("Unique identifier")

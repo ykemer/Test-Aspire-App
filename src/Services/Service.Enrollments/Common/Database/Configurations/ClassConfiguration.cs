@@ -15,6 +15,12 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
       .OnDelete(DeleteBehavior.Cascade)
       .HasConstraintName("FK_Classes_Enrollments");
 
+    // A shadow uint property named "xmin", marked as a row-version concurrency token, is detected by
+    // Npgsql's model-finalizing convention and mapped to Postgres's own xmin system column (which the
+    // database bumps on every write) instead of generating a real column — no application code needs
+    // to manage it.
+    builder.Property<uint>("xmin").IsRowVersion();
+
 
     builder.Property(b => b.Id)
       .HasComment("Unique identifier")
@@ -51,12 +57,6 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
       .HasComment("Materialized count of active enrollments, kept in sync with the Enrollments table")
       .HasColumnType("integer")
       .HasDefaultValue(0)
-      .IsRequired();
-
-    builder.Property(b => b.ConcurrencyStamp)
-      .HasComment("Optimistic concurrency token, regenerated whenever EnrolledCount changes")
-      .HasColumnType("uuid")
-      .IsConcurrencyToken()
       .IsRequired();
 
     builder.Property(b => b.CreatedAt)
