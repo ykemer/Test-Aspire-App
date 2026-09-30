@@ -1,6 +1,8 @@
 using Library.Database;
 using Library.Dates;
 
+using Microsoft.EntityFrameworkCore.Storage;
+
 using Service.Enrollments.Common.Database;
 using Service.Enrollments.Common.Database.Configurations;
 using Service.Enrollments.Common.Database.Entities;
@@ -43,8 +45,13 @@ public class UnenrollStudentFromClassCommandHandler
     }
 
     var now = _timeProvider.GetUtcNow().UtcDateTime;
-    await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+    return await _dbContext.InTransactionAsync(
+      (transaction, token) => Unenroll(command, now, transaction, token), cancellationToken);
+  }
 
+  private async Task<ErrorOr<Deleted>> Unenroll(UnenrollStudentFromClassCommand command, DateTime now,
+    IDbContextTransaction transaction, CancellationToken cancellationToken)
+  {
     // Step 1: record the request key BEFORE any other check. If the same request runs in parallel, the copy
     // that comes second waits here until the first one finishes, then stops and correctly reports success.
     // (Looking up the enrollment first would make that second copy wrongly report "not enrolled".)

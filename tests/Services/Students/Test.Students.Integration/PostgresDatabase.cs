@@ -22,7 +22,8 @@ public class PostgresDatabase
                            ?? throw new InvalidOperationException("PostgreSQL container is not started.");
 
     var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-      .UseNpgsql(connectionString)
+      // Same retry policy as Aspire uses in production, so transactions must go through the execution strategy.
+      .UseNpgsql(connectionString, npgsql => npgsql.EnableRetryOnFailure())
       .Options;
 
     return new ApplicationDbContext(options);

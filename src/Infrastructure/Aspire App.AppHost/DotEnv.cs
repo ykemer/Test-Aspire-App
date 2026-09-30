@@ -11,18 +11,30 @@ public static class DotEnv
       return;
     }
 
-    foreach (var line in File.ReadAllLines(filePath))
+    foreach (var rawLine in File.ReadAllLines(filePath))
     {
-      var parts = line.Split(
-        '=',
-        StringSplitOptions.RemoveEmptyEntries);
-
-      if (parts.Length != 2)
+      var line = rawLine.Trim();
+      if (line.Length == 0 || line.StartsWith('#'))
       {
         continue;
       }
 
-      Environment.SetEnvironmentVariable(parts[0], parts[1]);
+      // Split on the first '=' only: values such as base64 keys may contain '=' themselves.
+      var separator = line.IndexOf('=');
+      if (separator <= 0)
+      {
+        continue;
+      }
+
+      var key = line[..separator].Trim();
+      var value = Unquote(line[(separator + 1)..].Trim());
+
+      Environment.SetEnvironmentVariable(key, value);
     }
   }
+
+  private static string Unquote(string value) =>
+    value.Length >= 2 && (value[0] == '"' || value[0] == '\'') && value[^1] == value[0]
+      ? value[1..^1]
+      : value;
 }

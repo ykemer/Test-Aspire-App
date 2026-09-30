@@ -1,6 +1,8 @@
 using Library.Database;
 using Library.Dates;
 
+using Microsoft.EntityFrameworkCore.Storage;
+
 using Service.Enrollments.Common.Database;
 using Service.Enrollments.Common.Database.Configurations;
 using Service.Enrollments.Common.Database.Entities;
@@ -41,8 +43,13 @@ public class EnrollStudentToClassCommandHandler : IRequestHandler<EnrollStudentT
     }
 
     var now = _timeProvider.GetUtcNow().UtcDateTime;
-    await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+    return await _dbContext.InTransactionAsync(
+      (transaction, token) => Enroll(command, now, transaction, token), cancellationToken);
+  }
 
+  private async Task<ErrorOr<Created>> Enroll(EnrollStudentToClassCommand command, DateTime now,
+    IDbContextTransaction transaction, CancellationToken cancellationToken)
+  {
     // Step 1: record the request key BEFORE any other check. If the same request runs in parallel, the copy
     // that comes second waits here until the first one finishes, then stops and correctly reports success.
     // (Checking "already enrolled" first would make that second copy wrongly report "already enrolled".)

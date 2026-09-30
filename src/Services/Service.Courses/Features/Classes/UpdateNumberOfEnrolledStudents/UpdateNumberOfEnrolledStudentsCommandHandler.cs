@@ -1,5 +1,7 @@
 using Library.Database;
 
+using Microsoft.EntityFrameworkCore.Storage;
+
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses;
@@ -34,8 +36,13 @@ public class UpdateNumberOfEnrolledStudentsCommandHandler
     CancellationToken cancellationToken)
   {
     var now = _timeProvider.GetUtcNow().UtcDateTime;
-    await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+    return await _dbContext.InTransactionAsync(
+      (transaction, token) => UpdateCounts(request, now, transaction, token), cancellationToken);
+  }
 
+  private async Task<ErrorOr<Updated>> UpdateCounts(UpdateNumberOfEnrolledStudentsCommand request, DateTime now,
+    IDbContextTransaction transaction, CancellationToken cancellationToken)
+  {
     var isFirstDelivery = await TryAddToInbox(request, now, cancellationToken);
     if (!isFirstDelivery)
     {
