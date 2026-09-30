@@ -1,5 +1,3 @@
-﻿using Courses.Application.Setup;
-
 using FizzWare.NBuilder;
 
 using Microsoft.Extensions.Logging;
@@ -8,62 +6,57 @@ using NSubstitute;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.CreateCourse;
 
-namespace Courses.Application.Features.Courses.CreateCourse;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Courses.CreateCourse;
 
 public class CreateCourseCommandHandlerTests
 {
-  private CreateCourseCommandHandler _commandHandler;
-  private ApplicationDbContext _dbContext;
-  private ILogger<CreateCourseCommandHandler> _loggerMock;
+  private CreateCourseCommandHandler _handler = null!;
+  private ApplicationDbContext _dbContext = null!;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = Substitute.For<ILogger<CreateCourseCommandHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _commandHandler = new CreateCourseCommandHandler(_dbContext, _loggerMock);
+    _handler = new CreateCourseCommandHandler(_dbContext, Substitute.For<ILogger<CreateCourseCommandHandler>>(),
+      TestClock.Create());
   }
-
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
 
   [Test]
-  public async Task Handle_ShouldReturnCourse_WhenCourseIsCreated()
+  public async Task Handle_ShouldCreateCourse_WithTimestamps()
   {
-    // Arrange
     var command = new CreateCourseCommand("Test Course", "Test Description");
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
-    // Assert
     Assert.That(result.IsError, Is.False);
-    Assert.That(result.Value.Name, Is.EqualTo("Test Course"));
+    var saved = await _dbContext.Courses.FindAsync(result.Value.Id);
+    Assert.Multiple(() =>
+    {
+      Assert.That(saved!.Name, Is.EqualTo("Test Course"));
+      Assert.That(saved.CreatedAt, Is.EqualTo(TestClock.Now));
+      Assert.That(saved.UpdatedAt, Is.EqualTo(TestClock.Now));
+    });
   }
 
-  [Test]
-  public async Task Handle_ShouldReturnError_WhenCourseAlreadyExists()
+  [TestCase("Existing Course")]
+  [TestCase("EXISTING course")]
+  public async Task Handle_ShouldReturnConflict_WhenNameIsTaken_IgnoringCase(string newName)
   {
-    // Arrange
-    var existingCourse = Builder<Course>
-      .CreateNew()
-      .With(course => course.Name, "Existing Course")
-      .With(course => course.TotalStudents, 5)
-      .Build();
-
-    await _dbContext.Courses.AddAsync(existingCourse);
+    var existingCourse = Builder<Course>.CreateNew().With(course => course.Name, "Existing Course").Build();
+    _dbContext.Courses.Add(existingCourse);
     await _dbContext.SaveChangesAsync();
 
-    var command = new CreateCourseCommand(existingCourse.Name, "New Description");
+    var result = await _handler.Handle(new CreateCourseCommand(newName, "New Description"), CancellationToken.None);
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
-
-    // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.create_course.already_exists"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NameAlreadyTaken(newName).Code));
   }
 }

@@ -1,8 +1,8 @@
-﻿namespace Service.Courses.Features.Courses.UpdateCourse;
+namespace Service.Courses.Features.Courses.UpdateCourse;
 
-public class UpdateCourseCommand : IRequest<ErrorOr<Updated>>
+public record UpdateCourseCommand : IRequest<ErrorOr<Updated>>
 {
-  public required Guid Id { get; set; }
-  public required string Name { get; set; }
-  public required string Description { get; set; }
+  public required Guid Id { get; init; }
+  public required string Name { get; init; }
+  public required string Description { get; init; }
 }

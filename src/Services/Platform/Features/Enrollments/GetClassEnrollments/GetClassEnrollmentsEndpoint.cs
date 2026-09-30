@@ -1,4 +1,4 @@
-﻿using ClassesGRPCClient;
+using ClassesGRPCClient;
 
 using Contracts.Enrollments.Responses;
 
@@ -6,61 +6,48 @@ using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Grpc;
 
 namespace Platform.Features.Enrollments.GetClassEnrollments;
 
+/// <summary>
+/// Administrators: lists the students enrolled in one class. Returns 404 if the class does not exist.
+/// </summary>
 public class GetClassEnrollmentsEndpoint : EndpointWithoutRequest<ErrorOr<List<EnrollmentResponse>>>
 {
-  private readonly GrpcClassService.GrpcClassServiceClient _classesGrpcService;
-  private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
+  private readonly GrpcClassService.GrpcClassServiceClient _classesClient;
+  private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsClient;
+  private readonly IGrpcCaller _grpc;
 
-  public GetClassEnrollmentsEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService,
-    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware)
+  public GetClassEnrollmentsEndpoint(GrpcClassService.GrpcClassServiceClient classesClient,
+    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsClient, IGrpcCaller grpc)
   {
-    _classesGrpcService = classesGrpcService;
-    _enrollmentsGrpcService = enrollmentsGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
+    _classesClient = classesClient;
+    _enrollmentsClient = enrollmentsClient;
+    _grpc = grpc;
   }
 
   public override void Configure()
   {
-    Get("/api/courses/{CourseId}/classes/{ClassId}/enrollments");
-    Policies("RequireAdministratorRole");
-    Options(x => x.RequireRateLimiting("fixed-per-user"));
+    Get("/api/courses/{CourseId:guid}/classes/{ClassId:guid}/enrollments");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Enrollments"));
   }
 
-
-  public override async Task<ErrorOr<List<EnrollmentResponse>>> ExecuteAsync(
-    CancellationToken ct)
+  public override async Task<ErrorOr<List<EnrollmentResponse>>> ExecuteAsync(CancellationToken ct)
   {
-    var courseId = Route<Guid>("CourseId");
-    var classId = Route<Guid>("ClassId");
-    var classRequest =
-      _classesGrpcService.GetClassAsync(
-        new GrpcGetClassRequest { Id = classId.ToString(), CourseId = courseId.ToString(), ShowAll = true },
-        cancellationToken: ct);
+    var courseId = Route<Guid>("CourseId").ToString();
+    var classId = Route<Guid>("ClassId").ToString();
 
-    var classResult = await _grpcRequestMiddleware.SendGrpcRequestAsync(classRequest, ct);
-    if (classResult.IsError)
+    var courseClass = await _grpc.CallAsync(_classesClient.GetClassAsync(
+      new GrpcGetClassRequest { Id = classId, CourseId = courseId, ShowAll = true }, cancellationToken: ct));
+    if (courseClass.IsError)
     {
-      return classResult.FirstError;
+      return courseClass.Errors;
     }
 
-    var enrollmentsRequest =
-      _enrollmentsGrpcService.GetClassEnrollmentsAsync(new GrpcGetClassEnrollmentsRequest
-      {
-        CourseId = courseId.ToString(), ClassId = classId.ToString()
-      });
-
-    var enrollmentsResult =
-      await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
-
-    return enrollmentsResult.Match<ErrorOr<List<EnrollmentResponse>>>(
-      data => data.ToEnrollmentResponseList(),
-      error => error);
+    var enrollments = await _grpc.CallAsync(_enrollmentsClient.GetClassEnrollmentsAsync(
+      new GrpcGetClassEnrollmentsRequest { CourseId = courseId, ClassId = classId }, cancellationToken: ct));
+    return enrollments.Then(response => response.ToEnrollmentResponseList());
   }
 }

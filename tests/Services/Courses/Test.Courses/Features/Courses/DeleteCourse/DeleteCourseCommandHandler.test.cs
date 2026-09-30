@@ -1,100 +1,74 @@
-﻿using Contracts.Courses.Events;
-
-using Courses.Application.Setup;
-
 using FizzWare.NBuilder;
 
 using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Rebus.Bus;
-
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.DeleteCourse;
 
-namespace Courses.Application.Features.Courses.DeleteCourse;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Courses.DeleteCourse;
 
 public class DeleteCourseCommandHandlerTests
 {
-  private DeleteCourseCommandHandler _commandHandler;
-  private ApplicationDbContext _dbContext;
-  private ILogger<DeleteCourseCommandHandler> _loggerMock;
-  private IBus _messageBusClientMock;
+  private DeleteCourseCommandHandler _handler = null!;
+  private ApplicationDbContext _dbContext = null!;
 
   [SetUp]
   public void Setup()
   {
-    _loggerMock = Substitute.For<ILogger<DeleteCourseCommandHandler>>();
-    _messageBusClientMock = Substitute.For<IBus>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _commandHandler = new DeleteCourseCommandHandler(_dbContext, _loggerMock, _messageBusClientMock);
+    _handler = new DeleteCourseCommandHandler(_dbContext, Substitute.For<ILogger<DeleteCourseCommandHandler>>());
   }
 
   [TearDown]
-  public void TearDown()
-  {
-    _dbContext.Dispose();
-    _messageBusClientMock.Dispose();
-  }
+  public void TearDown() => _dbContext.Dispose();
 
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
-    // Arrange
     var command = new DeleteCourseCommand(Guid.NewGuid());
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
-    // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.delete_course.course_not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NotFound(command.Id).Code));
   }
 
   [Test]
-  public async Task Handle_ShouldDeleteCourse_WhenCourseExists()
+  public async Task Handle_ShouldDeleteCourseAndItsClasses_WhenNoStudentsEnrolled()
   {
-    // Arrange
-    var course = Builder<Course>
-      .CreateNew()
-      .With(c => c.TotalStudents = 0)
+    var course = Builder<Course>.CreateNew().With(c => c.TotalStudents = 0).Build();
+    var courseClass = Builder<Class>.CreateNew()
+      .With(c => c.CourseId, course.Id)
+      .With(c => c.TotalStudents, 0)
       .Build();
-    await _dbContext.Courses.AddAsync(course);
+    _dbContext.Courses.Add(course);
+    _dbContext.Classes.Add(courseClass);
     await _dbContext.SaveChangesAsync();
 
-    var command = new DeleteCourseCommand(course.Id);
+    var result = await _handler.Handle(new DeleteCourseCommand(course.Id), CancellationToken.None);
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
-
-    // Assert
     Assert.That(result.IsError, Is.False);
     Assert.That(await _dbContext.Courses.FindAsync(course.Id), Is.Null);
-    await _messageBusClientMock.Received(1).Publish(
-      Arg.Is<CourseDeletedEvent>(e => e.CourseId == course.Id));
+    Assert.That(await _dbContext.Classes.FindAsync(courseClass.Id), Is.Null);
   }
 
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenCourseHasStudentsEnrolled()
   {
-    // Arrange
-    var course = Builder<Course>
-      .CreateNew()
-      .With(c => c.TotalStudents = 5)
-      .Build();
-    await _dbContext.Courses.AddAsync(course);
+    var course = Builder<Course>.CreateNew().With(c => c.TotalStudents = 5).Build();
+    _dbContext.Courses.Add(course);
     await _dbContext.SaveChangesAsync();
 
-    var command = new DeleteCourseCommand(course.Id);
+    var result = await _handler.Handle(new DeleteCourseCommand(course.Id), CancellationToken.None);
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
-
-    // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.delete_course.course_has_students"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.HasEnrolledStudents(course.Id).Code));
     Assert.That(await _dbContext.Courses.FindAsync(course.Id), Is.Not.Null);
   }
 }

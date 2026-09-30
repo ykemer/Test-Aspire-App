@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using Service.Enrollments.Common.Database.Entities;
 
@@ -9,11 +9,8 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
   public void Configure(EntityTypeBuilder<Class> builder)
   {
     builder.HasKey(b => b.Id);
-    builder.HasMany(b => b.Enrollments)
-      .WithOne(e => e.Class)
-      .HasForeignKey(e => e.ClassId)
-      .OnDelete(DeleteBehavior.Cascade)
-      .HasConstraintName("FK_Classes_Enrollments");
+
+    // The Class ↔ Enrollment relationship is configured in EnrollmentConfiguration (one place only).
 
     // A shadow uint property named "xmin", marked as a row-version concurrency token, is detected by
     // Npgsql's model-finalizing convention and mapped to Postgres's own xmin system column (which the
@@ -21,15 +18,13 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
     // to manage it.
     builder.Property<uint>("xmin").IsRowVersion();
 
-
     builder.Property(b => b.Id)
-      .HasComment("Unique identifier")
+      .HasComment("Unique identifier (same as in the Courses service)")
       .HasColumnType("uuid")
       .IsRequired();
 
-
     builder.Property(b => b.CourseId)
-      .HasComment("Foreign key to the course")
+      .HasComment("Course the class belongs to")
       .HasColumnType("uuid")
       .IsRequired();
 

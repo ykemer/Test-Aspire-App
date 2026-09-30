@@ -1,10 +1,10 @@
-﻿namespace Service.Students.Features.CreateStudent;
+namespace Service.Students.Features.CreateStudent;
 
-public class CreateStudentCommand : IRequest<ErrorOr<Created>>
+public sealed record CreateStudentCommand : IRequest<ErrorOr<Created>>
 {
-  public required Guid Id { get; set; }
-  public required string FirstName { get; set; }
-  public required string LastName { get; set; }
-  public required string Email { get; set; }
-  public DateTime DateOfBirth { get; set; }
+  public required Guid Id { get; init; }
+  public required string FirstName { get; init; }
+  public required string LastName { get; init; }
+  public required string Email { get; init; }
+  public required DateTime DateOfBirth { get; init; }
 }

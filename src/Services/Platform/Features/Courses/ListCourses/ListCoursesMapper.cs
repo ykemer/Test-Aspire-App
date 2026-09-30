@@ -4,43 +4,36 @@ using Contracts.Courses.Responses;
 
 using CoursesGRPCClient;
 
-using Google.Protobuf.Collections;
-
 namespace Platform.Features.Courses.ListCourses;
 
 public static class ListCoursesMapper
 {
-  public static GrpcListCoursesRequest ToGrpcGetEnrollmentsByCoursesRequest(this ListCoursesRequest request,
-    List<string> enrolledClasses, bool ShowAll)
-  {
-    var repeatedEnrolledClasses = new RepeatedField<string>();
-    repeatedEnrolledClasses.AddRange(enrolledClasses);
-
-    return new GrpcListCoursesRequest
+  public static GrpcListCoursesRequest ToGrpcListCoursesRequest(this ListCoursesRequest request,
+    IReadOnlyList<string> enrolledClassIds, bool showAll) =>
+    new()
     {
       Page = request.PageNumber,
       PageSize = request.PageSize,
-      Query = request.Query ?? "",
-      EnrolledClasses = { repeatedEnrolledClasses },
-      ShowAll = ShowAll
+      Query = request.Query ?? string.Empty,
+      EnrolledClasses = { enrolledClassIds },
+      ShowAll = showAll
     };
-  }
 
-  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse course,
-    List<string>? enrollments = null) =>
+  public static PagedList<CourseListItemResponse> ToCourseListItemResponse(this GrpcListCoursesResponse response,
+    IReadOnlyList<string> enrolledCourseIds) =>
     new()
     {
-      Items = course.Items.Select(i => new CourseListItemResponse
+      Items = response.Items.Select(course => new CourseListItemResponse
       {
-        Id = Guid.Parse(i.Id),
-        Name = i.Name,
-        Description = i.Description,
-        TotalStudents = i.TotalStudents,
-        IsUserEnrolled = enrollments.Contains(i.Id)
+        Id = Guid.Parse(course.Id),
+        Name = course.Name,
+        Description = course.Description,
+        TotalStudents = course.TotalStudents,
+        IsUserEnrolled = enrolledCourseIds.Contains(course.Id)
       }).ToList(),
-      CurrentPage = course.CurrentPage,
-      TotalPages = course.TotalPages,
-      PageSize = course.PageSize,
-      TotalCount = course.TotalCount
+      CurrentPage = response.CurrentPage,
+      TotalPages = response.TotalPages,
+      PageSize = response.PageSize,
+      TotalCount = response.TotalCount
     };
 }

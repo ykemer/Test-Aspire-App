@@ -1,110 +1,159 @@
+using Library.Database;
+using Library.Dates;
+
 using Service.Enrollments.Common.Database;
+using Service.Enrollments.Common.Database.Configurations;
 using Service.Enrollments.Common.Database.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
+/// <summary>
+/// Enrolls a student in a class.
+/// <list type="bullet">
+/// <item>The same request (same idempotency key) is applied only once.</item>
+/// <item>A student can be in a class only once.</item>
+/// <item>Registration must still be open, and the class must have a free seat.</item>
+/// <item>The seat is taken with one atomic SQL UPDATE, so two students can never get the last seat.</item>
+/// </list>
+/// Everything happens in one transaction: either the student is enrolled and the seat is taken, or nothing changes.
+/// </summary>
 public class EnrollStudentToClassCommandHandler : IRequestHandler<EnrollStudentToClassCommand, ErrorOr<Created>>
 {
-  private const int MaxConcurrencyAttempts = 3;
-
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<EnrollStudentToClassCommandHandler> _logger;
-
+  private readonly TimeProvider _timeProvider;
 
   public EnrollStudentToClassCommandHandler(ILogger<EnrollStudentToClassCommandHandler> logger,
-    ApplicationDbContext dbContext
-  )
+    ApplicationDbContext dbContext, TimeProvider timeProvider)
   {
     _logger = logger;
     _dbContext = dbContext;
+    _timeProvider = timeProvider;
   }
 
   public async ValueTask<ErrorOr<Created>> Handle(EnrollStudentToClassCommand command,
     CancellationToken cancellationToken)
   {
-    var alreadyProcessed = await _dbContext.IdempotencyRecords
-      .AnyAsync(r => r.IdempotencyKey == command.IdempotencyKey, cancellationToken);
-    if (alreadyProcessed)
+    if (await WasAlreadyHandled(command.IdempotencyKey, cancellationToken))
     {
-      _logger.LogInformation(
-        "Enrollment request with idempotency key {IdempotencyKey} was already processed, returning success",
-        command.IdempotencyKey);
+      _logger.LogInformation("Enroll request {IdempotencyKey} was already handled", command.IdempotencyKey);
       return Result.Created;
     }
 
-    for (var attempt = 0; attempt < MaxConcurrencyAttempts; attempt++)
+    var now = _timeProvider.GetUtcNow().UtcDateTime;
+    await using var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+    // Step 1: record the request key BEFORE any other check. If the same request runs in parallel, the copy
+    // that comes second waits here until the first one finishes, then stops and correctly reports success.
+    // (Checking "already enrolled" first would make that second copy wrongly report "already enrolled".)
+    if (!await TryRecordRequestKey(command.IdempotencyKey, now, cancellationToken))
     {
-      var existingEnrollment = await _dbContext.Enrollments
-        .FirstOrDefaultAsync(e =>
-            e.CourseId == command.CourseId
-            && e.StudentId == command.StudentId
-            && e.ClassId == command.ClassId
-          , cancellationToken);
-      if (existingEnrollment != null)
-      {
-        _logger.LogWarning("Student {StudentId} is already enrolled to course {CourseId}", command.StudentId,
-          command.CourseId);
-        return Error.Conflict("enrollment_service.enroll_student_to_course.already_enrolled",
-          $"Student {command.StudentId} is already enrolled to course {command.CourseId}");
-      }
-
-      var existingClass = await _dbContext.Classes.FirstOrDefaultAsync(x => x.Id == command.ClassId, cancellationToken);
-      if (existingClass == null)
-      {
-        _logger.LogWarning("Class with id {ClassId} not found for course {CourseId}", command.ClassId,
-          command.CourseId);
-        return Error.NotFound("enrollment_service.enroll_student_to_course.class_not_found",
-          $"Class with id {command.ClassId} not found for course {command.CourseId}");
-      }
-
-      if (existingClass.RegistrationDeadline < DateTime.UtcNow)
-      {
-        _logger.LogWarning("Class with id {ClassId} registration deadline has passed for course {CourseId}",
-          command.ClassId, command.CourseId);
-        return Error.Conflict("enrollment_service.enroll_student_to_course.registration_deadline_passed",
-          $"Class with id {command.ClassId} registration deadline has passed for course {command.CourseId}");
-      }
-
-      if (existingClass.EnrolledCount >= existingClass.MaxStudents)
-      {
-        _logger.LogWarning("Class with id {ClassId} is full for course {CourseId}", command.ClassId,
-          command.CourseId);
-        return Error.Conflict("enrollment_service.enroll_student_to_course.class_full",
-          $"Class with id {command.ClassId} is full for course {command.CourseId}");
-      }
-
-      existingClass.EnrolledCount += 1;
-
-      var enrollment = new Enrollment
-      {
-        CourseId = command.CourseId,
-        ClassId = command.ClassId,
-        StudentId = command.StudentId,
-        StudentFirstName = command.FirstName,
-        StudentLastName = command.LastName
-      };
-      await _dbContext.Enrollments.AddAsync(enrollment, cancellationToken);
-
-      await _dbContext.IdempotencyRecords.AddAsync(
-        new IdempotencyRecord { IdempotencyKey = command.IdempotencyKey, Operation = "Enroll" },
-        cancellationToken);
-
-      try
-      {
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        return Result.Created;
-      }
-      catch (DbUpdateConcurrencyException)
-      {
-        _logger.LogInformation(
-          "Concurrent enrollment change detected for class {ClassId}, retrying (attempt {Attempt})",
-          command.ClassId, attempt + 1);
-        _dbContext.ChangeTracker.Clear();
-      }
+      _logger.LogInformation("Enroll request {IdempotencyKey} was handled concurrently", command.IdempotencyKey);
+      return Result.Created;
     }
 
-    _logger.LogWarning("Too many concurrent enrollment attempts for class {ClassId}", command.ClassId);
-    return Error.Conflict("enrollment_service.enroll_student_to_course.concurrency_conflict",
-      "Too many concurrent enrollment attempts, please retry.");
+    // Leaving without Commit (any return below) rolls back everything, including step 1.
+    if (await IsAlreadyEnrolled(command, cancellationToken))
+    {
+      _logger.LogWarning("Student {StudentId} is already in class {ClassId}", command.StudentId, command.ClassId);
+      return EnrollmentErrors.AlreadyEnrolled(command.StudentId, command.ClassId);
+    }
+
+    // Step 2: take a seat.
+    var seatResult = await TakeSeat(command, now, cancellationToken);
+    if (seatResult.IsError)
+    {
+      return seatResult.Errors;
+    }
+
+    // Step 3: save the enrollment.
+    _dbContext.Enrollments.Add(command.ToEnrollment(now));
+
+    try
+    {
+      await _dbContext.SaveChangesAsync(cancellationToken);
+    }
+    catch (DbUpdateException exception)
+      when (exception.IsUniqueViolation(EnrollmentConfiguration.OneEnrollmentPerStudentAndClassIndex))
+    {
+      // The same student enrolled in parallel with a different request key.
+      _logger.LogWarning("Student {StudentId} enrolled concurrently in class {ClassId}", command.StudentId,
+        command.ClassId);
+      return EnrollmentErrors.AlreadyEnrolled(command.StudentId, command.ClassId);
+    }
+
+    await transaction.CommitAsync(cancellationToken);
+    _logger.LogInformation("Student {StudentId} enrolled in class {ClassId}", command.StudentId, command.ClassId);
+    return Result.Created;
+  }
+
+  private Task<bool> WasAlreadyHandled(Guid idempotencyKey, CancellationToken cancellationToken) =>
+    _dbContext.IdempotencyRecords.AnyAsync(record => record.IdempotencyKey == idempotencyKey, cancellationToken);
+
+  /// <returns>false when the same key was stored by a request that ran at the same time.</returns>
+  private async Task<bool> TryRecordRequestKey(Guid idempotencyKey, DateTime now, CancellationToken cancellationToken)
+  {
+    _dbContext.IdempotencyRecords.Add(new IdempotencyRecord
+    {
+      IdempotencyKey = idempotencyKey, Operation = IdempotencyRecord.EnrollOperation, CreatedAt = now
+    });
+
+    try
+    {
+      await _dbContext.SaveChangesAsync(cancellationToken);
+      return true;
+    }
+    catch (DbUpdateException exception)
+      when (exception.IsUniqueViolation(IdempotencyRecordConfiguration.PrimaryKeyName))
+    {
+      return false;
+    }
+  }
+
+  private Task<bool> IsAlreadyEnrolled(EnrollStudentToClassCommand command, CancellationToken cancellationToken) =>
+    _dbContext.Enrollments.AnyAsync(
+      enrollment => enrollment.StudentId == command.StudentId && enrollment.ClassId == command.ClassId,
+      cancellationToken);
+
+  /// <summary>
+  /// Adds one to the class's enrolled count, but only if registration is open and a seat is free.
+  /// The check and the change happen in the same SQL statement, so parallel requests cannot overbook.
+  /// </summary>
+  private async Task<ErrorOr<Success>> TakeSeat(EnrollStudentToClassCommand command, DateTime now,
+    CancellationToken cancellationToken)
+  {
+    var changedRows = await _dbContext.Classes
+      .Where(c => c.Id == command.ClassId
+                  && c.CourseId == command.CourseId
+                  && c.RegistrationDeadline >= now
+                  && c.EnrolledCount < c.MaxStudents)
+      .ExecuteUpdateAsync(setters => setters
+        .SetProperty(c => c.EnrolledCount, c => c.EnrolledCount + 1)
+        .SetProperty(c => c.UpdatedAt, now), cancellationToken);
+
+    if (changedRows == 1)
+    {
+      return Result.Success;
+    }
+
+    // Nothing changed. Read the class once to tell the caller why.
+    var courseClass = await _dbContext.Classes
+      .AsNoTracking()
+      .FirstOrDefaultAsync(c => c.Id == command.ClassId && c.CourseId == command.CourseId, cancellationToken);
+
+    if (courseClass is null)
+    {
+      _logger.LogWarning("Class {ClassId} of course {CourseId} was not found", command.ClassId, command.CourseId);
+      return EnrollmentErrors.ClassNotFound(command.ClassId, command.CourseId);
+    }
+
+    if (courseClass.RegistrationDeadline.AsUtc() < now)
+    {
+      _logger.LogWarning("Registration for class {ClassId} is closed", command.ClassId);
+      return EnrollmentErrors.RegistrationClosed(command.ClassId);
+    }
+
+    _logger.LogWarning("Class {ClassId} is full", command.ClassId);
+    return EnrollmentErrors.ClassFull(command.ClassId);
   }
 }

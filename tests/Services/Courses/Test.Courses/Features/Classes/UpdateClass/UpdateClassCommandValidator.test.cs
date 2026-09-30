@@ -2,153 +2,68 @@ using FluentValidation.TestHelper;
 
 using Service.Courses.Features.Classes.UpdateClass;
 
-namespace Courses.Application.Features.Classes.UpdateClass;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Classes.UpdateClass;
 
 [TestFixture]
 public class UpdateClassCommandValidatorTests
 {
+  private static readonly DateTime s_now = TestClock.Now;
+
+  private UpdateClassCommandValidator _validator = null!;
+
   [SetUp]
-  public void SetUp() => _validator = new UpdateClassCommandValidator();
+  public void SetUp() => _validator = new UpdateClassCommandValidator(TestClock.Create());
 
-  private UpdateClassCommandValidator _validator;
-
-  [Test]
-  public void ValidRequest_ShouldPass()
-  {
-    var now = DateTime.UtcNow.AddMinutes(1);
-    var request = new UpdateClassCommand
+  private static UpdateClassCommand ValidCommand() =>
+    new()
     {
       Id = Guid.NewGuid(),
       CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(1),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(3),
+      RegistrationDeadline = s_now.AddDays(1),
+      CourseStartDate = s_now.AddDays(2),
+      CourseEndDate = s_now.AddDays(3),
       MaxStudents = 10
     };
-    var result = _validator.TestValidate(request);
-    result.ShouldNotHaveAnyValidationErrors();
-  }
 
   [Test]
-  public void RegistrationDeadline_InPast_ShouldFail()
-  {
-    var now = DateTime.UtcNow;
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(-1),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(3),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.RegistrationDeadline);
-  }
+  public void ValidRequest_ShouldPass() =>
+    _validator.TestValidate(ValidCommand()).ShouldNotHaveAnyValidationErrors();
 
   [Test]
-  public void RegistrationDeadline_AfterCourseStartDate_ShouldFail()
-  {
-    var now = DateTime.UtcNow.AddMinutes(1);
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(3),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(4),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.RegistrationDeadline);
-  }
+  public void EmptyId_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { Id = Guid.Empty })
+      .ShouldHaveValidationErrorFor(x => x.Id);
 
   [Test]
-  public void RegistrationDeadline_AfterCourseEndDate_ShouldFail()
-  {
-    var now = DateTime.UtcNow.AddMinutes(1);
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(5),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(4),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.RegistrationDeadline);
-  }
+  public void EmptyCourseId_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { CourseId = Guid.Empty })
+      .ShouldHaveValidationErrorFor(x => x.CourseId);
 
   [Test]
-  public void CourseStartDate_InPast_ShouldFail()
-  {
-    var now = DateTime.UtcNow;
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(1),
-      CourseStartDate = now.AddDays(-1),
-      CourseEndDate = now.AddDays(3),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.CourseStartDate);
-  }
+  public void RegistrationDeadline_InPast_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { RegistrationDeadline = s_now.AddDays(-1) })
+      .ShouldHaveValidationErrorFor(x => x.RegistrationDeadline);
 
   [Test]
-  public void CourseStartDate_AfterCourseEndDate_ShouldFail()
-  {
-    var now = DateTime.UtcNow.AddMinutes(1);
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(1),
-      CourseStartDate = now.AddDays(5),
-      CourseEndDate = now.AddDays(4),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.CourseStartDate);
-  }
+  public void RegistrationDeadline_AfterCourseStartDate_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { RegistrationDeadline = s_now.AddDays(2.5) })
+      .ShouldHaveValidationErrorFor(x => x.RegistrationDeadline);
 
   [Test]
-  public void CourseEndDate_InPast_ShouldFail()
-  {
-    var now = DateTime.UtcNow;
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(1),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(-1),
-      MaxStudents = 10
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.CourseEndDate);
-  }
+  public void CourseStartDate_AfterCourseEndDate_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { CourseStartDate = s_now.AddDays(4) })
+      .ShouldHaveValidationErrorFor(x => x.CourseStartDate);
 
   [Test]
-  public void MaxStudents_ZeroOrNegative_ShouldFail()
-  {
-    var now = DateTime.UtcNow.AddMinutes(1);
-    var request = new UpdateClassCommand
-    {
-      Id = Guid.NewGuid(),
-      CourseId = Guid.NewGuid(),
-      RegistrationDeadline = now.AddDays(1),
-      CourseStartDate = now.AddDays(2),
-      CourseEndDate = now.AddDays(3),
-      MaxStudents = 0
-    };
-    var result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.MaxStudents);
+  public void CourseEndDate_InPast_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { CourseEndDate = s_now.AddDays(-1) })
+      .ShouldHaveValidationErrorFor(x => x.CourseEndDate);
 
-    request.MaxStudents = -5;
-    result = _validator.TestValidate(request);
-    result.ShouldHaveValidationErrorFor(x => x.MaxStudents);
-  }
+  [TestCase(0)]
+  [TestCase(-5)]
+  public void MaxStudents_ZeroOrNegative_ShouldFail(int maxStudents) =>
+    _validator.TestValidate(ValidCommand() with { MaxStudents = maxStudents })
+      .ShouldHaveValidationErrorFor(x => x.MaxStudents);
 }

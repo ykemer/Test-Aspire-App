@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-using Library.Validators;
+using FluentValidation;
 
 namespace Service.Enrollments.Features.Enrollments.EnrollStudentToClass;
 
@@ -8,34 +6,19 @@ public class EnrollStudentToClassCommandValidator : AbstractValidator<EnrollStud
 {
   public EnrollStudentToClassCommandValidator()
   {
-    RuleFor(x => x.CourseId)
-      .NotNull().WithMessage("Course Id is required.")
-      .NotEmpty().WithMessage("Course Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Course id cannot be the empty GUID.");
+    RuleFor(command => command.CourseId).NotEmpty().WithMessage("Course id is required.");
+    RuleFor(command => command.ClassId).NotEmpty().WithMessage("Class id is required.");
+    RuleFor(command => command.StudentId).NotEmpty().WithMessage("Student id is required.");
+    RuleFor(command => command.IdempotencyKey).NotEmpty().WithMessage("Idempotency key is required.");
 
-    RuleFor(x => x.ClassId)
-      .NotNull().WithMessage("Class Id is required.")
-      .NotEmpty().WithMessage("Class Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Class id cannot be the empty GUID.");
+    RuleFor(command => command.FirstName)
+      .NotEmpty().WithMessage("First name is required.")
+      .MaximumLength(EnrollmentLimits.NameMaxLength)
+      .WithMessage($"First name must not exceed {EnrollmentLimits.NameMaxLength} characters.");
 
-    RuleFor(x => x.StudentId)
-      .NotNull().WithMessage("Student Id is required.")
-      .NotEmpty().WithMessage("Student Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Student id cannot be the empty GUID.");
-
-    RuleFor(x => x.FirstName)
-      .NotEmpty()
-      .MaximumLength(100);
-
-    RuleFor(x => x.LastName)
-      .NotEmpty()
-      .MaximumLength(100);
-
-    RuleFor(x => x.IdempotencyKey)
-      .NotEqual(Guid.Empty)
-      .WithMessage("Idempotency key cannot be the empty GUID.");
+    RuleFor(command => command.LastName)
+      .NotEmpty().WithMessage("Last name is required.")
+      .MaximumLength(EnrollmentLimits.NameMaxLength)
+      .WithMessage($"Last name must not exceed {EnrollmentLimits.NameMaxLength} characters.");
   }
 }

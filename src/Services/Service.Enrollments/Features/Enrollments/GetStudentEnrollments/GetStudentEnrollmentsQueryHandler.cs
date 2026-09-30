@@ -3,29 +3,27 @@ using Service.Enrollments.Common.Database.Entities;
 
 namespace Service.Enrollments.Features.Enrollments.GetStudentEnrollments;
 
+/// <summary>
+/// Returns all enrollments of a student, optionally only for one course.
+/// </summary>
 public class GetStudentEnrollmentsQueryHandler : IRequestHandler<GetStudentEnrollmentsQuery, ErrorOr<List<Enrollment>>>
 {
   private readonly ApplicationDbContext _dbContext;
-  private readonly ILogger<GetStudentEnrollmentsQueryHandler> _logger;
 
-  public GetStudentEnrollmentsQueryHandler(ApplicationDbContext dbContext,
-    ILogger<GetStudentEnrollmentsQueryHandler> logger)
-  {
-    _dbContext = dbContext;
-    _logger = logger;
-  }
+  public GetStudentEnrollmentsQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
 
   public async ValueTask<ErrorOr<List<Enrollment>>> Handle(GetStudentEnrollmentsQuery request,
     CancellationToken cancellationToken)
   {
-    var enrollments = await _dbContext.Enrollments
+    var enrollments = _dbContext.Enrollments
       .AsNoTracking()
-      .Where(e =>
-        e.StudentId == request.StudentId &&
-        (request.CourseId == null || e.CourseId == request.CourseId)
-      )
-      .ToListAsync(cancellationToken);
+      .Where(enrollment => enrollment.StudentId == request.StudentId);
 
-    return enrollments;
+    if (request.CourseId is not null)
+    {
+      enrollments = enrollments.Where(enrollment => enrollment.CourseId == request.CourseId);
+    }
+
+    return await enrollments.ToListAsync(cancellationToken);
   }
 }

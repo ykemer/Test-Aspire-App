@@ -13,7 +13,10 @@ public class StudentUnenrollState : ISagaData
   public Guid ClassId { get; set; }
   public bool IsStudentEnrollmentsUpdated { get; set; }
   public bool IsClassEnrollmentsUpdated { get; set; }
-  public DateTime EnrolledDate { get; set; }
+
+  /// <summary>When the saga started (UTC).</summary>
+  public DateTime StartedAt { get; set; }
+
   public string FailureReason { get; set; } = "";
-  public string State { get; set; } = "Initial";
+  public string State { get; set; } = SagaStates.Initial;
 }

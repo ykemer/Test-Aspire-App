@@ -8,6 +8,8 @@ using FizzWare.NBuilder;
 
 using Grpc.Core;
 
+using Library.GRPC;
+
 using Mediator;
 
 using Microsoft.Extensions.Logging;
@@ -19,7 +21,7 @@ using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.GetCourse;
 using Service.Courses.Features.Courses.ListCourses;
 
-namespace Courses.Application.Features.Courses;
+namespace Test.Courses.Features.Courses;
 
 [TestFixture]
 public class CoursesServiceTests
@@ -93,7 +95,8 @@ public class CoursesServiceTests
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.GetCourse(request, _context));
 
-    Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
+    Assert.That(ex!.StatusCode, Is.EqualTo(StatusCode.Internal));
+    Assert.That(ex.Status.Detail, Is.EqualTo(GrpcErrorHandler.InternalErrorMessage), "internal details must not leak");
   }
 
   [Test]
@@ -108,7 +111,7 @@ public class CoursesServiceTests
       .Build();
 
     _mediatorMock
-      .Send(Arg.Any<ListCoursesRequest>(), Arg.Any<CancellationToken>())
+      .Send(Arg.Any<ListCoursesQuery>(), Arg.Any<CancellationToken>())
       .Returns(PagedList<Course>.Create(courses, 1, 10));
 
     // Act
@@ -139,13 +142,14 @@ public class CoursesServiceTests
     GrpcListCoursesRequest request = new();
 
     _mediatorMock
-      .Send(Arg.Any<ListCoursesRequest>(), Arg.Any<CancellationToken>())
+      .Send(Arg.Any<ListCoursesQuery>(), Arg.Any<CancellationToken>())
       .Returns(_testError);
 
     // Act & Assert
     var ex = Assert.ThrowsAsync<RpcException>(async () =>
       await _coursesService.ListCourses(request, _context));
 
-    Assert.That(ex.Status.Detail, Does.Contain(_testError.Description));
+    Assert.That(ex!.StatusCode, Is.EqualTo(StatusCode.Internal));
+    Assert.That(ex.Status.Detail, Is.EqualTo(GrpcErrorHandler.InternalErrorMessage), "internal details must not leak");
   }
 }

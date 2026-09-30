@@ -3,8 +3,7 @@ using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 
-using Platform.Common.Middleware.Grpc;
-using Platform.Common.Services.User;
+using Platform.Common.Grpc;
 
 using Rebus.Bus;
 
@@ -12,60 +11,56 @@ using StudentsGRPCClient;
 
 namespace Platform.Features.Enrollments.EnrollToCourse;
 
+/// <summary>
+/// Asks the Enrollments service to enroll a student in a class. The result arrives later as a live
+/// notification, after the enroll saga has also updated the student and class counters.
+/// </summary>
 public class EnrollToCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Updated>>
 {
   private readonly IBus _bus;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
-  private readonly IUserService _userService;
+  private readonly IGrpcCaller _grpc;
+  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsClient;
 
-  public EnrollToCourseEndpoint(
-    IUserService userService,
-    IGrpcRequestMiddleware grpcRequestMiddleware,
-    GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
+  public EnrollToCourseEndpoint(GrpcStudentsService.GrpcStudentsServiceClient studentsClient, IGrpcCaller grpc,
     IBus bus)
   {
-    _userService = userService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
-    _studentsGrpcService = studentsGrpcService;
+    _studentsClient = studentsClient;
+    _grpc = grpc;
     _bus = bus;
   }
 
   public override void Configure()
   {
-    Post("/api/courses/{CourseId}/classes/{ClassId}/enroll");
-    Policies("RequireUserRole");
+    Post("/api/courses/{CourseId:guid}/classes/{ClassId:guid}/enroll");
+    Policies(Common.Auth.Policies.Users);
     Description(x => x.WithTags("Enrollments"));
   }
 
-  public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request, CancellationToken ct)
+  public override async Task<ErrorOr<Updated>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
+    CancellationToken ct)
   {
-    var courseId = Route<Guid>("CourseId");
-    var classId = Route<Guid>("ClassId");
-
-    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
-    if (userId == Guid.Empty)
+    var studentId = EnrollmentStudent.Resolve(User, request);
+    if (studentId.IsError)
     {
-      return Error.Failure(description: "User not found");
+      return studentId.Errors;
     }
 
-    var studentRequest =
-      _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
-    var studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
-    if (studentResponse.IsError)
+    // The enrollment stores the student's name, so read it from the Students service (this also checks
+    // that the student exists).
+    var student = await _grpc.CallAsync(_studentsClient.GetStudentByIdAsync(
+      new GrpcGetStudentByIdRequest { Id = studentId.Value.ToString() }, cancellationToken: ct));
+    if (student.IsError)
     {
-      return studentResponse.Errors[0];
+      return student.Errors;
     }
-
-    var student = studentResponse.Value;
 
     await _bus.Send(new CreateEnrollmentCommand
     {
-      CourseId = courseId,
-      ClassId = classId,
-      StudentId = userId,
-      FirstName = student.FirstName,
-      LastName = student.LastName,
+      CourseId = Route<Guid>("CourseId"),
+      ClassId = Route<Guid>("ClassId"),
+      StudentId = studentId.Value,
+      FirstName = student.Value.FirstName,
+      LastName = student.Value.LastName,
       IdempotencyKey = request.IdempotencyKey
     });
 

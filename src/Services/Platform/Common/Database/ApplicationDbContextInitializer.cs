@@ -1,99 +1,107 @@
-﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
+using Platform.Common.Auth;
 using Platform.Common.Database.Entities;
 
 namespace Platform.Common.Database;
 
-public sealed class ApplicationDbContextInitializer : IApplicationDbContextInitializer
+/// <summary>
+/// Development helper: brings the database schema up to date, creates the roles,
+/// an administrator and a sample student (the same student the Students service seeds).
+/// If anything fails, the exception is not swallowed, so the service does not start in a broken state.
+/// </summary>
+public sealed class ApplicationDbContextInitializer
 {
+  public const string SeedPasswordSetting = "ADMIN_USER_PASSWORD";
+
+  private const string AdministratorEmail = "admin@localhost";
+  private const string SampleStudentEmail = "student@localhost";
+  private const string SampleStudentId = "363fa2a4-70a8-4391-bc54-a8b5267fb68a";
+
+  private readonly IConfiguration _configuration;
   private readonly ApplicationDbContext _context;
   private readonly ILogger<ApplicationDbContextInitializer> _logger;
   private readonly RoleManager<IdentityRole> _roleManager;
+  private readonly TimeProvider _timeProvider;
   private readonly UserManager<ApplicationUser> _userManager;
 
   public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
-    ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager)
+    ApplicationDbContext context, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager,
+    IConfiguration configuration, TimeProvider timeProvider)
   {
     _logger = logger;
     _context = context;
     _userManager = userManager;
     _roleManager = roleManager;
+    _configuration = configuration;
+    _timeProvider = timeProvider;
   }
 
-  public async Task InitialiseAsync() => await MigrateAsync();
-
-  public async Task SeedAsync()
+  public async Task MigrateAndSeedAsync()
   {
-    try
+    _logger.LogInformation("Applying database migrations");
+    await _context.Database.MigrateAsync();
+
+    await SeedRolesAsync();
+    await SeedUsersAsync();
+  }
+
+  private async Task SeedRolesAsync()
+  {
+    foreach (var role in Roles.All)
     {
-      await TrySeedAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "An error occurred while seeding the database.");
+      if (!await _roleManager.RoleExistsAsync(role))
+      {
+        EnsureSucceeded(await _roleManager.CreateAsync(new IdentityRole(role)), $"creating role {role}");
+      }
     }
   }
 
-  public async Task TrySeedAsync()
+  private async Task SeedUsersAsync()
   {
-    // Default roles
-    var administratorRole = new IdentityRole("Administrator");
-    var userRole = new IdentityRole("User");
-
-    if (await _roleManager.Roles.AllAsync(r => r.Name != administratorRole.Name))
+    if (await _userManager.FindByNameAsync(AdministratorEmail) is not null)
     {
-      await _roleManager.CreateAsync(administratorRole);
-      await _roleManager.CreateAsync(userRole);
+      return;
     }
 
+    _logger.LogInformation("Seeding the administrator and a sample student");
+    var password = _configuration[SeedPasswordSetting]
+                   ?? throw new InvalidOperationException($"{SeedPasswordSetting} is missing (see .env.dist).");
+    var today = _timeProvider.GetUtcNow().UtcDateTime.Date;
 
-    // Default users
     var administrator = new ApplicationUser
     {
-      UserName = "admin@localhost",
-      Email = "admin@localhost",
+      UserName = AdministratorEmail,
+      Email = AdministratorEmail,
       FirstName = "John",
       LastName = "Doe",
-      DateOfBirth = DateTime.Now.AddYears(-30),
+      DateOfBirth = today.AddYears(-30),
       EmailConfirmed = true
     };
+    EnsureSucceeded(await _userManager.CreateAsync(administrator, password), "creating the administrator");
+    EnsureSucceeded(await _userManager.AddToRoleAsync(administrator, Roles.Administrator), "adding admin role");
 
     var student = new ApplicationUser
     {
-      Id = "363fa2a4-70a8-4391-bc54-a8b5267fb68a",
-      UserName = "student@localhost",
-      Email = "student@localhost",
+      Id = SampleStudentId,
+      UserName = SampleStudentEmail,
+      Email = SampleStudentEmail,
       FirstName = "Marry",
       LastName = "Doe",
-      DateOfBirth = DateTime.Now.AddYears(-25),
+      DateOfBirth = today.AddYears(-25),
       EmailConfirmed = true
     };
-
-    if (await _userManager.Users.AllAsync(u => u.UserName != administrator.UserName))
-    {
-      var password = Environment.GetEnvironmentVariable("ADMIN_USER_PASSWORD")!;
-      await _userManager.CreateAsync(administrator, password);
-      await _userManager.AddToRolesAsync(administrator, new[] { administratorRole.Name }!);
-
-      await _userManager.CreateAsync(student, password);
-      await _userManager.AddToRolesAsync(student, new[] { userRole.Name }!);
-    }
-
-
-    await _context.SaveChangesAsync();
+    EnsureSucceeded(await _userManager.CreateAsync(student, password), "creating the sample student");
+    EnsureSucceeded(await _userManager.AddToRoleAsync(student, Roles.User), "adding user role");
   }
 
-  private async Task MigrateAsync()
+  private static void EnsureSucceeded(IdentityResult result, string whatWasAttempted)
   {
-    try
+    if (!result.Succeeded)
     {
-      await _context.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex,
-        "An error occurred while trying to migrate the database.");
+      var errors = string.Join(", ", result.Errors.Select(error => error.Description));
+      throw new InvalidOperationException($"Seeding failed while {whatWasAttempted}: {errors}");
     }
   }
 }

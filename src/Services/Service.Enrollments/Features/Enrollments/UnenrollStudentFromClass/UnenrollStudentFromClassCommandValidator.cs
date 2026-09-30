@@ -1,6 +1,4 @@
-﻿using FluentValidation;
-
-using Library.Validators;
+using FluentValidation;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
@@ -8,26 +6,9 @@ public class UnenrollStudentFromClassCommandValidator : AbstractValidator<Unenro
 {
   public UnenrollStudentFromClassCommandValidator()
   {
-    RuleFor(x => x.CourseId)
-      .NotNull().WithMessage("Course Id is required.")
-      .NotEmpty().WithMessage("Course Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Course Id cannot be the empty GUID.");
-
-    RuleFor(x => x.ClassId)
-      .NotNull().WithMessage("Class Id is required.")
-      .NotEmpty().WithMessage("Class Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Class Id cannot be the empty GUID.");
-
-    RuleFor(x => x.StudentId)
-      .NotNull().WithMessage("Student Id is required.")
-      .NotEmpty().WithMessage("Student Id is required.")
-      .NotEqual(Guid.Empty)
-      .WithMessage("Student Id cannot be the empty GUID.");
-
-    RuleFor(x => x.IdempotencyKey)
-      .NotEqual(Guid.Empty)
-      .WithMessage("Idempotency key cannot be the empty GUID.");
+    RuleFor(command => command.CourseId).NotEmpty().WithMessage("Course id is required.");
+    RuleFor(command => command.ClassId).NotEmpty().WithMessage("Class id is required.");
+    RuleFor(command => command.StudentId).NotEmpty().WithMessage("Student id is required.");
+    RuleFor(command => command.IdempotencyKey).NotEmpty().WithMessage("Idempotency key is required.");
   }
 }

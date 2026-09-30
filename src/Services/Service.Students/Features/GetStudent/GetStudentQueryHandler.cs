@@ -1,8 +1,11 @@
-﻿using Service.Students.Common.Database;
+using Service.Students.Common.Database;
 using Service.Students.Common.Database.Entities;
 
 namespace Service.Students.Features.GetStudent;
 
+/// <summary>
+/// Returns one student.
+/// </summary>
 public class GetStudentQueryHandler : IRequestHandler<GetStudentQuery, ErrorOr<Student>>
 {
   private readonly ApplicationDbContext _dbContext;
@@ -16,14 +19,16 @@ public class GetStudentQueryHandler : IRequestHandler<GetStudentQuery, ErrorOr<S
 
   public async ValueTask<ErrorOr<Student>> Handle(GetStudentQuery request, CancellationToken cancellationToken)
   {
-    var student = await _dbContext.Students.AsNoTracking()
-      .FirstOrDefaultAsync(x => x.Id == request.StudentId, cancellationToken);
-    if (student != null)
+    var student = await _dbContext.Students
+      .AsNoTracking()
+      .FirstOrDefaultAsync(s => s.Id == request.StudentId, cancellationToken);
+
+    if (student is null)
     {
-      return student;
+      _logger.LogWarning("Student {StudentId} was not found", request.StudentId);
+      return StudentErrors.NotFound(request.StudentId);
     }
 
-    _logger.LogWarning("Student with id {StudentId} not found", request.StudentId);
-    return Error.NotFound("students_service.get_student.not_found", $"Student with id {request.StudentId} not found");
+    return student;
   }
 }

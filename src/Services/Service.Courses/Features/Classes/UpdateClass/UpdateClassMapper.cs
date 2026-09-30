@@ -4,12 +4,12 @@ namespace Service.Courses.Features.Classes.UpdateClass;
 
 public static class UpdateClassMapper
 {
-  public static void AddCommandValues(this Class entity, UpdateClassCommand command)
+  public static void ApplyUpdate(this Class courseClass, UpdateClassCommand command, DateTime now)
   {
-    entity.CourseId = command.CourseId;
-    entity.RegistrationDeadline = command.RegistrationDeadline;
-    entity.CourseStartDate = command.CourseStartDate;
-    entity.CourseEndDate = command.CourseEndDate;
-    entity.MaxStudents = command.MaxStudents;
+    courseClass.RegistrationDeadline = command.RegistrationDeadline;
+    courseClass.CourseStartDate = command.CourseStartDate;
+    courseClass.CourseEndDate = command.CourseEndDate;
+    courseClass.MaxStudents = command.MaxStudents;
+    courseClass.UpdatedAt = now;
   }
 }

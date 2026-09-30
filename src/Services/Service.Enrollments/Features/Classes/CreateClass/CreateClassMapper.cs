@@ -6,18 +6,7 @@ namespace Service.Enrollments.Features.Classes.CreateClass;
 
 public static class CreateClassMapper
 {
-  public static Class MapToClass(this CreateClassCommand command) =>
-    new()
-    {
-      Id = command.Id,
-      CourseId = command.CourseId,
-      MaxStudents = command.MaxStudents,
-      RegistrationDeadline = command.RegistrationDeadline,
-      CourseStartDate = command.CourseStartDate,
-      CourseEndDate = command.CourseEndDate
-    };
-
-  public static CreateClassCommand MapToCreateClassCommand(this ClassCreatedEvent createdEvent) =>
+  public static CreateClassCommand ToCreateClassCommand(this ClassCreatedEvent createdEvent) =>
     new()
     {
       Id = createdEvent.Id,
@@ -26,5 +15,18 @@ public static class CreateClassMapper
       RegistrationDeadline = createdEvent.RegistrationDeadline,
       CourseStartDate = createdEvent.CourseStartDate,
       CourseEndDate = createdEvent.CourseEndDate
+    };
+
+  public static Class ToClass(this CreateClassCommand command, DateTime now) =>
+    new()
+    {
+      Id = command.Id,
+      CourseId = command.CourseId,
+      MaxStudents = command.MaxStudents,
+      RegistrationDeadline = command.RegistrationDeadline,
+      CourseStartDate = command.CourseStartDate,
+      CourseEndDate = command.CourseEndDate,
+      CreatedAt = now,
+      UpdatedAt = now
     };
 }

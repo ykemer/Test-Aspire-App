@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 using Platform.Common.Database.Configurations;
@@ -8,9 +8,13 @@ namespace Platform.Common.Database;
 
 public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 {
-  public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) =>
-    // For postgresql timestamp without time zone
-    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+  // Runs once per process (not on every new DbContext).
+  // Keeps the old Npgsql DateTime handling that the rest of the system relies on.
+  static ApplicationDbContext() => AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+  public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+  {
+  }
 
   public DbSet<RefreshToken> RefreshTokens { get; set; }
 

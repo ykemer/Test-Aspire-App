@@ -22,18 +22,39 @@ namespace Service.Students.Common.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Service.Students.Common.Database.Entities.InboxMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasComment("Id of the handled message");
+
+                    b.Property<string>("MessageType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Kind of the handled message");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time when the message was handled");
+
+                    b.HasKey("MessageId", "MessageType")
+                        .HasName("PK_InboxMessages");
+
+                    b.ToTable("InboxMessages");
+                });
+
             modelBuilder.Entity("Service.Students.Common.Database.Entities.Student", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasComment("Unique identifier");
+                        .HasComment("Unique identifier (same as the user id in Platform)");
 
                     b.Property<DateTime>("CreatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was created");
+                        .HasComment("Date and time when the student was created");
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("date")
@@ -49,7 +70,7 @@ namespace Service.Students.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasDefaultValue(0)
-                        .HasComment("Number of enrollments the student has");
+                        .HasComment("Number of classes the student is enrolled in");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
@@ -67,14 +88,9 @@ namespace Service.Students.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was last updated");
+                        .HasComment("Date and time when the student was last updated");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("FirstName", "LastName", "Email")
-                        .HasAnnotation("Npgsql:TsVectorConfig", "english");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("FirstName", "LastName", "Email"), "GIN");
 
                     b.ToTable("Students");
                 });

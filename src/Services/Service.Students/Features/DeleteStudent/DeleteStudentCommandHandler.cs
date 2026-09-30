@@ -1,45 +1,44 @@
-﻿using Contracts.Students.Events;
-
-using Rebus.Bus;
-
 using Service.Students.Common.Database;
 
 namespace Service.Students.Features.DeleteStudent;
 
+/// <summary>
+/// Deletes a student who is not enrolled in any class.
+/// The check and the delete happen in one SQL statement, so a student who enrolls at the same moment
+/// is never deleted by mistake. Publishing the "student deleted" event is the job of <see cref="StudentsService"/>.
+/// </summary>
 public class DeleteStudentCommandHandler : IRequestHandler<DeleteStudentCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteStudentCommandHandler> _logger;
-  private readonly IBus _bus;
 
-  public DeleteStudentCommandHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentCommandHandler> logger,
-    IBus bus)
+  public DeleteStudentCommandHandler(ApplicationDbContext dbContext, ILogger<DeleteStudentCommandHandler> logger)
   {
     _dbContext = dbContext;
     _logger = logger;
-    _bus = bus;
   }
 
   public async ValueTask<ErrorOr<Deleted>> Handle(DeleteStudentCommand request, CancellationToken cancellationToken)
   {
-    var student = await _dbContext.Students.FirstOrDefaultAsync(i => i.Id == request.StudentId, cancellationToken);
-    if (student == null)
+    var deletedRows = await _dbContext.Students
+      .Where(student => student.Id == request.StudentId && student.EnrollmentsCount == 0)
+      .ExecuteDeleteAsync(cancellationToken);
+
+    if (deletedRows == 1)
     {
-      _logger.LogWarning("Student {StudentId} not found", request.StudentId);
-      return Error.NotFound("student_service.delete_student.student_not_found",
-        $"Student {request.StudentId} not found");
+      _logger.LogInformation("Student {StudentId} was deleted", request.StudentId);
+      return Result.Deleted;
     }
 
-    if (student.EnrollmentsCount > 0)
+    // Nothing was deleted. Find out why.
+    var studentExists = await _dbContext.Students.AnyAsync(s => s.Id == request.StudentId, cancellationToken);
+    if (!studentExists)
     {
-      _logger.LogWarning("Cannot delete student {StudentId} with active enrollments", request.StudentId);
-      return Error.Validation("student_service.delete_student.student_has_enrollments",
-        $"Cannot delete student {request.StudentId} with active enrollments");
+      _logger.LogWarning("Cannot delete student {StudentId} because it was not found", request.StudentId);
+      return StudentErrors.NotFound(request.StudentId);
     }
 
-    _dbContext.Remove(student);
-    await _dbContext.SaveChangesAsync(cancellationToken);
-    await _bus.Publish(new StudentDeletedEvent { StudentId = request.StudentId });
-    return Result.Deleted;
+    _logger.LogWarning("Cannot delete student {StudentId} because they are enrolled in classes", request.StudentId);
+    return StudentErrors.HasEnrollments(request.StudentId);
   }
 }

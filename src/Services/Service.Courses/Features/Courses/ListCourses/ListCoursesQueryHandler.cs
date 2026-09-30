@@ -1,46 +1,57 @@
-﻿using Contracts.Common;
+using Contracts.Common;
+
+using Library.Database;
 
 using Service.Courses.Common.Database;
+using Service.Courses.Common.Database.Configurations;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Classes;
 
 namespace Service.Courses.Features.Courses.ListCourses;
 
-public class ListCoursesQueryHandler : IRequestHandler<ListCoursesRequest, ErrorOr<PagedList<Course>>>
+/// <summary>
+/// Returns one page of courses.
+/// Without search text: newest first. With search text: best match first (PostgreSQL full-text search).
+/// Unless "show all" is set, only courses with a visible class are returned (see <see cref="ClassVisibility"/>).
+/// </summary>
+public class ListCoursesQueryHandler : IRequestHandler<ListCoursesQuery, ErrorOr<PagedList<Course>>>
 {
+  private const string Language = CourseConfiguration.SearchLanguage;
+
   private readonly ApplicationDbContext _dbContext;
+  private readonly TimeProvider _timeProvider;
 
-  public ListCoursesQueryHandler(ApplicationDbContext dbContext) => _dbContext = dbContext;
-
-  public ValueTask<ErrorOr<PagedList<Course>>> Handle(ListCoursesRequest request, CancellationToken cancellationToken)
+  public ListCoursesQueryHandler(ApplicationDbContext dbContext, TimeProvider timeProvider)
   {
-    var query = _dbContext.Courses.OrderByDescending(i => i.CreatedAt).AsQueryable();
+    _dbContext = dbContext;
+    _timeProvider = timeProvider;
+  }
+
+  public async ValueTask<ErrorOr<PagedList<Course>>> Handle(ListCoursesQuery request,
+    CancellationToken cancellationToken)
+  {
+    var courses = _dbContext.Courses.AsNoTracking();
 
     if (!request.ShowAll)
     {
-      query = query.Where(x => x.CourseClasses.Any(cs =>
-        request.EnrolledClasses.Contains(cs.Id) ||
-        (cs.RegistrationDeadline >= DateTime.UtcNow && cs.TotalStudents < cs.MaxStudents)
-      ));
+      var now = _timeProvider.GetUtcNow().UtcDateTime;
+      courses = courses.OnlyCoursesWithVisibleClasses(request.EnrolledClasses, now);
     }
 
-    if (!string.IsNullOrWhiteSpace(request.Query))
-    {
-      query = query
-        .Where(x => EF.Functions.ToTsVector("english", x.Name + " " + x.Description)
-          .Matches(EF.Functions.PhraseToTsQuery("english", request.Query))).Select(i => new CoursesDto
-        {
-          CreatedAt = i.CreatedAt,
-          Description = i.Description,
-          TotalStudents = i.TotalStudents,
-          Id = i.Id,
-          Name = i.Name,
-          Rank = EF.Functions.ToTsVector("english", i.Name + " " + i.Description).Rank(
-            EF.Functions.PhraseToTsQuery("english", request.Query))
-        }).OrderByDescending(x => x.Rank);
-    }
+    var orderedCourses = string.IsNullOrWhiteSpace(request.Query)
+      ? courses.OrderByDescending(course => course.CreatedAt)
+      : SearchByText(courses, request.Query);
 
-
-    var output = PagedList<Course>.Create(query, request.PageNumber, request.PageSize);
-    return ValueTask.FromResult<ErrorOr<PagedList<Course>>>(output);
+    return await orderedCourses.ToPagedListAsync(request.PageNumber, request.PageSize, cancellationToken);
   }
+
+  // Name + " " + Description must stay written exactly like this: it matches the GIN index
+  // defined in CourseConfiguration, which is what makes the search fast.
+  private static IOrderedQueryable<Course> SearchByText(IQueryable<Course> courses, string searchText) =>
+    courses
+      .Where(course => EF.Functions.ToTsVector(Language, course.Name + " " + course.Description)
+        .Matches(EF.Functions.PhraseToTsQuery(Language, searchText)))
+      .OrderByDescending(course => EF.Functions.ToTsVector(Language, course.Name + " " + course.Description)
+        .Rank(EF.Functions.PhraseToTsQuery(Language, searchText)))
+      .ThenByDescending(course => course.CreatedAt);
 }

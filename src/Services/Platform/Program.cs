@@ -3,94 +3,77 @@ using FastEndpoints.Swagger;
 
 using Library.Infrastructure;
 
-using Platform;
 using Platform.Common.Database;
-using Platform.Common.Middleware.Responses;
+using Platform.Common.Responses;
+using Platform.Common.Setup;
 using Platform.Features.Classes;
 using Platform.Features.Courses;
 using Platform.Features.Enrollments;
 
-var root = Directory.GetCurrentDirectory();
-var dotenv = Path.Combine(root, ".env");
-DotEnv.Load(dotenv);
+// Local development secrets (JWT keys, seed password) live in a .env file next to the project.
+DotEnv.Load(Path.Combine(Directory.GetCurrentDirectory(), ".env"));
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration.AddEnvironmentVariables();
-// Add PostgresSQL database.
+builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("mainDb");
 
-// Add service defaults & Aspire components.
-builder.AddServiceDefaults();
-builder.AddRedisDistributedCache("cache");
-
-// Add services to the container.
-builder.Services.AddGrpcServices();
-builder.Services.AddAuthServices();
-builder.Services.AddRebusServices(builder.Configuration);
-builder.Services.AddApiServices();
-builder.Services.AddCaching();
-builder.Services.AddRateLimiting();
+builder.Services.AddApi();
+builder.Services.AddAuth();
+builder.Services.AddGrpcClients();
+builder.Services.AddRebusMessaging(builder.Configuration);
+builder.Services.AddRateLimits();
 
 var app = builder.Build();
 
-app.UseAuthentication()
-  .UseAuthorization();
+// First, so it also catches errors thrown by the middleware below. Returns a generic 500 and logs the details.
+app.UseDefaultExceptionHandler();
 
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseRateLimiter();
 
-app.UseDefaultExceptionHandler()
-  .UseOutputCache()
-  .UseResponseCaching()
-  .UseFastEndpoints(options =>
+app.UseFastEndpoints(options =>
+{
+  options.Errors.UseProblemDetails();
+  options.Endpoints.Configurator = endpoint =>
   {
-    options.Errors.UseProblemDetails();
-    options.Endpoints.Configurator =
-      ep =>
-      {
-        if (ep.AnonymousVerbs is null)
-        {
-          ep.Description(b => b.Produces<ProblemDetails>(401));
-        }
+    var isAnonymous = endpoint.AnonymousVerbs is not null;
 
-        if (ep.ResDtoType.IsAssignableTo(typeof(IErrorOr)))
-        {
-          ep.DontAutoSendResponse();
-          ep.PostProcessor<ResponseMiddleware>(Order.After);
-          ep.Description(b => b.ClearDefaultProduces()
-            .Produces(200, ep.ResDtoType.GetGenericArguments()[0])
-            .ProducesProblemDetails());
-        }
-      };
-  })
-  .UseSwaggerGen();
+    // Every endpoint is rate limited: sign-in endpoints per IP address, all others per user.
+    endpoint.Options(route => route.RequireRateLimiting(
+      isAnonymous ? RateLimitPolicies.SignIn : RateLimitPolicies.PerUser));
+
+    if (!isAnonymous)
+    {
+      endpoint.Description(route => route.Produces<ProblemDetails>(StatusCodes.Status401Unauthorized));
+    }
+
+    // Endpoints that return ErrorOr<T> are answered by ErrorOrResponseSender.
+    if (endpoint.ResDtoType.IsAssignableTo(typeof(IErrorOr)))
+    {
+      endpoint.DontAutoSendResponse();
+      endpoint.PostProcessor<ErrorOrResponseSender>(Order.After);
+      endpoint.Description(route => route.ClearDefaultProduces()
+        .Produces(StatusCodes.Status200OK, endpoint.ResDtoType.GetGenericArguments()[0])
+        .ProducesProblemDetails());
+    }
+  };
+});
+
+app.MapHub<EnrollmentHub>(HubRoutes.Enrollments);
+app.MapHub<CoursesHub>(HubRoutes.Courses);
+app.MapHub<ClassesHub>(HubRoutes.Classes);
+app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
 {
-  app.UseDeveloperExceptionPage();
-  using (var scope = app.Services.CreateScope())
-  {
-    var initializer =
-      scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
-    await initializer.InitialiseAsync();
-    await initializer.SeedAsync();
-  }
+  // API documentation is only published in development.
+  app.UseSwaggerGen();
+
+  using var scope = app.Services.CreateScope();
+  var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+  await initializer.MigrateAndSeedAsync();
 }
 
-app.UseMiddleware<ProblemDetailsMiddleware>();
-app.MapHub<EnrollmentHub>("/enrollmentHub");
-app.MapHub<CoursesHub>("/courseHub");
-app.MapHub<ClassesHub>("/classHub");
-
 await app.RunAsync();
-
-// TODO error handling
-// TODO log errors
-// TODO log unhandled
-// TODO validation problem
-// TODO password recovery
-
-
-
-
-// TODO update endpoints to return 204 where applicable

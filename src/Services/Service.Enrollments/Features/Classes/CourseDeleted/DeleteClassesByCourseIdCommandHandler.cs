@@ -1,9 +1,13 @@
-﻿using Service.Enrollments.Common.Database;
+using Service.Enrollments.Common.Database;
 
 namespace Service.Enrollments.Features.Classes.CourseDeleted;
 
-public class
-  DeleteClassesByCourseIdCommandHandler : IRequestHandler<DeleteClassesByCourseIdCommand, ErrorOr<Deleted>>
+/// <summary>
+/// Removes the copies of all classes of a course that was deleted in the Courses service.
+/// A course without classes here counts as success, so a repeated message does no harm.
+/// </summary>
+public class DeleteClassesByCourseIdCommandHandler
+  : IRequestHandler<DeleteClassesByCourseIdCommand, ErrorOr<Deleted>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<DeleteClassesByCourseIdCommandHandler> _logger;
@@ -18,30 +22,27 @@ public class
   public async ValueTask<ErrorOr<Deleted>> Handle(DeleteClassesByCourseIdCommand request,
     CancellationToken cancellationToken)
   {
-    var existingClasses = _dbContext.Classes.Where(course => course.CourseId == request.CourseId).ToList();
-    if (existingClasses.Count == 0)
+    var classes = await _dbContext.Classes
+      .Where(courseClass => courseClass.CourseId == request.CourseId)
+      .ToListAsync(cancellationToken);
+    if (classes.Count == 0)
     {
-      _logger.LogInformation("No classes were found for course: {CourseId}", request.CourseId);
+      _logger.LogInformation("Course {CourseId} has no classes here, nothing to delete", request.CourseId);
       return Result.Deleted;
     }
 
-    var existingEnrollments =
-      await _dbContext.Enrollments.CountAsync(enrollment => enrollment.CourseId == request.CourseId, cancellationToken);
-
-    if (existingEnrollments > 0)
+    var hasEnrollments = await _dbContext.Enrollments.AnyAsync(e => e.CourseId == request.CourseId, cancellationToken);
+    if (hasEnrollments)
     {
-      _logger.LogError("Classes for course with ID {CourseId} can not be deleted because of existing subscriptions",
-        request.CourseId);
-      return Error.Conflict(
-        description:
-        $"Classes for course with ID {request.CourseId} can not be deleted because of existing subscriptions");
+      // Courses only deletes courses without students, so this means the two services disagree.
+      _logger.LogError("Course {CourseId} was deleted in Courses but still has enrollments here", request.CourseId);
+      return ClassErrors.CourseHasEnrollments(request.CourseId);
     }
 
-    _dbContext.RemoveRange(_dbContext.Enrollments.Where(enrollment => enrollment.CourseId == request.CourseId));
-    _dbContext.RemoveRange(_dbContext.Classes.Where(course => course.CourseId == request.CourseId));
-
+    _dbContext.Classes.RemoveRange(classes);
     await _dbContext.SaveChangesAsync(cancellationToken);
-    _logger.LogInformation("Deleting enrollments for course {CourseId}", request.CourseId);
+
+    _logger.LogInformation("{ClassCount} classes of course {CourseId} were deleted", classes.Count, request.CourseId);
     return Result.Deleted;
   }
 }

@@ -1,4 +1,4 @@
-using Courses.Application.Setup;
+using Test.Courses.Setup;
 
 using FizzWare.NBuilder;
 
@@ -6,7 +6,7 @@ using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes.ListClasses;
 
-namespace Courses.Application.Features.Classes.ListClasses;
+namespace Test.Courses.Features.Classes.ListClasses;
 
 [TestFixture]
 public class ListClassesQueryHandlerTests
@@ -15,7 +15,7 @@ public class ListClassesQueryHandlerTests
   public void SetUp()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _handler = new ListClassesQueryHandler(_dbContext);
+    _handler = new ListClassesQueryHandler(_dbContext, TestClock.Create());
   }
 
   [TearDown]
@@ -27,7 +27,7 @@ public class ListClassesQueryHandlerTests
   [Test]
   public async Task Handle_NotEnrolled_ShouldFilterClosedOrFull()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var courseId = Guid.CreateVersion7();
 
     var open = Builder<Class>.CreateNew()
@@ -73,7 +73,7 @@ public class ListClassesQueryHandlerTests
   [Test]
   public async Task Handle_Enrolled_ShouldIncludeSpecifiedIds()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var courseId = Guid.CreateVersion7();
 
     var closedFull = Builder<Class>.CreateNew()
@@ -104,7 +104,7 @@ public class ListClassesQueryHandlerTests
   [Test]
   public async Task Handle_ShowAllTrue_ShouldReturnAllClasses_EvenIfClosedOrFull()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var courseId = Guid.CreateVersion7();
 
     var open = Builder<Class>.CreateNew()

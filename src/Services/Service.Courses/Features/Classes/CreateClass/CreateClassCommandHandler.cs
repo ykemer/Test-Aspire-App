@@ -1,39 +1,40 @@
-﻿using Service.Courses.Common.Database;
+using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Courses;
 
 namespace Service.Courses.Features.Classes.CreateClass;
 
+/// <summary>
+/// Adds a new class to an existing course.
+/// </summary>
 public class CreateClassCommandHandler : IRequestHandler<CreateClassCommand, ErrorOr<Class>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<CreateClassCommandHandler> _logger;
+  private readonly TimeProvider _timeProvider;
 
-  public CreateClassCommandHandler(ApplicationDbContext dbContext, ILogger<CreateClassCommandHandler> logger)
+  public CreateClassCommandHandler(ApplicationDbContext dbContext, ILogger<CreateClassCommandHandler> logger,
+    TimeProvider timeProvider)
   {
     _dbContext = dbContext;
     _logger = logger;
+    _timeProvider = timeProvider;
   }
 
   public async ValueTask<ErrorOr<Class>> Handle(CreateClassCommand request, CancellationToken cancellationToken)
   {
-    var existingCourse =
-      await _dbContext.Courses.FirstOrDefaultAsync(course => course.Id == request.CourseId,
-        cancellationToken);
-
-    if (existingCourse == null)
+    var courseExists = await _dbContext.Courses.AnyAsync(course => course.Id == request.CourseId, cancellationToken);
+    if (!courseExists)
     {
-      _logger.LogWarning("Class with ID {ClassId} does not exists", request.CourseId);
-      return Error.Conflict("courses_service.create_class.course_does_not_exist",
-        $"Course {request.CourseId} does not exists");
+      _logger.LogWarning("Cannot create class because course {CourseId} was not found", request.CourseId);
+      return CourseErrors.NotFound(request.CourseId);
     }
 
-    var courseClass = request.MapToClass();
-    await _dbContext.Classes.AddAsync(courseClass, cancellationToken);
+    var courseClass = request.ToClass(_timeProvider.GetUtcNow().UtcDateTime);
+    _dbContext.Classes.Add(courseClass);
     await _dbContext.SaveChangesAsync(cancellationToken);
 
-    _logger.LogTrace("Course Class {StartDate} - {EndDate} is being created",
-      request.CourseStartDate.ToString("yyyy-MM-dd"),
-      request.CourseEndDate.ToString("yyyy-MM-dd"));
+    _logger.LogInformation("Class {ClassId} was created for course {CourseId}", courseClass.Id, courseClass.CourseId);
     return courseClass;
   }
 }

@@ -14,5 +14,5 @@ public class Class
   public int MaxStudents { get; set; }
 
   public int TotalStudents { get; set; }
-  public Course Course { get; set; }
+  public Course Course { get; set; } = null!;
 }

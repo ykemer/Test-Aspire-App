@@ -1,25 +1,19 @@
-﻿using Contracts.Users.Requests;
+using Contracts.Users.Requests;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-
-using Platform.Common.Database;
-using Platform.Common.Database.Entities;
+using Platform.Common.Auth;
 
 namespace Platform.Features.Auth.RefreshTokenRevoke;
 
+/// <summary>
+/// Signs out: the given refresh token stops working. Knowing the token is proof enough to revoke it.
+/// </summary>
 public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, ErrorOr<Deleted>>
 {
-  private readonly ApplicationDbContext _db;
-  private readonly UserManager<ApplicationUser> _userManager;
+  private readonly IAuthTokenService _authTokens;
 
-  public RefreshTokenRevokeEndpoint(UserManager<ApplicationUser> userManager, ApplicationDbContext db)
-  {
-    _userManager = userManager;
-    _db = db;
-  }
+  public RefreshTokenRevokeEndpoint(IAuthTokenService authTokens) => _authTokens = authTokens;
 
   public override void Configure()
   {
@@ -28,16 +22,6 @@ public class RefreshTokenRevokeEndpoint : Endpoint<RefreshAccessTokenRequest, Er
     Description(x => x.WithTags("Auth"));
   }
 
-  public override async Task<ErrorOr<Deleted>> ExecuteAsync(RefreshAccessTokenRequest req, CancellationToken ct)
-  {
-    var token = await _db.RefreshTokens.FirstOrDefaultAsync(i => i.Token == req.RefreshToken, ct);
-    if (token == null || token.ExpiresAt <= DateTime.UtcNow)
-    {
-      return Error.Unauthorized(description: "Refresh token is not valid");
-    }
-
-    _db.RefreshTokens.Remove(token);
-    await _db.SaveChangesAsync(ct);
-    return Result.Deleted;
-  }
+  public override Task<ErrorOr<Deleted>> ExecuteAsync(RefreshAccessTokenRequest request, CancellationToken ct) =>
+    _authTokens.RevokeAsync(request.RefreshToken!, ct);
 }

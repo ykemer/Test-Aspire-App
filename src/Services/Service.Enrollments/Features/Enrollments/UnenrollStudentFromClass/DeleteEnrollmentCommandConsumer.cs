@@ -6,6 +6,9 @@ using Rebus.Handlers;
 
 namespace Service.Enrollments.Features.Enrollments.UnenrollStudentFromClass;
 
+/// <summary>
+/// Handles an "unenroll" request from the Platform saga and publishes the result (deleted or rejected).
+/// </summary>
 public class DeleteEnrollmentCommandConsumer : IHandleMessages<DeleteEnrollmentCommand>
 {
   private readonly IBus _bus;
@@ -19,7 +22,7 @@ public class DeleteEnrollmentCommandConsumer : IHandleMessages<DeleteEnrollmentC
 
   public async Task Handle(DeleteEnrollmentCommand message)
   {
-    var result = await _mediator.Send(message.MapToUnenrollStudentFromClassCommand());
+    var result = await _mediator.Send(message.ToUnenrollStudentFromClassCommand());
 
     if (result.IsError)
     {
@@ -30,13 +33,12 @@ public class DeleteEnrollmentCommandConsumer : IHandleMessages<DeleteEnrollmentC
         StudentId = message.StudentId,
         Reason = result.FirstError.Description
       });
+      return;
     }
-    else
+
+    await _bus.Publish(new EnrollmentDeletedEvent
     {
-      await _bus.Publish(new EnrollmentDeletedEvent
-      {
-        CourseId = message.CourseId, ClassId = message.ClassId, StudentId = message.StudentId
-      });
-    }
+      CourseId = message.CourseId, ClassId = message.ClassId, StudentId = message.StudentId
+    });
   }
 }

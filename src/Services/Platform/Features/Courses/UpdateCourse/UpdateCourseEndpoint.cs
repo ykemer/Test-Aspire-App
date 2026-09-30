@@ -3,47 +3,36 @@ using Contracts.Courses.Requests;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.OutputCaching;
-
-using Platform.Common.Services.User;
+using Platform.Common.Auth;
 
 using Rebus.Bus;
 
 namespace Platform.Features.Courses.UpdateCourse;
 
+/// <summary>
+/// Asks the Courses service to change a course. The answer arrives later as a live notification.
+/// </summary>
 public class UpdateCourseEndpoint : Endpoint<UpdateCourseRequest, ErrorOr<Updated>>
 {
   private readonly IBus _bus;
-  private readonly IOutputCacheStore _outputCache;
-  private readonly IUserService _userService;
 
-  public UpdateCourseEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
-  {
-    _outputCache = outputCache;
-    _bus = bus;
-    _userService = userService;
-  }
+  public UpdateCourseEndpoint(IBus bus) => _bus = bus;
 
   public override void Configure()
   {
-    Put("/api/courses/{CourseId}");
-    Policies("RequireAdministratorRole");
+    Put("/api/courses/{CourseId:guid}");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Courses"));
   }
 
-  public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest updateCourseCommand,
-    CancellationToken ct)
+  public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateCourseRequest request, CancellationToken ct)
   {
-    var id = Route<Guid>("CourseId");
-    var userId = _userService.GetUserId(User).ToString();
-    await _outputCache.EvictByTagAsync("courses", ct);
-
     await _bus.Send(new UpdateCourseCommand
     {
-      CourseId = id,
-      Name = updateCourseCommand.Name,
-      Description = updateCourseCommand.Description,
-      UserId = userId
+      CourseId = Route<Guid>("CourseId"),
+      Name = request.Name,
+      Description = request.Description,
+      UserId = User.GetUserId().ToString()
     });
 
     return Result.Updated;

@@ -5,6 +5,9 @@ using Rebus.Handlers;
 
 namespace Service.Students.Features.UpdateStudentEnrollmentsCount;
 
+/// <summary>
+/// Part of the Platform "unenroll" saga: removes one enrollment from the student and reports success or failure.
+/// </summary>
 public class DecreaseStudentEnrollmentsEventConsumer : IHandleMessages<DecreaseStudentEnrollmentCountEvent>
 {
   private readonly IBus _bus;
@@ -18,22 +21,22 @@ public class DecreaseStudentEnrollmentsEventConsumer : IHandleMessages<DecreaseS
 
   public async Task Handle(DecreaseStudentEnrollmentCountEvent message)
   {
-    var result = await _mediator.Send(new UpdateStudentEnrollmentsCountCommand(message.StudentId, false));
+    var command = new UpdateStudentEnrollmentsCountCommand(
+      message.EventId, message.StudentId, EnrollmentChange.RemoveEnrollment);
+    var result = await _mediator.Send(command);
+
     if (result.IsError)
     {
       await _bus.Publish(new DecreaseStudentEnrollmentCountFailedEvent
       {
-        StudentId = message.StudentId,
-        EventId = message.EventId,
-        ErrorMessage = result.Errors.FirstOrDefault().Description
+        StudentId = message.StudentId, EventId = message.EventId, ErrorMessage = result.FirstError.Description
       });
+      return;
     }
-    else
+
+    await _bus.Publish(new DecreaseStudentEnrollmentCountSuccessEvent
     {
-      await _bus.Publish(new DecreaseStudentEnrollmentCountSuccessEvent
-      {
-        StudentId = message.StudentId, EventId = message.EventId
-      });
-    }
+      StudentId = message.StudentId, EventId = message.EventId
+    });
   }
 }

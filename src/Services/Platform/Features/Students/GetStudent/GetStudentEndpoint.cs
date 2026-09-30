@@ -1,43 +1,38 @@
-﻿using Contracts.Students.Responses;
+using Contracts.Students.Responses;
 
 using FastEndpoints;
 
-using Platform.Common.Middleware.Grpc;
+using Platform.Common.Grpc;
 
 using StudentsGRPCClient;
 
 namespace Platform.Features.Students.GetStudent;
 
+/// <summary>
+/// Administrators: returns one student.
+/// </summary>
 public class GetStudentEndpoint : EndpointWithoutRequest<ErrorOr<StudentResponse>>
 {
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
+  private readonly IGrpcCaller _grpc;
+  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsClient;
 
-  public GetStudentEndpoint(GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware)
+  public GetStudentEndpoint(GrpcStudentsService.GrpcStudentsServiceClient studentsClient, IGrpcCaller grpc)
   {
-    _studentsGrpcService = studentsGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
+    _studentsClient = studentsClient;
+    _grpc = grpc;
   }
 
   public override void Configure()
   {
-    Get("/api/students/{StudentId}");
-    Policies("RequireAdministratorRole");
-    Options(x => x.RequireRateLimiting("fixed-per-user"));
+    Get("/api/students/{StudentId:guid}");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Students"));
   }
 
   public override async Task<ErrorOr<StudentResponse>> ExecuteAsync(CancellationToken ct)
   {
-    var id = Route<Guid>("StudentId");
-
-    var studentRequest =
-      _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = id.ToString() });
-    var
-      studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
-    return studentResponse.Match<ErrorOr<StudentResponse>>(
-      data => data.ToStudentResponse(),
-      error => error);
+    var request = new GrpcGetStudentByIdRequest { Id = Route<Guid>("StudentId").ToString() };
+    var result = await _grpc.CallAsync(_studentsClient.GetStudentByIdAsync(request, cancellationToken: ct));
+    return result.Then(student => student.ToStudentResponse());
   }
 }

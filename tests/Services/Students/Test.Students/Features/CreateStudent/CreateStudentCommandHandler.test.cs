@@ -1,69 +1,78 @@
-﻿using FizzWare.NBuilder;
-
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-
-using NSubstitute;
+using Microsoft.Extensions.Logging.Abstractions;
 
 using Service.Students.Common.Database;
-using Service.Students.Common.Database.Entities;
+using Service.Students.Features;
 using Service.Students.Features.CreateStudent;
 
-using Test.Students.Application.Setup;
+using Test.Students.Setup;
 
-namespace Test.Students.Application.Features.CreateStudent;
+namespace Test.Students.Features.CreateStudent;
 
-public class CreateStudentCommandHandlerTest
+[TestFixture]
+public class CreateStudentCommandHandlerTests
 {
-  private CreateStudentCommandHandler _commandHandler;
-  private ApplicationDbContext _dbContext;
-  private ILogger<CreateStudentCommandHandler> _loggerMock;
+  private ApplicationDbContext _dbContext = null!;
+  private CreateStudentCommandHandler _handler = null!;
 
   [SetUp]
-  public void Setup()
+  public void SetUp()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = Substitute.For<ILogger<CreateStudentCommandHandler>>();
-    _commandHandler = new CreateStudentCommandHandler(_dbContext, _loggerMock);
+    _handler = new CreateStudentCommandHandler(_dbContext, NullLogger<CreateStudentCommandHandler>.Instance,
+      TestClock.Create());
   }
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
 
+  private static CreateStudentCommand Command(string email = "jane.doe@example.com") =>
+    new()
+    {
+      Id = Guid.NewGuid(),
+      FirstName = "Jane",
+      LastName = "Doe",
+      Email = email,
+      DateOfBirth = new DateTime(2000, 5, 17, 10, 30, 0, DateTimeKind.Utc)
+    };
+
   [Test]
-  public async Task Handle_ShouldCreateStudent_WhenStudentDoesNotExist()
+  public async Task Handle_ShouldCreateStudent_WithTimestampsAndDateOnlyBirthday()
   {
-    // Arrange
-    var command = Builder<CreateStudentCommand>.CreateNew().Build();
+    var command = Command();
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
-    // Assert
     Assert.That(result.IsError, Is.False);
-    Assert.That(await _dbContext.Students.CountAsync(), Is.EqualTo(1));
+    var student = await _dbContext.Students.FindAsync(command.Id);
+    Assert.Multiple(() =>
+    {
+      Assert.That(student!.Email, Is.EqualTo(command.Email));
+      Assert.That(student.DateOfBirth, Is.EqualTo(new DateTime(2000, 5, 17)), "time of day is dropped");
+      Assert.That(student.EnrollmentsCount, Is.Zero);
+      Assert.That(student.CreatedAt, Is.EqualTo(TestClock.Now));
+    });
   }
 
   [Test]
-  public async Task Handle_ShouldReturnConflict_WhenStudentWithEmailAlreadyExists()
+  public async Task Handle_ShouldSucceedWithoutDuplicating_WhenSameUserArrivesTwice()
   {
-    // Arrange
-    var existingStudent = Builder<Student>.CreateNew()
-      .Build();
+    var command = Command();
+    await _handler.Handle(command, CancellationToken.None);
 
-    await _dbContext.Students.AddAsync(existingStudent);
-    await _dbContext.SaveChangesAsync();
+    var second = await _handler.Handle(command, CancellationToken.None);
 
-    var command = Builder<CreateStudentCommand>.CreateNew()
-      .With(c => c.Email = existingStudent.Email)
-      .Build();
+    Assert.That(second.IsError, Is.False, "a repeated message is not an error");
+    Assert.That(_dbContext.Students.Count(), Is.EqualTo(1));
+  }
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
+  [Test]
+  public async Task Handle_ShouldRefuse_WhenAnotherStudentHasTheSameEmail_IgnoringCase()
+  {
+    await _handler.Handle(Command("jane.doe@example.com"), CancellationToken.None);
 
-    // Assert
-    Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("students_service.create_student.already_exists"));
-    Assert.That(await _dbContext.Students.CountAsync(), Is.EqualTo(1));
+    var result = await _handler.Handle(Command("JANE.DOE@example.com"), CancellationToken.None);
+
+    Assert.That(result.FirstError.Code, Is.EqualTo(StudentErrors.EmailAlreadyTaken("x").Code));
+    Assert.That(_dbContext.Students.Count(), Is.EqualTo(1));
   }
 }

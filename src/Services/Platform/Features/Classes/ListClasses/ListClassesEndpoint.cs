@@ -1,88 +1,54 @@
-﻿using ClassesGRPCClient;
+using ClassesGRPCClient;
 
 using Contracts.Classes.Responses;
 using Contracts.Common;
 using Contracts.Courses.Requests;
-using Contracts.Courses.Responses;
-
-using EnrollmentsGRPCClient;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.OutputCaching;
-
-using Platform.Common.Middleware.Grpc;
-using Platform.Common.Services.User;
+using Platform.Common.Auth;
+using Platform.Common.Grpc;
 
 namespace Platform.Features.Classes.ListClasses;
 
+/// <summary>
+/// Returns one page of the classes of a course. Students see open classes and the classes they are in,
+/// each marked with "is the user enrolled". Administrators see every class.
+/// </summary>
 public class ListClassesEndpoint : Endpoint<ListCoursesRequest, ErrorOr<PagedList<ClassListItemResponse>>>
 {
-  private readonly GrpcClassService.GrpcClassServiceClient _classesGrpcService;
-  private readonly GrpcEnrollmentsService.GrpcEnrollmentsServiceClient _enrollmentsGrpcService;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly IUserService _userService;
+  private readonly GrpcClassService.GrpcClassServiceClient _classesClient;
+  private readonly ICurrentStudentEnrollments _currentStudentEnrollments;
+  private readonly IGrpcCaller _grpc;
 
-  public ListClassesEndpoint(GrpcClassService.GrpcClassServiceClient classesGrpcService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, IUserService userService,
-    GrpcEnrollmentsService.GrpcEnrollmentsServiceClient enrollmentsGrpcService)
+  public ListClassesEndpoint(GrpcClassService.GrpcClassServiceClient classesClient,
+    ICurrentStudentEnrollments currentStudentEnrollments, IGrpcCaller grpc)
   {
-    _classesGrpcService = classesGrpcService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
-    _userService = userService;
-    _enrollmentsGrpcService = enrollmentsGrpcService;
+    _classesClient = classesClient;
+    _currentStudentEnrollments = currentStudentEnrollments;
+    _grpc = grpc;
   }
 
   public override void Configure()
   {
-    Get("/api/courses/{CourseId}/classes");
-    Policies("RequireUserRole");
-    ResponseCache(60);
-    Options(x => x.RequireRateLimiting("fixed-per-user"));
+    Get("/api/courses/{CourseId:guid}/classes");
+    Policies(Common.Auth.Policies.Users);
     Description(x => x.WithTags("Classes"));
   }
 
-  [OutputCache(PolicyName = "ClassesCache")]
   public override async Task<ErrorOr<PagedList<ClassListItemResponse>>> ExecuteAsync(ListCoursesRequest query,
     CancellationToken ct)
   {
-    var courseId = Route<Guid>("CourseId");
-
-    var enrolledClasses = new List<string>();
-
-    var isAdmin = User.IsInRole("Administrator");
-
-    if (!isAdmin)
+    var enrollments = await _currentStudentEnrollments.GetAsync(User, ct);
+    if (enrollments.IsError)
     {
-      var request = new GrpcGetStudentEnrollmentsRequest { StudentId = _userService.GetUserId(User).ToString() };
-
-      var enrollmentsRequest =
-        _enrollmentsGrpcService.GetStudentEnrollmentsAsync(request, cancellationToken: ct);
-
-      var enrollmentsResult =
-        await _grpcRequestMiddleware.SendGrpcRequestAsync(enrollmentsRequest, ct);
-      if (enrollmentsResult.IsError)
-      {
-        return enrollmentsResult.FirstError;
-      }
-
-      var enrollments = enrollmentsResult.Value.Items;
-      enrolledClasses = enrollments.Select(x => x.ClassId).ToList();
+      return enrollments.Errors;
     }
 
-    var coursesRequest =
-      _classesGrpcService.ListClassesAsync(query.ToGrpcListClassRequest(enrolledClasses, isAdmin, courseId.ToString()),
-        cancellationToken: ct);
+    var enrolledClassIds = enrollments.Value.ClassIds;
+    var request = query.ToGrpcListClassRequest(Route<Guid>("CourseId"), enrolledClassIds, User.IsAdministrator());
 
-    var coursesResult =
-      await _grpcRequestMiddleware.SendGrpcRequestAsync(coursesRequest, ct);
-
-    if (coursesResult.IsError)
-    {
-      return coursesResult.FirstError;
-    }
-
-    var courses = coursesResult.Value;
-    return courses.ToClassListItemResponse(enrolledClasses);
+    var result = await _grpc.CallAsync(_classesClient.ListClassesAsync(request, cancellationToken: ct));
+    return result.Then(classes => classes.ToClassListItemResponse(enrolledClassIds));
   }
 }

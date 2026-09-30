@@ -2,7 +2,7 @@ using CoursesGRPC;
 
 using Service.Courses.Features.Courses.GetCourse;
 
-namespace Courses.Application.Features.Courses.GetCourse;
+namespace Test.Courses.Features.Courses.GetCourse;
 
 [TestFixture]
 public class GetCourseMapperTest

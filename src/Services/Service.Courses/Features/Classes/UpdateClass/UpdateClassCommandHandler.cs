@@ -1,16 +1,23 @@
-﻿using Service.Courses.Common.Database;
+using Service.Courses.Common.Database;
 
 namespace Service.Courses.Features.Classes.UpdateClass;
 
+/// <summary>
+/// Changes the dates and size of a class.
+/// The new maximum cannot be lower than the number of students already enrolled.
+/// </summary>
 public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, ErrorOr<Updated>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<UpdateClassCommandHandler> _logger;
+  private readonly TimeProvider _timeProvider;
 
-  public UpdateClassCommandHandler(ApplicationDbContext dbContext, ILogger<UpdateClassCommandHandler> logger)
+  public UpdateClassCommandHandler(ApplicationDbContext dbContext, ILogger<UpdateClassCommandHandler> logger,
+    TimeProvider timeProvider)
   {
     _dbContext = dbContext;
     _logger = logger;
+    _timeProvider = timeProvider;
   }
 
   public async ValueTask<ErrorOr<Updated>> Handle(UpdateClassCommand request, CancellationToken cancellationToken)
@@ -19,23 +26,18 @@ public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, Err
       courseClass => courseClass.Id == request.Id && courseClass.CourseId == request.CourseId, cancellationToken);
     if (courseClass is null)
     {
-      _logger.LogError("Can not update class with id {ClassId} for course {CourseId} not found", request.Id,
-        request.CourseId);
-      return Error.NotFound("course_service.update_class.not_found", $"Course {request.Id} not found");
+      _logger.LogWarning("Cannot update class {ClassId} of course {CourseId} because it was not found",
+        request.Id, request.CourseId);
+      return ClassErrors.NotFound(request.Id, request.CourseId);
     }
-
 
     if (courseClass.TotalStudents > request.MaxStudents)
     {
-      _logger.LogError(
-        "Can not update class with id {ClassId} for course {CourseId} because it has more students than the new max students",
-        request.Id, request.CourseId);
-      return Error.Validation("course_service.update_class.max_students_exceeded",
-        $"Class {request.Id} for course {request.CourseId} has more students than the new max students");
+      _logger.LogWarning("Cannot update class {ClassId}: new maximum is below the enrolled count", request.Id);
+      return ClassErrors.MaxStudentsBelowEnrolledCount(request.Id);
     }
 
-
-    courseClass.AddCommandValues(request);
+    courseClass.ApplyUpdate(request, _timeProvider.GetUtcNow().UtcDateTime);
 
     try
     {
@@ -43,12 +45,12 @@ public class UpdateClassCommandHandler : IRequestHandler<UpdateClassCommand, Err
     }
     catch (DbUpdateConcurrencyException)
     {
-      _logger.LogWarning("Class with id {ClassId} for course {CourseId} was modified concurrently",
-        request.Id, request.CourseId);
-      return Error.Conflict("course_service.update_class.concurrent_modification",
-        $"Class {request.Id} was modified by someone else, please reload and try again.");
+      // For example, a student enrolled after we read the class. The enrolled count may now be too high.
+      _logger.LogWarning("Class {ClassId} was modified concurrently", request.Id);
+      return ClassErrors.ModifiedConcurrently(request.Id);
     }
 
+    _logger.LogInformation("Class {ClassId} was updated", request.Id);
     return Result.Updated;
   }
 }

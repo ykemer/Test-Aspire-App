@@ -18,8 +18,10 @@ public class DecreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<Decre
 
   public async Task Handle(DecreaseClassEnrollmentsCountEvent message)
   {
-    var result =
-      await _mediator.Send(new UpdateNumberOfEnrolledStudentsCommand(message.CourseId, message.ClassId, false));
+    var command = new UpdateNumberOfEnrolledStudentsCommand(
+      message.EventId, message.CourseId, message.ClassId, EnrollmentChange.RemoveStudent);
+    var result = await _mediator.Send(command);
+
     if (result.IsError)
     {
       await _bus.Publish(new DecreaseClassEnrollmentsCountFailedEvent
@@ -27,17 +29,14 @@ public class DecreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<Decre
         CourseId = message.CourseId,
         ClassId = message.ClassId,
         EventId = message.EventId,
-        ErrorMessage = result.Errors.FirstOrDefault().Description
+        ErrorMessage = result.FirstError.Description
       });
+      return;
     }
-    else
+
+    await _bus.Publish(new DecreaseClassEnrollmentsCountSuccessEvent
     {
-      await _bus.Publish(new DecreaseClassEnrollmentsCountSuccessEvent
-      {
-        CourseId = message.CourseId,
-        ClassId = message.ClassId,
-        EventId = message.EventId
-      });
-    }
+      CourseId = message.CourseId, ClassId = message.ClassId, EventId = message.EventId
+    });
   }
 }

@@ -1,81 +1,101 @@
-﻿using Courses.Application.Setup;
-
 using FizzWare.NBuilder;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Time.Testing;
 
 using NSubstitute;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.UpdateCourse;
 
-namespace Courses.Application.Features.Courses.UpdateCourse;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Courses.UpdateCourse;
 
 public class UpdateCourseCommandHandlerTests
 {
-  private UpdateCourseCommandHandler _commandHandler;
-  private ApplicationDbContext _dbContext;
-  private ILogger<UpdateCourseCommandHandler> _loggerMock;
+  private FakeTimeProvider _clock = null!;
+  private UpdateCourseCommandHandler _handler = null!;
+  private ApplicationDbContext _dbContext = null!;
 
   [SetUp]
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = Substitute.For<ILogger<UpdateCourseCommandHandler>>();
-    _commandHandler = new UpdateCourseCommandHandler(_dbContext, _loggerMock);
+    _clock = TestClock.Create();
+    _handler = new UpdateCourseCommandHandler(_dbContext, Substitute.For<ILogger<UpdateCourseCommandHandler>>(),
+      _clock);
   }
 
   [TearDown]
   public void TearDown() => _dbContext.Dispose();
 
-  private async Task AddCourseToDatabase(Course course)
+  private async Task<Course> AddCourse(string name)
   {
-    _dbContext.Courses.RemoveRange(_dbContext.Courses); // Clear existing data
-    await _dbContext.Courses.AddAsync(course);
+    var course = Builder<Course>.CreateNew()
+      .With(c => c.Id = Guid.NewGuid())
+      .With(c => c.Name = name)
+      .With(c => c.UpdatedAt = TestClock.Now)
+      .Build();
+    _dbContext.Courses.Add(course);
     await _dbContext.SaveChangesAsync();
+    return course;
   }
+
+  private static UpdateCourseCommand CommandFor(Guid id, string name) =>
+    new() { Id = id, Name = name, Description = "New Description" };
 
   [Test]
   public async Task Handle_ShouldReturnNotFound_WhenCourseDoesNotExist()
   {
-    // Arrange
-    var command = Builder<UpdateCourseCommand>.CreateNew()
-      .Build();
+    var command = CommandFor(Guid.NewGuid(), "New Name");
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
-    // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("course_service.update_course.course.not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NotFound(command.Id).Code));
   }
 
   [Test]
-  public async Task Handle_ShouldUpdateCourse_WhenCourseExists()
+  public async Task Handle_ShouldUpdateCourseAndTimestamp_WhenCourseExists()
   {
-    // Arrange
-    var existingCourse = Builder<Course>.CreateNew()
-      .With(c => c.Name = "Old Name")
-      .With(c => c.Description = "Old Description")
-      .Build();
-    await AddCourseToDatabase(existingCourse);
+    var course = await AddCourse("Old Name");
+    _clock.Advance(TimeSpan.FromHours(1));
 
-    var command = Builder<UpdateCourseCommand>.CreateNew()
-      .With(c => c.Id, existingCourse.Id)
-      .With(c => c.Name = "New Name")
-      .With(c => c.Description = "New Description")
-      .Build();
+    var result = await _handler.Handle(CommandFor(course.Id, "New Name"), CancellationToken.None);
 
-    // Act
-    var result = await _commandHandler.Handle(command, CancellationToken.None);
-
-    // Assert
     Assert.That(result.IsError, Is.False);
-    var updatedCourse = await _dbContext.Courses.AsNoTracking()
-      .FirstOrDefaultAsync(x => x.Id == existingCourse.Id, CancellationToken.None);
-    Assert.That(updatedCourse?.Name, Is.EqualTo("New Name"));
-    Assert.That(updatedCourse.Description, Is.EqualTo("New Description"));
+    var updated = await _dbContext.Courses.AsNoTracking().FirstAsync(x => x.Id == course.Id);
+    Assert.Multiple(() =>
+    {
+      Assert.That(updated.Name, Is.EqualTo("New Name"));
+      Assert.That(updated.Description, Is.EqualTo("New Description"));
+      Assert.That(updated.UpdatedAt, Is.EqualTo(TestClock.Now.AddHours(1)));
+    });
+  }
+
+  [Test]
+  public async Task Handle_ShouldReturnConflict_WhenNewNameBelongsToAnotherCourse()
+  {
+    await AddCourse("Taken Name");
+    var course = await AddCourse("My Name");
+
+    var result = await _handler.Handle(CommandFor(course.Id, "taken name"), CancellationToken.None);
+
+    Assert.That(result.IsError, Is.True);
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NameAlreadyTaken("taken name").Code));
+  }
+
+  [Test]
+  public async Task Handle_ShouldAllowKeepingTheSameName()
+  {
+    var course = await AddCourse("Same Name");
+
+    var result = await _handler.Handle(CommandFor(course.Id, "Same Name"), CancellationToken.None);
+
+    Assert.That(result.IsError, Is.False);
   }
 }

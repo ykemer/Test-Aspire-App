@@ -7,17 +7,15 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
 builder.AddNpgsqlDbContext<ApplicationDbContext>("coursesDb");
-builder.AddRedisDistributedCache("cache");
 
 builder.Services.AddServices();
-builder.Services.AddRebusServices(builder.Configuration);
+builder.Services.AddRebusMessaging(builder.Configuration);
 
 var app = builder.Build();
 
 app.MapGrpcService<CoursesService>();
 app.MapGrpcService<ClassesService>();
-
-
+app.MapDefaultEndpoints();
 
 app.MapGet("/",
   () =>
@@ -25,12 +23,9 @@ app.MapGet("/",
 
 if (app.Environment.IsDevelopment())
 {
-  app.UseDeveloperExceptionPage();
   using var scope = app.Services.CreateScope();
-  var initializer =
-    scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
-  await initializer.InitialiseAsync();
-  await initializer.SeedAsync();
+  var initializer = scope.ServiceProvider.GetRequiredService<ApplicationDbContextInitializer>();
+  await initializer.MigrateAndSeedAsync();
 }
 
 await app.RunAsync();

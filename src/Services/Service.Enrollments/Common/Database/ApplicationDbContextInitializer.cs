@@ -1,71 +1,59 @@
-﻿using Service.Enrollments.Common.Database.Entities;
+using Service.Enrollments.Common.Database.Entities;
 
 namespace Service.Enrollments.Common.Database;
 
+/// <summary>
+/// Development helper: brings the database schema up to date and adds the sample class
+/// (the same one the Courses service seeds).
+/// If anything fails, the exception is not swallowed, so the service does not start on a broken database.
+/// </summary>
 public sealed class ApplicationDbContextInitializer
 {
+  private static readonly Guid s_csharpCourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0");
+  private static readonly Guid s_csharpClassId = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626");
+
   private readonly ApplicationDbContext _context;
   private readonly ILogger<ApplicationDbContextInitializer> _logger;
-
+  private readonly TimeProvider _timeProvider;
 
   public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
-    ApplicationDbContext context)
+    ApplicationDbContext context, TimeProvider timeProvider)
   {
     _logger = logger;
     _context = context;
+    _timeProvider = timeProvider;
   }
 
-  public async Task InitialiseAsync() => await MigrateAsync();
-
-  private async Task MigrateAsync()
+  public async Task MigrateAndSeedAsync(CancellationToken cancellationToken = default)
   {
-    try
-    {
-      await _context.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex,
-        "An error occurred while trying to migrate the database.");
-    }
+    _logger.LogInformation("Applying database migrations");
+    await _context.Database.MigrateAsync(cancellationToken);
+
+    await SeedAsync(cancellationToken);
   }
 
-  public async Task SeedAsync()
+  private async Task SeedAsync(CancellationToken cancellationToken)
   {
-    try
+    if (await _context.Classes.AnyAsync(cancellationToken))
     {
-      await TrySeedAsync();
+      return;
     }
-    catch (Exception ex)
+
+    _logger.LogInformation("Seeding sample class");
+    var now = _timeProvider.GetUtcNow().UtcDateTime;
+
+    _context.Classes.Add(new Class
     {
-      _logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-  }
+      Id = s_csharpClassId,
+      CourseId = s_csharpCourseId,
+      RegistrationDeadline = now.AddDays(3),
+      CourseStartDate = now.AddDays(5),
+      CourseEndDate = now.AddDays(15),
+      MaxStudents = 100,
+      CreatedAt = now,
+      UpdatedAt = now
+    });
 
-  private async Task TrySeedAsync()
-  {
-    if (!await _context.Enrollments.AnyAsync())
-    {
-      try
-      {
-        var sharpClass = new Class
-        {
-          CourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"),
-          CourseStartDate = DateTime.Now.AddDays(3),
-          CourseEndDate = DateTime.Now.AddDays(15),
-          RegistrationDeadline = DateTime.Now.AddDays(5),
-          MaxStudents = 100,
-          Id = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626")
-        };
-
-        _context.Classes.Add(sharpClass);
-
-        await _context.SaveChangesAsync();
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "An error occurred while seeding the database.");
-      }
-    }
+    await _context.SaveChangesAsync(cancellationToken);
   }
 }

@@ -1,13 +1,14 @@
-﻿namespace Service.Enrollments.Common.Database.Entities;
+namespace Service.Enrollments.Common.Database.Entities;
 
-[Index(nameof(StudentId))]
-[Index(nameof(CourseId))]
-[Index(nameof(ClassId))]
+/// <summary>
+/// One student taking one class.
+/// </summary>
 public class Enrollment
 {
   public Guid Id { get; init; } = Guid.CreateVersion7();
 
-  public DateTime EnrollmentDateTime { get; set; } = DateTime.Now;
+  /// <summary>When the student enrolled (UTC).</summary>
+  public DateTime EnrollmentDateTime { get; set; }
 
   public required Guid CourseId { get; set; }
 
@@ -22,5 +23,5 @@ public class Enrollment
   public DateTime CreatedAt { get; set; }
   public DateTime UpdatedAt { get; set; }
 
-  public Class Class { get; set; }
+  public Class Class { get; set; } = null!;
 }

@@ -3,38 +3,41 @@ using FizzWare.NBuilder;
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Classes.UpdateClass;
 
-namespace Courses.Application.Features.Classes.UpdateClass;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Classes.UpdateClass;
 
 [TestFixture]
 public class UpdateClassMapperTests
 {
   [Test]
-  public void AddCommandValues_ShouldUpdateEntityFields()
+  public void ApplyUpdate_ShouldCopyEditableFields_AndKeepCourse()
   {
     // Arrange
-
-    var entity = Builder<Class>
-      .CreateNew()
-      .Build();
-
-    var cmd = new UpdateClassCommand
+    var entity = Builder<Class>.CreateNew().Build();
+    var originalCourseId = entity.CourseId;
+    var command = new UpdateClassCommand
     {
-      Id = Guid.NewGuid(),
+      Id = entity.Id,
       CourseId = Guid.NewGuid(),
-      RegistrationDeadline = DateTime.UtcNow.AddDays(-3),
-      CourseStartDate = DateTime.UtcNow.AddDays(-2),
-      CourseEndDate = DateTime.UtcNow.AddDays(-1),
+      RegistrationDeadline = TestClock.Now.AddDays(1),
+      CourseStartDate = TestClock.Now.AddDays(2),
+      CourseEndDate = TestClock.Now.AddDays(3),
       MaxStudents = 99
     };
 
     // Act
-    entity.AddCommandValues(cmd);
+    entity.ApplyUpdate(command, TestClock.Now);
 
     // Assert
-    Assert.That(entity.CourseId, Is.EqualTo(cmd.CourseId));
-    Assert.That(entity.RegistrationDeadline, Is.EqualTo(cmd.RegistrationDeadline));
-    Assert.That(entity.CourseStartDate, Is.EqualTo(cmd.CourseStartDate));
-    Assert.That(entity.CourseEndDate, Is.EqualTo(cmd.CourseEndDate));
-    Assert.That(entity.MaxStudents, Is.EqualTo(cmd.MaxStudents));
+    Assert.Multiple(() =>
+    {
+      Assert.That(entity.CourseId, Is.EqualTo(originalCourseId), "a class never moves to another course");
+      Assert.That(entity.RegistrationDeadline, Is.EqualTo(command.RegistrationDeadline));
+      Assert.That(entity.CourseStartDate, Is.EqualTo(command.CourseStartDate));
+      Assert.That(entity.CourseEndDate, Is.EqualTo(command.CourseEndDate));
+      Assert.That(entity.MaxStudents, Is.EqualTo(command.MaxStudents));
+      Assert.That(entity.UpdatedAt, Is.EqualTo(TestClock.Now));
+    });
   }
 }

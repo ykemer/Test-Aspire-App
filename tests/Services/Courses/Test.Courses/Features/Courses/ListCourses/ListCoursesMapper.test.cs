@@ -2,13 +2,13 @@ using CoursesGRPC;
 
 using Service.Courses.Features.Courses.ListCourses;
 
-namespace Courses.Application.Features.Courses.ListCourses;
+namespace Test.Courses.Features.Courses.ListCourses;
 
 [TestFixture]
 public class ListCoursesMapperTest
 {
   [Test]
-  public void MapToListCoursesRequest_MapsPagingAndQuery()
+  public void ToListCoursesQuery_MapsPagingAndQuery()
   {
     // Arrange
     var classGuid1 = Guid.NewGuid();
@@ -22,7 +22,7 @@ public class ListCoursesMapperTest
     };
 
     // Act
-    var result = request.MapToListCoursesRequest();
+    var result = request.ToListCoursesQuery();
 
     // Assert
     Assert.That(result.PageNumber, Is.EqualTo(3));

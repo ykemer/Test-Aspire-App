@@ -2,13 +2,13 @@ using ClassesGRPC;
 
 using Service.Courses.Features.Classes.ListClasses;
 
-namespace Courses.Application.Features.Classes.ListClasses;
+namespace Test.Courses.Features.Classes.ListClasses;
 
 [TestFixture]
 public class ListClassesMapperTests
 {
   [Test]
-  public void MapToListClassesRequest_MapsPagingAndCourseIdAndEnrolled()
+  public void ToListClassesQuery_MapsPagingAndCourseIdAndEnrolled()
   {
     // Arrange
     var id = Guid.NewGuid();
@@ -18,7 +18,7 @@ public class ListClassesMapperTests
     request.EnrolledClasses.AddRange(new[] { enrolledClassId1.ToString(), enrolledClassId2.ToString() });
 
     // Act
-    var result = request.MapToListClassesRequest();
+    var result = request.ToListClassesQuery();
 
     // Assert
     Assert.That(result.PageNumber, Is.EqualTo(2));

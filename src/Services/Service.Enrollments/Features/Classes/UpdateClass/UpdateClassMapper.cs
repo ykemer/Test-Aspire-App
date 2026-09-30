@@ -6,15 +6,7 @@ namespace Service.Enrollments.Features.Classes.UpdateClass;
 
 public static class UpdateClassMapper
 {
-  public static void AddCommandData(this Class entity, UpdateClassCommand command)
-  {
-    entity.MaxStudents = command.MaxStudents;
-    entity.RegistrationDeadline = command.RegistrationDeadline;
-    entity.CourseStartDate = command.CourseStartDate;
-    entity.CourseEndDate = command.CourseEndDate;
-  }
-
-  public static UpdateClassCommand MapToCreateClassCommand(this ClassUpdatedEvent updatedEvent) =>
+  public static UpdateClassCommand ToUpdateClassCommand(this ClassUpdatedEvent updatedEvent) =>
     new()
     {
       Id = updatedEvent.Id,
@@ -24,4 +16,13 @@ public static class UpdateClassMapper
       CourseStartDate = updatedEvent.CourseStartDate,
       CourseEndDate = updatedEvent.CourseEndDate
     };
+
+  public static void ApplyUpdate(this Class courseClass, UpdateClassCommand command, DateTime now)
+  {
+    courseClass.MaxStudents = command.MaxStudents;
+    courseClass.RegistrationDeadline = command.RegistrationDeadline;
+    courseClass.CourseStartDate = command.CourseStartDate;
+    courseClass.CourseEndDate = command.CourseEndDate;
+    courseClass.UpdatedAt = now;
+  }
 }

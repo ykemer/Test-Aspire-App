@@ -1,92 +1,80 @@
-using Courses.Application.Setup;
-
 using FizzWare.NBuilder;
 
 using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
-using Rebus.Bus;
-
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Classes;
 using Service.Courses.Features.Classes.DeleteClass;
 
-namespace Courses.Application.Features.Classes.DeleteClass;
+using Test.Courses.Setup;
+
+namespace Test.Courses.Features.Classes.DeleteClass;
 
 [TestFixture]
 public class DeleteClassCommandHandlerTests
 {
+  private ApplicationDbContext _dbContext = null!;
+  private DeleteClassCommandHandler _handler = null!;
+
   [SetUp]
   public void SetUp()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _loggerMock = Substitute.For<ILogger<DeleteClassCommandHandler>>();
-    _publishMock = Substitute.For<IBus>();
-    _handler = new DeleteClassCommandHandler(_dbContext, _loggerMock, _publishMock);
+    _handler = new DeleteClassCommandHandler(_dbContext, Substitute.For<ILogger<DeleteClassCommandHandler>>());
   }
 
   [TearDown]
-  public void TearDown()
+  public void TearDown() => _dbContext.Dispose();
+
+  private async Task<Class> AddClass(int totalStudents)
   {
-    _dbContext.Dispose();
-    _publishMock.Dispose();
+    var course = Builder<Course>.CreateNew().Build();
+    var courseClass = Builder<Class>.CreateNew()
+      .With(c => c.CourseId, course.Id)
+      .With(c => c.TotalStudents, totalStudents)
+      .Build();
+    _dbContext.Courses.Add(course);
+    _dbContext.Classes.Add(courseClass);
+    await _dbContext.SaveChangesAsync();
+    return courseClass;
   }
 
-  private ApplicationDbContext _dbContext;
-  private DeleteClassCommandHandler _handler;
-  private ILogger<DeleteClassCommandHandler> _loggerMock;
-  private IBus _publishMock;
-
   [Test]
-  public async Task Handle_ShouldReturnUnexpected_WhenClassNotFound()
+  public async Task Handle_ShouldReturnNotFound_WhenClassDoesNotExist()
   {
-    var cmd = new DeleteClassCommand(Guid.Empty, Guid.Empty);
+    var command = new DeleteClassCommand(Guid.NewGuid(), Guid.NewGuid());
 
-    var result = await _handler.Handle(cmd, CancellationToken.None);
+    var result = await _handler.Handle(command, CancellationToken.None);
 
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.delete_course_class.class_not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(ClassErrors.NotFound(command.Id, command.CourseId).Code));
   }
 
   [Test]
   public async Task Handle_ShouldReturnConflict_WhenClassHasStudents()
   {
-    var course = Builder<Course>.CreateNew().Build();
-    var cls = Builder<Class>.CreateNew()
-      .With(c => c.CourseId, course.Id)
-      .With(c => c.TotalStudents, 3)
-      .Build();
-    await _dbContext.Courses.AddAsync(course);
-    await _dbContext.Classes.AddAsync(cls);
-    await _dbContext.SaveChangesAsync();
+    var courseClass = await AddClass(totalStudents: 3);
 
-    var cmd = new DeleteClassCommand(cls.Id, course.Id);
-
-    var result = await _handler.Handle(cmd, CancellationToken.None);
+    var result = await _handler.Handle(new DeleteClassCommand(courseClass.Id, courseClass.CourseId),
+      CancellationToken.None);
 
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.delete_course_class.class_has_students"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(ClassErrors.HasEnrolledStudents(courseClass.Id).Code));
+    Assert.That(await _dbContext.Classes.FindAsync(courseClass.Id), Is.Not.Null);
   }
 
   [Test]
-  public async Task Handle_ShouldDeleteAndPublish_WhenValid()
+  public async Task Handle_ShouldDelete_WhenClassHasNoStudents()
   {
-    var course = Builder<Course>.CreateNew().Build();
-    var cls = Builder<Class>.CreateNew()
-      .With(c => c.CourseId, course.Id)
-      .With(c => c.TotalStudents, 0)
-      .Build();
-    await _dbContext.Courses.AddAsync(course);
-    await _dbContext.Classes.AddAsync(cls);
-    await _dbContext.SaveChangesAsync();
+    var courseClass = await AddClass(totalStudents: 0);
 
-    var cmd = new DeleteClassCommand(cls.Id, course.Id);
-
-    var result = await _handler.Handle(cmd, CancellationToken.None);
+    var result = await _handler.Handle(new DeleteClassCommand(courseClass.Id, courseClass.CourseId),
+      CancellationToken.None);
 
     Assert.That(result.IsError, Is.False);
-    Assert.That(await _dbContext.Classes.FindAsync(cls.Id) == null, Is.True);
-    await _publishMock.ReceivedWithAnyArgs().Publish(default!);
+    Assert.That(await _dbContext.Classes.FindAsync(courseClass.Id), Is.Null);
   }
 }

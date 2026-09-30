@@ -6,11 +6,12 @@ using NSubstitute;
 
 using Service.Students.Common.Database;
 using Service.Students.Common.Database.Entities;
+using Service.Students.Features;
 using Service.Students.Features.GetStudent;
 
-using Test.Students.Application.Setup;
+using Test.Students.Setup;
 
-namespace Test.Students.Application.Features.GetStudent;
+namespace Test.Students.Features.GetStudent;
 
 public class GetStudentQueryHandlerTest
 {
@@ -44,8 +45,13 @@ public class GetStudentQueryHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.False);
-    Assert.That(result.Value, Is.InstanceOf<Student>());
-    Assert.That(result.Value.GetHashCode(), Is.EqualTo(existingStudent.GetHashCode()));
+    Assert.Multiple(() =>
+    {
+      Assert.That(result.Value.Id, Is.EqualTo(existingStudent.Id));
+      Assert.That(result.Value.Email, Is.EqualTo(existingStudent.Email));
+      Assert.That(result.Value.FirstName, Is.EqualTo(existingStudent.FirstName));
+      Assert.That(result.Value.LastName, Is.EqualTo(existingStudent.LastName));
+    });
   }
 
   [Test]
@@ -59,6 +65,6 @@ public class GetStudentQueryHandlerTest
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("students_service.get_student.not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(StudentErrors.NotFound(query.StudentId).Code));
   }
 }

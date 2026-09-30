@@ -19,7 +19,7 @@ public class CreateEnrollmentCommandConsumer : IHandleMessages<CreateEnrollmentC
 
   public async Task Handle(CreateEnrollmentCommand message)
   {
-    var result = await _mediator.Send(message.MapToEnrollStudentToClassCommand());
+    var result = await _mediator.Send(message.ToEnrollStudentToClassCommand());
 
     if (result.IsError)
     {

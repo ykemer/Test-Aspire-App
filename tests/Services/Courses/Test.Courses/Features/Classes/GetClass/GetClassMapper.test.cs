@@ -2,7 +2,7 @@ using ClassesGRPC;
 
 using Service.Courses.Features.Classes.GetClass;
 
-namespace Courses.Application.Features.Classes.GetClass;
+namespace Test.Courses.Features.Classes.GetClass;
 
 [TestFixture]
 public class GetClassMapperTests

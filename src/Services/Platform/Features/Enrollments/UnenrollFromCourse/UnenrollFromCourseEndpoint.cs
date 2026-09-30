@@ -3,9 +3,7 @@ using Contracts.Enrollments.Requests;
 
 using FastEndpoints;
 
-using Platform.Common.Database;
-using Platform.Common.Middleware.Grpc;
-using Platform.Common.Services.User;
+using Platform.Common.Grpc;
 
 using Rebus.Bus;
 
@@ -13,54 +11,54 @@ using StudentsGRPCClient;
 
 namespace Platform.Features.Enrollments.UnenrollFromCourse;
 
+/// <summary>
+/// Asks the Enrollments service to remove a student from a class. The result arrives later as a live
+/// notification, after the unenroll saga has also updated the student and class counters.
+/// </summary>
 public class UnenrollFromCourseEndpoint : Endpoint<ChangeCourseEnrollmentRequest, ErrorOr<Deleted>>
 {
-  private readonly ApplicationDbContext _db;
   private readonly IBus _bus;
-  private readonly IGrpcRequestMiddleware _grpcRequestMiddleware;
-  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsGrpcService;
-  private readonly IUserService _userService;
+  private readonly IGrpcCaller _grpc;
+  private readonly GrpcStudentsService.GrpcStudentsServiceClient _studentsClient;
 
-  public UnenrollFromCourseEndpoint(IUserService userService,
-    IGrpcRequestMiddleware grpcRequestMiddleware, GrpcStudentsService.GrpcStudentsServiceClient studentsGrpcService,
-    IBus bus, ApplicationDbContext db)
+  public UnenrollFromCourseEndpoint(GrpcStudentsService.GrpcStudentsServiceClient studentsClient,
+    IGrpcCaller grpc, IBus bus)
   {
-    _userService = userService;
-    _grpcRequestMiddleware = grpcRequestMiddleware;
-    _studentsGrpcService = studentsGrpcService;
+    _studentsClient = studentsClient;
+    _grpc = grpc;
     _bus = bus;
-    _db = db;
   }
 
   public override void Configure()
   {
-    Post("/api/courses/{CourseId}/classes/{ClassId}/unenroll");
-    Policies("RequireUserRole");
+    Post("/api/courses/{CourseId:guid}/classes/{ClassId:guid}/unenroll");
+    Policies(Common.Auth.Policies.Users);
     Description(x => x.WithTags("Enrollments"));
   }
 
-  public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request, CancellationToken ct)
+  public override async Task<ErrorOr<Deleted>> ExecuteAsync(ChangeCourseEnrollmentRequest request,
+    CancellationToken ct)
   {
-    var courseId = Route<Guid>("CourseId");
-    var classId = Route<Guid>("ClassId");
-
-    var userId = _userService.IsAdmin(User) ? request.StudentId : _userService.GetUserId(User);
-    if (userId == Guid.Empty)
+    var studentId = EnrollmentStudent.Resolve(User, request);
+    if (studentId.IsError)
     {
-      return Error.Failure(description: "User not found");
+      return studentId.Errors;
     }
 
-    var studentRequest =
-      _studentsGrpcService.GetStudentByIdAsync(new GrpcGetStudentByIdRequest { Id = userId.ToString() });
-    var studentResponse = await _grpcRequestMiddleware.SendGrpcRequestAsync(studentRequest, ct);
-    if (studentResponse.IsError)
+    // Fail fast with "not found" instead of sending a command that can only be rejected.
+    var student = await _grpc.CallAsync(_studentsClient.GetStudentByIdAsync(
+      new GrpcGetStudentByIdRequest { Id = studentId.Value.ToString() }, cancellationToken: ct));
+    if (student.IsError)
     {
-      return studentResponse.Errors[0];
+      return student.Errors;
     }
 
     await _bus.Send(new DeleteEnrollmentCommand
     {
-      CourseId = courseId, ClassId = classId, StudentId = userId, IdempotencyKey = request.IdempotencyKey
+      CourseId = Route<Guid>("CourseId"),
+      ClassId = Route<Guid>("ClassId"),
+      StudentId = studentId.Value,
+      IdempotencyKey = request.IdempotencyKey
     });
 
     return Result.Deleted;

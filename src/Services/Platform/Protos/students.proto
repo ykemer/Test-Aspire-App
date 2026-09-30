@@ -4,12 +4,9 @@ import "google/protobuf/timestamp.proto";
 option csharp_namespace = "StudentsGRPCClient";
 
 
-// The greeting service definition.
 service GrpcStudentsService {
-  // Sends a greeting
   rpc GetStudentById (GrpcGetStudentByIdRequest) returns (GrpcStudentResponse);
-  rpc ListStudents (GrpcListStudentsRequest) returns (GrpcListStudentsResponse);
-  rpc CreateStudent (GrpcStudentCreateRequest) returns (GrpcUpdatedResponse);
+  rpc ListStudents (GrpcListStudentsRequest) returns (GrpcListStudentsResponse);
   rpc DeleteStudent (GrpcDeleteStudentRequest) returns (GrpcUpdatedResponse);
 }
 
@@ -20,14 +17,6 @@ message GrpcGetStudentByIdRequest {
 message GrpcListStudentsRequest {
   int32 page = 1;
   int32 pageSize = 2;
-}
-
-message GrpcStudentCreateRequest {
-  string Id = 1;
-  string FirstName = 2;
-  string LastName = 3;
-  string Email = 4;
-  google.protobuf.Timestamp Birthday = 5;
 }
 
 message GrpcDeleteStudentRequest {

@@ -1,97 +1,68 @@
-﻿using Service.Courses.Common.Database.Entities;
+using Service.Courses.Common.Database.Entities;
 
 namespace Service.Courses.Common.Database;
 
+/// <summary>
+/// Development helper: brings the database schema up to date and adds a few sample courses.
+/// If anything fails, the exception is not swallowed, so the service does not start on a broken database.
+/// </summary>
 public sealed class ApplicationDbContextInitializer
 {
-  private const bool AddManyCourses = false;
+  private static readonly Guid s_csharpCourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0");
+  private static readonly Guid s_javaCourseId = Guid.Parse("363fa2a4-70a8-4391-bc54-a8b5267fb68a");
+  private static readonly Guid s_pythonCourseId = Guid.Parse("e1a1c2b3-4d5e-6f7a-8b9c-0d1e2f3a4b5c");
+  private static readonly Guid s_csharpClassId = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626");
+
   private readonly ApplicationDbContext _context;
   private readonly ILogger<ApplicationDbContextInitializer> _logger;
+  private readonly TimeProvider _timeProvider;
 
   public ApplicationDbContextInitializer(ILogger<ApplicationDbContextInitializer> logger,
-    ApplicationDbContext context)
+    ApplicationDbContext context, TimeProvider timeProvider)
   {
     _logger = logger;
     _context = context;
+    _timeProvider = timeProvider;
   }
 
-  public async Task InitialiseAsync() => await MigrateAsync();
-
-  private async Task MigrateAsync()
+  public async Task MigrateAndSeedAsync(CancellationToken cancellationToken = default)
   {
-    try
-    {
-      await _context.Database.MigrateAsync();
-    }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex,
-        "An error occurred while trying to migrate the database.");
-    }
+    _logger.LogInformation("Applying database migrations");
+    await _context.Database.MigrateAsync(cancellationToken);
+
+    await SeedAsync(cancellationToken);
   }
 
-  public async Task SeedAsync()
+  private async Task SeedAsync(CancellationToken cancellationToken)
   {
-    try
+    if (await _context.Courses.AnyAsync(cancellationToken))
     {
-      await TrySeedAsync();
+      return;
     }
-    catch (Exception ex)
-    {
-      _logger.LogError(ex, "An error occurred while seeding the database.");
-    }
-  }
 
-  private async Task TrySeedAsync()
-  {
-    if (!await _context.Courses.AnyAsync())
-    {
-      try
+    _logger.LogInformation("Seeding sample courses");
+    var now = _timeProvider.GetUtcNow().UtcDateTime;
+
+    _context.Courses.AddRange(
+      new Course { Id = s_csharpCourseId, Name = "C#", Description = "C# course", CreatedAt = now, UpdatedAt = now },
+      new Course { Id = s_javaCourseId, Name = "Java", Description = "Java course", CreatedAt = now, UpdatedAt = now },
+      new Course
       {
-        var courses = new List<Course>
-        {
-          new()
-          {
-            Name = "C#",
-            Description = "C# course",
-            TotalStudents = 0,
-            Id = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0")
-          },
-          new()
-          {
-            Name = "Java",
-            Description = "Java course",
-            TotalStudents = 0,
-            Id = Guid.Parse("363fa2a4-70a8-4391-bc54-a8b5267fb68a")
-          },
-          new()
-          {
-            Name = "Python",
-            Description = "Python course",
-            TotalStudents = 0,
-            Id = Guid.Parse("e1a1c2b3-4d5e-6f7a-8b9c-0d1e2f3a4b5c")
-          }
-        };
+        Id = s_pythonCourseId, Name = "Python", Description = "Python course", CreatedAt = now, UpdatedAt = now
+      });
 
-        await _context.Courses.AddRangeAsync(courses);
+    _context.Classes.Add(new Class
+    {
+      Id = s_csharpClassId,
+      CourseId = s_csharpCourseId,
+      RegistrationDeadline = now.AddDays(3),
+      CourseStartDate = now.AddDays(5),
+      CourseEndDate = now.AddDays(15),
+      MaxStudents = 100,
+      CreatedAt = now,
+      UpdatedAt = now
+    });
 
-        var sharpClass = new Class
-        {
-          CourseId = Guid.Parse("0b9de47c-fc66-4fb5-befe-5569b0fd6dd0"),
-          CourseStartDate = DateTime.Now.AddDays(3),
-          CourseEndDate = DateTime.Now.AddDays(15),
-          RegistrationDeadline = DateTime.Now.AddDays(5),
-          MaxStudents = 100,
-          Id = Guid.Parse("93f431c8-de1a-4456-a3f2-789fd4822626")
-        };
-
-        _context.Classes.Add(sharpClass);
-        await _context.SaveChangesAsync();
-      }
-      catch (Exception ex)
-      {
-        _logger.LogError(ex, "An error occurred while seeding the database.");
-      }
-    }
+    await _context.SaveChangesAsync(cancellationToken);
   }
 }

@@ -1,20 +1,20 @@
-using Service.Students.Features.ListStudent;
+using Service.Students.Features.ListStudents;
 
 using StudentsGRPC;
 
-namespace Test.Students.Application.Features.ListStudents;
+namespace Test.Students.Features.ListStudents;
 
 [TestFixture]
 public class ListStudentsMapperTest
 {
   [Test]
-  public void MapToListStudentsQuery_MapsPaging()
+  public void ToListStudentsQuery_MapsPaging()
   {
     // Arrange
     var request = new GrpcListStudentsRequest { Page = 2, PageSize = 50 };
 
     // Act
-    var result = request.MapToListStudentsQuery();
+    var result = request.ToListStudentsQuery();
 
     // Assert
     Assert.That(result.PageNumber, Is.EqualTo(2));

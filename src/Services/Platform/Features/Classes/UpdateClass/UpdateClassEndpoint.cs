@@ -3,50 +3,39 @@ using Contracts.Classes.Requests;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.OutputCaching;
-
-using Platform.Common.Services.User;
+using Platform.Common.Auth;
 
 using Rebus.Bus;
 
 namespace Platform.Features.Classes.UpdateClass;
 
+/// <summary>
+/// Asks the Courses service to change a class. The answer arrives later as a live notification.
+/// </summary>
 public class UpdateClassEndpoint : Endpoint<UpdateClassRequest, ErrorOr<Updated>>
 {
   private readonly IBus _bus;
-  private readonly IOutputCacheStore _outputCache;
-  private readonly IUserService _userService;
 
-  public UpdateClassEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
-  {
-    _outputCache = outputCache;
-    _bus = bus;
-    _userService = userService;
-  }
+  public UpdateClassEndpoint(IBus bus) => _bus = bus;
 
   public override void Configure()
   {
-    Put("/api/courses/{CourseId}/classes/{ClassId}");
-    Policies("RequireAdministratorRole");
+    Put("/api/courses/{CourseId:guid}/classes/{ClassId:guid}");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Classes"));
   }
 
-  public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateClassRequest updateClassCommand, CancellationToken ct)
+  public override async Task<ErrorOr<Updated>> ExecuteAsync(UpdateClassRequest request, CancellationToken ct)
   {
-    var courseId = Route<Guid>("CourseId");
-    var classId = Route<Guid>("ClassId");
-    var userId = _userService.GetUserId(User).ToString();
-    await _outputCache.EvictByTagAsync("classes", ct);
-
     await _bus.Send(new UpdateClassCommand
     {
-      ClassId = classId,
-      CourseId = courseId,
-      RegistrationDeadline = updateClassCommand.RegistrationDeadline,
-      CourseStartDate = updateClassCommand.CourseStartDate,
-      CourseEndDate = updateClassCommand.CourseEndDate,
-      MaxStudents = updateClassCommand.MaxStudents,
-      UserId = userId
+      CourseId = Route<Guid>("CourseId"),
+      ClassId = Route<Guid>("ClassId"),
+      RegistrationDeadline = request.RegistrationDeadline,
+      CourseStartDate = request.CourseStartDate,
+      CourseEndDate = request.CourseEndDate,
+      MaxStudents = request.MaxStudents,
+      UserId = User.GetUserId().ToString()
     });
 
     return Result.Updated;

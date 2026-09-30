@@ -1,34 +1,35 @@
-﻿using Contracts.Users.Requests;
+using Contracts.Users.Requests;
 
 using FastEndpoints;
-
-using Library.Auth;
 
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
-using Platform.Common.Database;
+using Platform.Common.Auth;
 using Platform.Common.Database.Entities;
-using Platform.Common.Services.JWT;
+
+using Rebus.Bus;
 
 namespace Platform.Features.Auth.UserRegister;
 
+/// <summary>
+/// Creates a new user with the "User" role, tells the other services about it (the Students service
+/// creates the student from the "user created" event) and signs the user in.
+/// </summary>
 public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<AccessTokenResponse>>
 {
-  private readonly ApplicationDbContext _db;
-  private readonly IJwtService _jwtService;
+  private readonly IAuthTokenService _authTokens;
+  private readonly IBus _bus;
   private readonly ILogger<UserRegisterEndpoint> _logger;
-  private readonly Rebus.Bus.IBus _bus;
   private readonly UserManager<ApplicationUser> _userManager;
 
-  public UserRegisterEndpoint(UserManager<ApplicationUser> signInManager, ILogger<UserRegisterEndpoint> logger,
-    IJwtService jwtService, Rebus.Bus.IBus bus, ApplicationDbContext db)
+  public UserRegisterEndpoint(UserManager<ApplicationUser> userManager, IAuthTokenService authTokens, IBus bus,
+    ILogger<UserRegisterEndpoint> logger)
   {
-    _userManager = signInManager;
-    _logger = logger;
-    _jwtService = jwtService;
+    _userManager = userManager;
+    _authTokens = authTokens;
     _bus = bus;
-    _db = db;
+    _logger = logger;
   }
 
   public override void Configure()
@@ -41,49 +42,26 @@ public class UserRegisterEndpoint : Endpoint<UserRegisterRequest, ErrorOr<Access
   public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserRegisterRequest request,
     CancellationToken ct)
   {
-    var existingUser = await _userManager.FindByNameAsync(request.Email);
-    if (existingUser != null)
+    var user = request.ToApplicationUser();
+
+    var created = await _userManager.CreateAsync(user, request.Password);
+    if (!created.Succeeded)
     {
-      _logger.LogWarning("User with {Email} already exists", request.Email);
-      return Error.Conflict(description: "User already exists");
+      return created.Errors.ToApiErrors();
     }
 
-    var result = await _userManager.CreateAsync(request.ToApplicationUser(), request.Password);
-
-    if (!result.Succeeded)
+    var roleAdded = await _userManager.AddToRoleAsync(user, Common.Auth.Roles.User);
+    if (!roleAdded.Succeeded)
     {
-      foreach (var error in result.Errors)
-      {
-        _logger.LogWarning("Register failed: {Code} - {Description}", error.Code, error.Description);
-      }
-
-      return Error.Failure(description: "Register failed");
+      // Only happens if the roles were never seeded: a setup problem, not a user mistake.
+      throw new InvalidOperationException($"Could not give the new user the '{Common.Auth.Roles.User}' role.");
     }
 
-    var user = await _userManager.FindByNameAsync(request.Email);
-    if (user is null)
-    {
-      return Error.Failure(description: "User not found");
-    }
-
-    await _userManager.AddToRolesAsync(user, ["User"]);
-
+    // Note: saving the user and publishing the event are two separate steps. If publishing fails,
+    // the user exists without a student record. A transactional outbox would close this gap.
     await _bus.Publish(user.ToUserCreatedEvent());
-    _logger.LogInformation("User {UserName} registered", user.UserName);
-    var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
+    _logger.LogInformation("User {UserId} registered", user.Id);
 
-    var refreshToken = new RefreshToken
-    {
-      Token = Generators.GenerateToken(), ExpiresAt = DateTime.Now.AddDays(7), UserId = user.Id
-    };
-
-    await _db.RefreshTokens.AddAsync(refreshToken, ct);
-    await _db.SaveChangesAsync(ct);
-    return new AccessTokenResponse
-    {
-      AccessToken = jwtTokenResponse.AccessToken,
-      ExpiresIn = jwtTokenResponse.ExpiresIn,
-      RefreshToken = refreshToken.Token
-    };
+    return await _authTokens.IssueTokensAsync(user, ct);
   }
 }

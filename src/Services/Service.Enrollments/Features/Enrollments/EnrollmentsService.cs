@@ -4,13 +4,15 @@ using Grpc.Core;
 
 using Library.GRPC;
 
-using Service.Enrollments.Common.Database.Entities;
 using Service.Enrollments.Features.Enrollments.GetClassEnrollments;
 using Service.Enrollments.Features.Enrollments.GetCourseEnrollments;
 using Service.Enrollments.Features.Enrollments.GetStudentEnrollments;
 
 namespace Service.Enrollments.Features.Enrollments;
 
+/// <summary>
+/// gRPC entry point for reading enrollments. It only translates gRPC messages; the work is done by the handlers.
+/// </summary>
 public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceBase
 {
   private readonly ILogger<EnrollmentsService> _logger;
@@ -25,28 +27,27 @@ public class EnrollmentsService : GrpcEnrollmentsService.GrpcEnrollmentsServiceB
   public override async Task<GrpcListEnrollmentsResponse> GetClassEnrollments(GrpcGetClassEnrollmentsRequest request,
     ServerCallContext context)
   {
-    var result = await _mediator.Send(request.MapToGetClassEnrollmentsQuery());
+    var result = await _mediator.Send(request.ToGetClassEnrollmentsQuery(), context.CancellationToken);
     return result.Match(
       enrollments => enrollments.MapToGrpcListEnrollmentsResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 
   public override async Task<GrpcListEnrollmentsResponse> GetCourseEnrollments(GrpcGetCourseEnrollmentsRequest request,
     ServerCallContext context)
   {
-    var result = await _mediator.Send(request.MapToGetCourseEnrollmentsQuery());
+    var result = await _mediator.Send(request.ToGetCourseEnrollmentsQuery(), context.CancellationToken);
     return result.Match(
       enrollments => enrollments.MapToGrpcListEnrollmentsResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 
   public override async Task<GrpcListEnrollmentsResponse> GetStudentEnrollments(
-    GrpcGetStudentEnrollmentsRequest request,
-    ServerCallContext context)
+    GrpcGetStudentEnrollmentsRequest request, ServerCallContext context)
   {
-    var result = await _mediator.Send(request.MapToGetStudentEnrollmentsQuery());
+    var result = await _mediator.Send(request.ToGetStudentEnrollmentsQuery(), context.CancellationToken);
     return result.Match(
       enrollments => enrollments.MapToGrpcListEnrollmentsResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 }

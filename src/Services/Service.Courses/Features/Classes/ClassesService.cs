@@ -1,4 +1,4 @@
-﻿using ClassesGRPC;
+using ClassesGRPC;
 
 using Grpc.Core;
 
@@ -6,13 +6,13 @@ using Library.GRPC;
 
 using Service.Courses.Features.Classes.GetClass;
 using Service.Courses.Features.Classes.ListClasses;
-using Service.Courses.Features.Courses;
-
-using static ClassesGRPC.GrpcClassService;
 
 namespace Service.Courses.Features.Classes;
 
-public class ClassesService : GrpcClassServiceBase
+/// <summary>
+/// gRPC entry point for reading classes. It only translates gRPC messages; the work is done by the handlers.
+/// </summary>
+public class ClassesService : GrpcClassService.GrpcClassServiceBase
 {
   private readonly ILogger<ClassesService> _logger;
   private readonly IMediator _mediator;
@@ -25,16 +25,18 @@ public class ClassesService : GrpcClassServiceBase
 
   public override async Task<GrpcClassResponse> GetClass(GrpcGetClassRequest request, ServerCallContext context)
   {
-    var output = await _mediator.Send(request.ToGetClassQuery());
-    return output.Match(
-      course => course.MapToGrpcClassResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+    var result = await _mediator.Send(request.ToGetClassQuery(), context.CancellationToken);
+    return result.Match(
+      courseClass => courseClass.MapToGrpcClassResponse(),
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 
-  public override async Task<GrpcListClassResponse> ListClasses(GrpcListClassRequest request, ServerCallContext context)
+  public override async Task<GrpcListClassResponse> ListClasses(GrpcListClassRequest request,
+    ServerCallContext context)
   {
-    var output = await _mediator.Send(request.MapToListClassesRequest());
-    return output.Match(value => value.MapToGrpcListClassResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+    var result = await _mediator.Send(request.ToListClassesQuery(), context.CancellationToken);
+    return result.Match(
+      classes => classes.MapToGrpcListClassResponse(),
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 }

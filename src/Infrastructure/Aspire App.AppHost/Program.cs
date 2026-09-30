@@ -30,6 +30,13 @@ var rabbitmq = builder
   .WithManagementPlugin();
 
 
+// Shared secret for calls between our own services. Aspire generates a new random value on every run,
+// so it never lives in source control. Each gRPC service rejects calls that do not send it.
+var internalApiKey = builder.AddParameter(
+  "internalApiKey",
+  new GenerateParameterDefault { MinLength = 48, Special = false },
+  secret: true);
+
 #region main services
 
 var coursesService = builder
@@ -38,6 +45,7 @@ var coursesService = builder
   .WaitFor(coursesDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq)
+  .WithEnvironment("InternalApi__Key", internalApiKey)
   .WithHttpsEndpoint();
 
 var enrollmentsService = builder
@@ -46,6 +54,7 @@ var enrollmentsService = builder
   .WaitFor(enrollmentsDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq)
+  .WithEnvironment("InternalApi__Key", internalApiKey)
   .WithHttpsEndpoint();
 
 var studentsService = builder
@@ -54,6 +63,7 @@ var studentsService = builder
   .WaitFor(studentsDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq)
+  .WithEnvironment("InternalApi__Key", internalApiKey)
   .WithHttpsEndpoint();
 
 #endregion
@@ -64,11 +74,10 @@ var platformService = builder
   .WaitFor(mainDb)
   .WithReference(rabbitmq)
   .WaitFor(rabbitmq)
-  .WithReference(cache)
-  .WaitFor(cache)
   .WithReference(coursesService)
   .WithReference(enrollmentsService)
   .WithReference(studentsService)
+  .WithEnvironment("InternalApi__Key", internalApiKey)
   .WithHttpsEndpoint();
 
 builder.AddProject<Aspire_App_Web>("webFrontend")

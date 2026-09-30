@@ -21,7 +21,6 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
     // each other.
     builder.Property<uint>("xmin").IsRowVersion();
 
-
     builder.Property(b => b.Id)
       .HasComment("Unique identifier")
       .HasColumnType("uuid")
@@ -69,6 +68,5 @@ public class ClassConfiguration : IEntityTypeConfiguration<Class>
       .HasColumnType("timestamp with time zone")
       .HasDefaultValueSql("CURRENT_TIMESTAMP")
       .IsRequired();
-
   }
 }

@@ -1,12 +1,10 @@
 namespace Service.Enrollments.Features.Classes.UpdateClass;
 
-public sealed class UpdateClassCommand : IRequest<ErrorOr<Updated>>
+public sealed record UpdateClassCommand : IRequest<ErrorOr<Updated>>, IClassDetails
 {
   public required Guid Id { get; init; }
   public required Guid CourseId { get; init; }
-
   public required int MaxStudents { get; init; }
-
   public required DateTime RegistrationDeadline { get; init; }
   public required DateTime CourseStartDate { get; init; }
   public required DateTime CourseEndDate { get; init; }

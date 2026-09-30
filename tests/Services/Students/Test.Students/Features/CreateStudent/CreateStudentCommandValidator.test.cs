@@ -1,190 +1,70 @@
 using FluentValidation.TestHelper;
 
+using Service.Students.Features;
 using Service.Students.Features.CreateStudent;
 
-namespace Test.Students.Application.Features.CreateStudent;
+using Test.Students.Setup;
+
+namespace Test.Students.Features.CreateStudent;
 
 [TestFixture]
 public class CreateStudentCommandValidatorTests
 {
+  private CreateStudentCommandValidator _validator = null!;
+
   [SetUp]
-  public void Setup() => _validator = new CreateStudentCommandValidator();
+  public void SetUp() => _validator = new CreateStudentCommandValidator(TestClock.Create());
 
-  private CreateStudentCommandValidator _validator;
-
-  [Test]
-  public void Should_Pass_When_All_Fields_Are_Valid()
-  {
-    var command = new CreateStudentCommand
+  private static CreateStudentCommand ValidCommand() =>
+    new()
     {
       Id = Guid.NewGuid(),
-      FirstName = "John",
+      FirstName = "Jane",
       LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
+      Email = "jane.doe@example.com",
+      DateOfBirth = TestClock.Now.AddYears(-25)
     };
 
-    var result = _validator.TestValidate(command);
-    result.ShouldNotHaveAnyValidationErrors();
+  [Test]
+  public void ValidCommand_ShouldPass() =>
+    _validator.TestValidate(ValidCommand()).ShouldNotHaveAnyValidationErrors();
+
+  [Test]
+  public void YoungStudent_ShouldPass_BecausePlatformOwnsRegistrationRules() =>
+    _validator.TestValidate(ValidCommand() with { DateOfBirth = TestClock.Now.AddYears(-16) })
+      .ShouldNotHaveAnyValidationErrors();
+
+  [Test]
+  public void EmptyId_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { Id = Guid.Empty }).ShouldHaveValidationErrorFor(x => x.Id);
+
+  [TestCase("")]
+  [TestCase(null)]
+  public void MissingNames_ShouldFail(string? name)
+  {
+    var result = _validator.TestValidate(ValidCommand() with { FirstName = name!, LastName = name! });
+
+    result.ShouldHaveValidationErrorFor(x => x.FirstName);
+    result.ShouldHaveValidationErrorFor(x => x.LastName);
   }
 
   [Test]
-  public void Should_Fail_When_Id_Is_Empty()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.Empty,
-      FirstName = "John",
-      LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
+  public void TooLongName_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { FirstName = new string('a', StudentLimits.NameMaxLength + 1) })
+      .ShouldHaveValidationErrorFor(x => x.FirstName);
 
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.Id).WithErrorMessage("Id cannot be the empty GUID.");
-  }
+  [TestCase("")]
+  [TestCase("not-an-email")]
+  public void BadEmail_ShouldFail(string email) =>
+    _validator.TestValidate(ValidCommand() with { Email = email }).ShouldHaveValidationErrorFor(x => x.Email);
 
   [Test]
-  public void Should_Fail_When_FirstName_Is_Null()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = null,
-      LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.FirstName).WithErrorMessage("First Name can not be empty");
-  }
+  public void DateOfBirth_InTheFuture_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { DateOfBirth = TestClock.Now.AddDays(1) })
+      .ShouldHaveValidationErrorFor(x => x.DateOfBirth);
 
   [Test]
-  public void Should_Fail_When_FirstName_Is_Empty()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "",
-      LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.FirstName).WithErrorMessage("First Name can not be empty");
-  }
-
-  [Test]
-  public void Should_Fail_When_LastName_Is_Null()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = null,
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.LastName).WithErrorMessage("Last Name can not be empty");
-  }
-
-  [Test]
-  public void Should_Fail_When_LastName_Is_Empty()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.LastName).WithErrorMessage("Last Name can not be empty");
-  }
-
-  [Test]
-  public void Should_Fail_When_Email_Is_Null()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "Doe",
-      Email = null,
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage("Email can not be empty");
-  }
-
-  [Test]
-  public void Should_Fail_When_Email_Is_Empty()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "Doe",
-      Email = "",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage("Email can not be empty");
-  }
-
-  [Test]
-  public void Should_Fail_When_Email_Is_Invalid()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "Doe",
-      Email = "invalid-email",
-      DateOfBirth = new DateTime(2000, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.Email).WithErrorMessage("Wrong email format");
-  }
-
-  [Test]
-  public void Should_Fail_When_DateOfBirth_Is_Under_18()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(DateTime.Now.Year - 17, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.DateOfBirth).WithErrorMessage("Student must be at least 18 years old");
-  }
-
-  [Test]
-  public void Should_Fail_When_DateOfBirth_Is_Over_100()
-  {
-    var command = new CreateStudentCommand
-    {
-      Id = Guid.NewGuid(),
-      FirstName = "John",
-      LastName = "Doe",
-      Email = "john.doe@example.com",
-      DateOfBirth = new DateTime(DateTime.Now.Year - 101, 1, 1)
-    };
-
-    var result = _validator.TestValidate(command);
-    result.ShouldHaveValidationErrorFor(x => x.DateOfBirth).WithErrorMessage("Wrong date");
-  }
+  public void DateOfBirth_Missing_ShouldFail() =>
+    _validator.TestValidate(ValidCommand() with { DateOfBirth = default })
+      .ShouldHaveValidationErrorFor(x => x.DateOfBirth);
 }

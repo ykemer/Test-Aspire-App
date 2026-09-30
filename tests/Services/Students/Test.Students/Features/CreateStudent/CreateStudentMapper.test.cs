@@ -1,12 +1,40 @@
+using Contracts.Users.Events;
+
 using Service.Students.Features.CreateStudent;
 
-namespace Test.Students.Application.Features.CreateStudent;
+using Test.Students.Setup;
+
+namespace Test.Students.Features.CreateStudent;
 
 [TestFixture]
-public class CreateStudentMapperTest
+public class CreateStudentMapperTests
 {
   [Test]
-  public void MapToCreateStudentCommand_MapsFields()
+  public void ToCreateStudentCommand_CopiesAllUserFields()
+  {
+    var userCreated = new UserCreatedEvent
+    {
+      Id = Guid.NewGuid(),
+      FirstName = "First",
+      LastName = "Last",
+      Email = "some-email@email.com",
+      DateOfBirth = new DateTime(2000, 1, 2)
+    };
+
+    var command = userCreated.ToCreateStudentCommand();
+
+    Assert.Multiple(() =>
+    {
+      Assert.That(command.Id, Is.EqualTo(userCreated.Id));
+      Assert.That(command.FirstName, Is.EqualTo(userCreated.FirstName));
+      Assert.That(command.LastName, Is.EqualTo(userCreated.LastName));
+      Assert.That(command.Email, Is.EqualTo(userCreated.Email));
+      Assert.That(command.DateOfBirth, Is.EqualTo(userCreated.DateOfBirth));
+    });
+  }
+
+  [Test]
+  public void ToStudent_SetsTimestamps()
   {
     var command = new CreateStudentCommand
     {
@@ -14,14 +42,13 @@ public class CreateStudentMapperTest
       FirstName = "First",
       LastName = "Last",
       Email = "some-email@email.com",
-      DateOfBirth = DateTime.UtcNow
+      DateOfBirth = new DateTime(2000, 1, 2)
     };
 
-    var output = command.MapToStudent();
-    Assert.That(output.Id, Is.EqualTo(command.Id));
-    Assert.That(output.FirstName, Is.EqualTo(command.FirstName));
-    Assert.That(output.LastName, Is.EqualTo(command.LastName));
-    Assert.That(output.Email, Is.EqualTo(command.Email));
-    Assert.That(output.DateOfBirth, Is.EqualTo(command.DateOfBirth));
+    var student = command.ToStudent(TestClock.Now);
+
+    Assert.That(student.Id, Is.EqualTo(command.Id));
+    Assert.That(student.CreatedAt, Is.EqualTo(TestClock.Now));
+    Assert.That(student.UpdatedAt, Is.EqualTo(TestClock.Now));
   }
 }

@@ -1,4 +1,4 @@
-using Courses.Application.Setup;
+using Test.Courses.Setup;
 
 using FizzWare.NBuilder;
 
@@ -8,9 +8,10 @@ using NSubstitute;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Classes;
 using Service.Courses.Features.Classes.GetClass;
 
-namespace Courses.Application.Features.Classes.GetClass;
+namespace Test.Courses.Features.Classes.GetClass;
 
 [TestFixture]
 public class GetClassQueryHandlerTests
@@ -20,7 +21,7 @@ public class GetClassQueryHandlerTests
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
     _loggerMock = Substitute.For<ILogger<GetClassQueryHandler>>();
-    _handler = new GetClassQueryHandler(_loggerMock, _dbContext);
+    _handler = new GetClassQueryHandler(_loggerMock, _dbContext, TestClock.Create());
   }
 
   [TearDown]
@@ -33,7 +34,7 @@ public class GetClassQueryHandlerTests
   [Test]
   public async Task Handle_NotEnrolled_ShouldReturnWhenOpenAndHasCapacity()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>.CreateNew().Build();
     var cls = Builder<Class>.CreateNew()
       .With(c => c.CourseId, course.Id)
@@ -57,7 +58,7 @@ public class GetClassQueryHandlerTests
   [Test]
   public async Task Handle_NotEnrolled_ShouldReturnNotFound_WhenClosedOrFull()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>.CreateNew().Build();
     var closedFull = Builder<Class>.CreateNew()
       .With(c => c.CourseId, course.Id)
@@ -75,13 +76,13 @@ public class GetClassQueryHandlerTests
     var result = await _handler.Handle(query, CancellationToken.None);
 
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.get_class.not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(ClassErrors.NotFound(query.Id, query.CourseId).Code));
   }
 
   [Test]
   public async Task Handle_Enrolled_ShouldReturnEvenIfClosedOrFull()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>.CreateNew().Build();
     var closedFull = Builder<Class>.CreateNew()
       .With(c => c.CourseId, course.Id)
@@ -105,7 +106,7 @@ public class GetClassQueryHandlerTests
   [Test]
   public async Task Handle_ShowAllTrue_ShouldReturnClass_EvenIfClosedOrFull()
   {
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>.CreateNew().Build();
     var closedFull = Builder<Class>.CreateNew()
       .With(c => c.CourseId, course.Id)

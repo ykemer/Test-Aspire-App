@@ -91,18 +91,18 @@ namespace Service.Courses.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was created");
+                        .HasComment("Date and time when the course was created");
 
                     b.Property<string>("Description")
                         .IsRequired()
-                        .HasMaxLength(2048)
-                        .HasColumnType("text")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
                         .HasComment("Description of the course");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("text")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
                         .HasComment("Name of the course");
 
                     b.Property<int>("TotalStudents")
@@ -112,7 +112,7 @@ namespace Service.Courses.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was last updated");
+                        .HasComment("Date and time when the course was last updated");
 
                     b.Property<uint>("xmin")
                         .IsConcurrencyToken()
@@ -128,6 +128,26 @@ namespace Service.Courses.Common.Database.Migrations
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("Name", "Description"), "GIN");
 
                     b.ToTable("Courses");
+                });
+
+            modelBuilder.Entity("Service.Courses.Common.Database.Entities.InboxMessage", b =>
+                {
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uuid")
+                        .HasComment("Id of the handled message");
+
+                    b.Property<string>("MessageType")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasComment("Kind of the handled message");
+
+                    b.Property<DateTime>("ProcessedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time when the message was handled");
+
+                    b.HasKey("MessageId", "MessageType");
+
+                    b.ToTable("InboxMessages");
                 });
 
             modelBuilder.Entity("Service.Courses.Common.Database.Entities.Class", b =>

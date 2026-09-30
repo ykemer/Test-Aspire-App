@@ -1,50 +1,42 @@
-﻿using Contracts.Users.Responses;
+using Contracts.Users.Responses;
 
 using FastEndpoints;
 
 using Microsoft.AspNetCore.Identity;
 
+using Platform.Common.Auth;
 using Platform.Common.Database.Entities;
-using Platform.Common.Services.User;
 
 namespace Platform.Features.Auth.WhoAmI;
 
+/// <summary>
+/// Returns the profile of the signed-in user.
+/// </summary>
 public class WhoAmIEndpoint : EndpointWithoutRequest<ErrorOr<UserInfoResponse>>
 {
   private readonly UserManager<ApplicationUser> _userManager;
-  private readonly IUserService _userService;
 
-  public WhoAmIEndpoint(UserManager<ApplicationUser> userManager, IUserService userService)
-  {
-    _userManager = userManager;
-    _userService = userService;
-  }
+  public WhoAmIEndpoint(UserManager<ApplicationUser> userManager) => _userManager = userManager;
 
   public override void Configure()
   {
     Get("/api/auth/whoami");
-    Policies("RequireUserRole");
+    Policies(Common.Auth.Policies.Users);
     Description(x => x.WithTags("Auth"));
   }
 
-  public override async Task<ErrorOr<UserInfoResponse>> ExecuteAsync(CancellationToken cancellationToken)
+  public override async Task<ErrorOr<UserInfoResponse>> ExecuteAsync(CancellationToken ct)
   {
-    var id = _userService.GetUserId(User).ToString();
-    if (string.IsNullOrEmpty(id))
-    {
-      return Error.Unauthorized("User not found");
-    }
-
-    var user = await _userManager.FindByIdAsync(id);
-
+    var user = await _userManager.FindByIdAsync(User.GetUserId().ToString());
     if (user is null)
     {
-      return Error.Unauthorized("User not found");
+      // The token is valid but the account was deleted since it was issued.
+      return Error.Unauthorized("platform.auth.user_not_found", "User not found.");
     }
 
     return new UserInfoResponse
     {
-      Id = user.Id, FirstName = user.FirstName, Email = user.Email!, LastName = user.LastName
+      Id = user.Id, FirstName = user.FirstName, LastName = user.LastName, Email = user.Email!
     };
   }
 }

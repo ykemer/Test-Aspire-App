@@ -2,11 +2,11 @@
 
 using Service.Students.Common.Database;
 using Service.Students.Common.Database.Entities;
-using Service.Students.Features.ListStudent;
+using Service.Students.Features.ListStudents;
 
-using Test.Students.Application.Setup;
+using Test.Students.Setup;
 
-namespace Test.Students.Application.Features.ListStudents;
+namespace Test.Students.Features.ListStudents;
 
 public class ListStudentsQueryHandlerTest
 {

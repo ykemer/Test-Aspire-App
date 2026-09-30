@@ -1,9 +1,15 @@
 using Contracts.Users.Events;
 
+using Library.Messaging;
+
 using Rebus.Handlers;
 
 namespace Service.Students.Features.CreateStudent;
 
+/// <summary>
+/// Creates a student when a user registers in Platform. If that fails, the message is retried
+/// (never silently lost), so no registered user ends up without a student record.
+/// </summary>
 public class UserCreatedEventConsumer : IHandleMessages<UserCreatedEvent>
 {
   private readonly IMediator _mediator;
@@ -12,13 +18,7 @@ public class UserCreatedEventConsumer : IHandleMessages<UserCreatedEvent>
 
   public async Task Handle(UserCreatedEvent message)
   {
-    await _mediator.Send(new CreateStudentCommand
-    {
-      Id = message.Id,
-      FirstName = message.FirstName,
-      LastName = message.LastName,
-      Email = message.Email,
-      DateOfBirth = message.DateOfBirth
-    });
+    var result = await _mediator.Send(message.ToCreateStudentCommand());
+    result.ThrowIfFailed($"Creating student for user {message.Id}");
   }
 }

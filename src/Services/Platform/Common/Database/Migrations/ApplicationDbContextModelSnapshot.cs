@@ -239,36 +239,28 @@ namespace Platform.Common.Database.Migrations
                         .HasComment("Unique identifier");
 
                     b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP")
                         .HasComment("Timestamp when the refresh token was created");
 
                     b.Property<DateTime>("ExpiresAt")
                         .HasColumnType("timestamp with time zone")
                         .HasComment("Timestamp when the refresh token expires");
 
-                    b.Property<bool>("IsValid")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasComment("Indicates whether the refresh token is valid");
-
-                    b.Property<string>("Token")
+                    b.Property<string>("TokenHash")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("text")
-                        .HasComment("Refresh token string");
+                        .HasMaxLength(44)
+                        .HasColumnType("character varying(44)")
+                        .HasComment("SHA-256 hash of the refresh token (the token itself is never stored)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
                         .HasMaxLength(256)
-                        .HasColumnType("text")
-                        .HasComment("User Id associated with the refresh token");
+                        .HasColumnType("character varying(256)")
+                        .HasComment("User the refresh token belongs to");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Token")
+                    b.HasIndex("TokenHash")
                         .IsUnique();
 
                     b.HasIndex("UserId");

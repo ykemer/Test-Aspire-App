@@ -19,7 +19,7 @@ using Service.Courses.Features.Classes;
 using Service.Courses.Features.Classes.GetClass;
 using Service.Courses.Features.Classes.ListClasses;
 
-namespace Courses.Application.Features.Classes;
+namespace Test.Courses.Features.Classes;
 
 [TestFixture]
 public class ClassesServiceTests

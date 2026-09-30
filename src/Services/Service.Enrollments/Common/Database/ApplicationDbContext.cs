@@ -1,13 +1,17 @@
-﻿using Service.Enrollments.Common.Database.Configurations;
+using Service.Enrollments.Common.Database.Configurations;
 using Service.Enrollments.Common.Database.Entities;
 
 namespace Service.Enrollments.Common.Database;
 
 public class ApplicationDbContext : DbContext
 {
-  public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) =>
-    // For postgresql timestamp without time zone
-    AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+  // Runs once per process (not on every new DbContext).
+  // Keeps the old Npgsql DateTime handling that the rest of the system relies on.
+  static ApplicationDbContext() => AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
+  public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+  {
+  }
 
   public DbSet<Enrollment> Enrollments { get; set; }
   public DbSet<Class> Classes { get; set; }

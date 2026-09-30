@@ -1,4 +1,4 @@
-﻿using Courses.Application.Setup;
+﻿using Test.Courses.Setup;
 
 using FizzWare.NBuilder;
 
@@ -8,9 +8,10 @@ using NSubstitute;
 
 using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Courses;
 using Service.Courses.Features.Courses.GetCourse;
 
-namespace Courses.Application.Features.Courses.GetCourse;
+namespace Test.Courses.Features.Courses.GetCourse;
 
 public class GetCourseQueryHandlerTests
 {
@@ -24,7 +25,7 @@ public class GetCourseQueryHandlerTests
   {
     _loggerMock = Substitute.For<ILogger<GetCourseQueryHandler>>();
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _queryHandler = new GetCourseQueryHandler(_loggerMock, _dbContext);
+    _queryHandler = new GetCourseQueryHandler(_loggerMock, _dbContext, TestClock.Create());
   }
 
   [TearDown]
@@ -34,7 +35,7 @@ public class GetCourseQueryHandlerTests
   public async Task Handle_ShouldReturnCourse_WhenCourseExists()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Test Course")
@@ -69,14 +70,14 @@ public class GetCourseQueryHandlerTests
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.get_course.not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NotFound(query.Id).Code));
   }
 
   [Test]
   public async Task Handle_NotEnrolled_OnlyClosedOrFullClasses_ShouldReturnNotFound()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Closed Or Full Course")
@@ -97,14 +98,14 @@ public class GetCourseQueryHandlerTests
 
     // Assert
     Assert.That(result.IsError, Is.True);
-    Assert.That(result.FirstError.Code, Is.EqualTo("courses_service.get_course.not_found"));
+    Assert.That(result.FirstError.Code, Is.EqualTo(CourseErrors.NotFound(query.Id).Code));
   }
 
   [Test]
   public async Task Handle_NotEnrolled_HasOpenWithCapacityClass_ShouldReturnCourse()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Open Course")
@@ -137,7 +138,7 @@ public class GetCourseQueryHandlerTests
   public async Task Handle_Enrolled_EvenIfClosedOrFull_ShouldReturnCourse()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Enrolled Course")
@@ -165,7 +166,7 @@ public class GetCourseQueryHandlerTests
   public async Task Handle_ShowAllTrue_ShouldReturnCourse_EvenIfNoOpenOrEnrolledClasses()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>
       .CreateNew()
       .With(c => c.Name = "Show All Course")

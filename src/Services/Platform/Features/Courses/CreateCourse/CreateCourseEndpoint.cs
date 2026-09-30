@@ -3,43 +3,34 @@ using Contracts.Courses.Requests;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.OutputCaching;
-
-using Platform.Common.Services.User;
+using Platform.Common.Auth;
 
 using Rebus.Bus;
 
 namespace Platform.Features.Courses.CreateCourse;
 
+/// <summary>
+/// Asks the Courses service to create a course. The answer arrives later as a live notification
+/// (see <see cref="CourseCreatedEventConsumer"/> and <see cref="CourseCreateRejectionEventConsumer"/>).
+/// </summary>
 public class CreateCourseEndpoint : Endpoint<CreateCourseRequest, ErrorOr<Success>>
 {
   private readonly IBus _bus;
-  private readonly IOutputCacheStore _outputCache;
-  private readonly IUserService _userService;
 
-  public CreateCourseEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
-  {
-    _outputCache = outputCache;
-    _bus = bus;
-    _userService = userService;
-  }
+  public CreateCourseEndpoint(IBus bus) => _bus = bus;
 
   public override void Configure()
   {
     Post("/api/courses");
-    Policies("RequireAdministratorRole");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Courses"));
   }
 
-  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateCourseRequest createCourseCommand,
-    CancellationToken ct)
+  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateCourseRequest request, CancellationToken ct)
   {
-    var userId = _userService.GetUserId(User).ToString();
-    await _outputCache.EvictByTagAsync("courses", ct);
-
     await _bus.Send(new CreateCourseCommand
     {
-      Name = createCourseCommand.Name, Description = createCourseCommand.Description, UserId = userId
+      Name = request.Name, Description = request.Description, UserId = User.GetUserId().ToString()
     });
 
     return Result.Success;

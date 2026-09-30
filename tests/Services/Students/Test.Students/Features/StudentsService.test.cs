@@ -1,4 +1,5 @@
 ﻿using Contracts.Common;
+using Contracts.Students.Events;
 
 using ErrorOr;
 
@@ -12,15 +13,17 @@ using Microsoft.Extensions.Logging;
 
 using NSubstitute;
 
+using Rebus.Bus;
+
 using Service.Students.Common.Database.Entities;
 using Service.Students.Features;
 using Service.Students.Features.DeleteStudent;
 using Service.Students.Features.GetStudent;
-using Service.Students.Features.ListStudent;
+using Service.Students.Features.ListStudents;
 
 using StudentsGRPC;
 
-namespace Test.Students.Application.Features;
+namespace Test.Students.Features;
 
 [TestFixture]
 public class StudentsServiceTests
@@ -30,24 +33,29 @@ public class StudentsServiceTests
   {
     _mediatorMock = Substitute.For<IMediator>();
     _loggerMock = Substitute.For<ILogger<StudentsService>>();
-    _studentsService = new StudentsService(_loggerMock, _mediatorMock);
+    _busMock = Substitute.For<IBus>();
+    _studentsService = new StudentsService(_loggerMock, _mediatorMock, _busMock);
     _context = Substitute.For<ServerCallContext>();
   }
 
-  private IMediator _mediatorMock;
-  private ILogger<StudentsService> _loggerMock;
-  private StudentsService _studentsService;
-  private ServerCallContext _context;
+  [TearDown]
+  public void TearDown() => _busMock.Dispose();
+
+  private IMediator _mediatorMock = null!;
+  private ILogger<StudentsService> _loggerMock = null!;
+  private IBus _busMock = null!;
+  private StudentsService _studentsService = null!;
+  private ServerCallContext _context = null!;
 
   [Test]
   public async Task GetStudentById_ValidId_ReturnsStudent()
   {
     // Arrange
     var student = Builder<Student>.CreateNew()
+      .With(s => s.EnrollmentsCount, 3)
       .Build();
 
     var request = new GrpcGetStudentByIdRequest { Id = student.Id.ToString() };
-
 
     _mediatorMock
       .Send(Arg.Any<GetStudentQuery>(), Arg.Any<CancellationToken>())
@@ -58,6 +66,7 @@ public class StudentsServiceTests
 
     // Assert
     Assert.That(response.Id, Is.EqualTo(student.Id.ToString()));
+    Assert.That(response.EnrolledCourses, Is.EqualTo(3), "Platform shows this number to the user");
   }
 
   [Test]
@@ -130,6 +139,7 @@ public class StudentsServiceTests
     // Assert
     Assert.That(response.Updated, Is.True);
     Assert.That(response.Message, Is.EqualTo("Student deleted successfully"));
+    await _busMock.Received(1).Publish(Arg.Is<StudentDeletedEvent>(e => e.StudentId == studentId));
   }
 
   [Test]
@@ -145,5 +155,6 @@ public class StudentsServiceTests
 
     // Act & Assert
     Assert.ThrowsAsync<RpcException>(() => _studentsService.DeleteStudent(request, _context));
+    _busMock.DidNotReceiveWithAnyArgs().Publish(default!);
   }
 }

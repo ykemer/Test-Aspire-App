@@ -1,40 +1,46 @@
-﻿using Service.Courses.Common.Database;
+using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
+using Service.Courses.Features.Classes;
 
 namespace Service.Courses.Features.Courses.GetCourse;
 
+/// <summary>
+/// Returns one course. Unless "show all" is set, the course is returned only if it has a visible class
+/// (see <see cref="ClassVisibility"/>).
+/// </summary>
 public class GetCourseQueryHandler : IRequestHandler<GetCourseQuery, ErrorOr<Course>>
 {
   private readonly ApplicationDbContext _dbContext;
   private readonly ILogger<GetCourseQueryHandler> _logger;
+  private readonly TimeProvider _timeProvider;
 
-  public GetCourseQueryHandler(ILogger<GetCourseQueryHandler> logger, ApplicationDbContext dbContext)
+  public GetCourseQueryHandler(ILogger<GetCourseQueryHandler> logger, ApplicationDbContext dbContext,
+    TimeProvider timeProvider)
   {
     _logger = logger;
     _dbContext = dbContext;
+    _timeProvider = timeProvider;
   }
 
   public async ValueTask<ErrorOr<Course>> Handle(GetCourseQuery request, CancellationToken cancellationToken)
   {
-    var course = await _dbContext.Courses
-      .Include(x => x.CourseClasses)
-      .AsSplitQuery()
+    var courses = _dbContext.Courses
       .AsNoTracking()
-      .Where(x => x.Id == request.Id &&
-                  (request.ShowAll || x.CourseClasses.Any(cs =>
-                    request.EnrolledClasses.Contains(cs.Id) ||
-                    (cs.RegistrationDeadline >= DateTime.UtcNow && cs.TotalStudents < cs.MaxStudents)
-                  ))
-      )
-      .FirstOrDefaultAsync(cancellationToken);
+      .Where(course => course.Id == request.Id);
 
-
-    if (course != null)
+    if (!request.ShowAll)
     {
-      return course;
+      var now = _timeProvider.GetUtcNow().UtcDateTime;
+      courses = courses.OnlyCoursesWithVisibleClasses(request.EnrolledClasses, now);
     }
 
-    _logger.Log(LogLevel.Warning, "Course with id {RequestId} was not found", request.Id);
-    return Error.NotFound("courses_service.get_course.not_found", $"Course with id {request.Id} was not found");
+    var foundCourse = await courses.FirstOrDefaultAsync(cancellationToken);
+    if (foundCourse is null)
+    {
+      _logger.LogWarning("Course {CourseId} was not found", request.Id);
+      return CourseErrors.NotFound(request.Id);
+    }
+
+    return foundCourse;
   }
 }

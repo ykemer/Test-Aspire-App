@@ -1,4 +1,4 @@
-﻿using Courses.Application.Setup;
+﻿using Test.Courses.Setup;
 
 using FizzWare.NBuilder;
 
@@ -6,7 +6,7 @@ using Service.Courses.Common.Database;
 using Service.Courses.Common.Database.Entities;
 using Service.Courses.Features.Courses.ListCourses;
 
-namespace Courses.Application.Features.Courses.ListCourses;
+namespace Test.Courses.Features.Courses.ListCourses;
 
 public class ListCoursesQueryHandlerTests
 {
@@ -17,7 +17,7 @@ public class ListCoursesQueryHandlerTests
   public void Setup()
   {
     _dbContext = ApplicationDbContextCreator.GetDbContext();
-    _queryHandler = new ListCoursesQueryHandler(_dbContext);
+    _queryHandler = new ListCoursesQueryHandler(_dbContext, TestClock.Create());
   }
 
   [TearDown]
@@ -34,7 +34,7 @@ public class ListCoursesQueryHandlerTests
   public async Task Handle_ShouldReturnPagedList_WhenCoursesExist()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var courses = Builder<Course>.CreateListOfSize(3).Build().ToArray();
     await AddCoursesToDatabase(courses);
 
@@ -49,7 +49,7 @@ public class ListCoursesQueryHandlerTests
 
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 2 };
+    var request = new ListCoursesQuery { PageNumber = 1, PageSize = 2 };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);
@@ -64,7 +64,7 @@ public class ListCoursesQueryHandlerTests
   public async Task Handle_ShouldReturnPagedList_WhenRequestingSecondPage()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var courses = Builder<Course>.CreateListOfSize(3).Build().ToArray();
     await AddCoursesToDatabase(courses);
 
@@ -79,7 +79,7 @@ public class ListCoursesQueryHandlerTests
 
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest { PageNumber = 2, PageSize = 2 };
+    var request = new ListCoursesQuery { PageNumber = 2, PageSize = 2 };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);
@@ -94,7 +94,7 @@ public class ListCoursesQueryHandlerTests
   public async Task Handle_NotEnrolled_ShouldExcludeCoursesWithOnlyClosedOrFullClasses()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var openCourse = Builder<Course>.CreateNew().With(c => c.Name = "Open Course").Build();
     var closedOrFullCourse = Builder<Course>.CreateNew().With(c => c.Name = "Closed Or Full Course").Build();
 
@@ -120,7 +120,7 @@ public class ListCoursesQueryHandlerTests
 
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 10, EnrolledClasses = new List<Guid>() };
+    var request = new ListCoursesQuery { PageNumber = 1, PageSize = 10, EnrolledClasses = new List<Guid>() };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);
@@ -136,7 +136,7 @@ public class ListCoursesQueryHandlerTests
   public async Task Handle_Enrolled_ShouldIncludeCourseEvenIfClosedOrFull()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var course = Builder<Course>.CreateNew().With(c => c.Name = "Enrolled Course").Build();
     await _dbContext.Courses.AddAsync(course);
 
@@ -147,7 +147,7 @@ public class ListCoursesQueryHandlerTests
     await _dbContext.Classes.AddAsync(closedFullClass);
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest
+    var request = new ListCoursesQuery
     {
       PageNumber = 1, PageSize = 10, EnrolledClasses = new List<Guid> { closedFullClass.Id }
     };
@@ -164,7 +164,7 @@ public class ListCoursesQueryHandlerTests
   public async Task Handle_ShowAllTrue_ShouldReturnAllCourses_EvenIfClassesAreClosedOrFull()
   {
     // Arrange
-    var now = DateTime.UtcNow;
+    var now = TestClock.Now;
     var openCourse = Builder<Course>.CreateNew().With(c => c.Name = "Open Course").Build();
     var closedOrFullCourse = Builder<Course>.CreateNew().With(c => c.Name = "Closed Or Full Course").Build();
 
@@ -190,7 +190,7 @@ public class ListCoursesQueryHandlerTests
 
     await _dbContext.SaveChangesAsync();
 
-    var request = new ListCoursesRequest { PageNumber = 1, PageSize = 10, ShowAll = true };
+    var request = new ListCoursesQuery { PageNumber = 1, PageSize = 10, ShowAll = true };
 
     // Act
     var result = await _queryHandler.Handle(request, CancellationToken.None);

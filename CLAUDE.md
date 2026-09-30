@@ -16,16 +16,40 @@ dotnet run --project src/Services/Service.Courses
 dotnet run --project src/Services/Platform
 ```
 
+## EF Core migrations
+
+Services read connection strings and the internal API key from the Aspire AppHost and fail fast when one is
+missing, so pass placeholders at design time (same pattern for Service.Enrollments with `enrollmentsDb`):
+
+```bash
+cd src/Services/Service.Courses
+dotnet ef migrations add <Name> --output-dir Common/Database/Migrations -- --ConnectionStrings:messaging=amqp://design-time --ConnectionStrings:coursesDb="Host=localhost" --InternalApi:Key=design-time-key-design-time-key-0123456789
+```
+
 ## Testing
+
+Each service has two test projects under `tests/Services/<Service>/`:
+- `Test.<Service>` — fast unit tests (EF InMemory, no Docker).
+- `Test.<Service>.Integration` — tests against a real PostgreSQL started by Testcontainers (needs Docker).
+  Put anything PostgreSQL-specific here: transactions, atomic `ExecuteUpdate`, unique indexes, full-text search.
+
+Shared code (`src/Common/Library`) is tested in `tests/Common/Test.Library`.
 
 ```bash
 # Run all tests
 dotnet test "Aspire App.sln"
 
-# Run tests for a specific service
+# Unit tests of one service (no Docker needed)
 dotnet test tests/Services/Courses/Test.Courses/Test.Courses.csproj
+dotnet test tests/Services/Enrollments/Test.Enrollments/Test.Enrollments.csproj
 dotnet test tests/Services/Students/Test.Students/Test.Students.csproj
-dotnet test tests/Services/Test.Enrollments/Test.Enrollments.csproj
+dotnet test tests/Services/Platform/Test.Platform/Test.Platform.csproj
+
+# Integration tests of one service (Docker must be running)
+dotnet test tests/Services/Courses/Test.Courses.Integration/Test.Courses.Integration.csproj
+dotnet test tests/Services/Enrollments/Test.Enrollments.Integration/Test.Enrollments.Integration.csproj
+dotnet test tests/Services/Students/Test.Students.Integration/Test.Students.Integration.csproj
+dotnet test tests/Services/Platform/Test.Platform.Integration/Test.Platform.Integration.csproj
 
 # Run a single test class or method (NUnit filter syntax)
 dotnet test tests/Services/Courses/Test.Courses/Test.Courses.csproj --filter "FullyQualifiedName~CreateCourseCommandHandler"

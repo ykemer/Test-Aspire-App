@@ -1,4 +1,4 @@
-﻿using CoursesGRPC;
+using CoursesGRPC;
 
 using Grpc.Core;
 
@@ -9,6 +9,9 @@ using Service.Courses.Features.Courses.ListCourses;
 
 namespace Service.Courses.Features.Courses;
 
+/// <summary>
+/// gRPC entry point for reading courses. It only translates gRPC messages; the work is done by the handlers.
+/// </summary>
 public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
 {
   private readonly ILogger<CoursesService> _logger;
@@ -22,18 +25,18 @@ public class CoursesService : GrpcCoursesService.GrpcCoursesServiceBase
 
   public override async Task<GrpcCourseResponse> GetCourse(GrpcGetCourseRequest request, ServerCallContext context)
   {
-    var output = await _mediator.Send(request.ToGetCourseQuery());
-    return output.Match(
+    var result = await _mediator.Send(request.ToGetCourseQuery(), context.CancellationToken);
+    return result.Match(
       course => course.MapToGrpcCourseResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 
   public override async Task<GrpcListCoursesResponse> ListCourses(GrpcListCoursesRequest request,
     ServerCallContext context)
   {
-    var command = request.MapToListCoursesRequest();
-    var output = await _mediator.Send(command);
-    return output.Match(value => value.MapToGrpcListCoursesResponse(),
-      error => throw GrpcErrorHandler.ThrowAndLogRpcException(error, _logger));
+    var result = await _mediator.Send(request.ToListCoursesQuery(), context.CancellationToken);
+    return result.Match(
+      courses => courses.MapToGrpcListCoursesResponse(),
+      errors => throw GrpcErrorHandler.ThrowAndLogRpcException(errors, _logger));
   }
 }

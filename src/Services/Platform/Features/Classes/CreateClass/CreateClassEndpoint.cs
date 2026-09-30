@@ -3,50 +3,40 @@ using Contracts.Classes.Requests;
 
 using FastEndpoints;
 
-using Microsoft.AspNetCore.OutputCaching;
-
-using Platform.Common.Services.User;
+using Platform.Common.Auth;
 
 using Rebus.Bus;
 
 namespace Platform.Features.Classes.CreateClass;
 
+/// <summary>
+/// Asks the Courses service to add a class to a course. The answer arrives later as a live notification.
+/// </summary>
 public class CreateClassEndpoint : Endpoint<CreateClassRequest, ErrorOr<Success>>
 {
   private readonly IBus _bus;
-  private readonly IOutputCacheStore _outputCache;
-  private readonly IUserService _userService;
 
-  public CreateClassEndpoint(IOutputCacheStore outputCache, IBus bus, IUserService userService)
-  {
-    _outputCache = outputCache;
-    _bus = bus;
-    _userService = userService;
-  }
+  public CreateClassEndpoint(IBus bus) => _bus = bus;
 
   public override void Configure()
   {
-    Post("/api/courses/{CourseId}/classes");
-    Policies("RequireAdministratorRole");
+    Post("/api/courses/{CourseId:guid}/classes");
+    Policies(Common.Auth.Policies.Administrators);
     Description(x => x.WithTags("Classes"));
   }
 
-  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateClassRequest createClassCommand, CancellationToken ct)
+  public override async Task<ErrorOr<Success>> ExecuteAsync(CreateClassRequest request, CancellationToken ct)
   {
-    var id = Route<Guid>("CourseId");
-    var userId = _userService.GetUserId(User).ToString();
-
     await _bus.Send(new CreateClassCommand
     {
-      CourseId = id,
-      CourseStartDate = createClassCommand.CourseStartDate,
-      CourseEndDate = createClassCommand.CourseEndDate,
-      RegistrationDeadline = createClassCommand.RegistrationDeadline,
-      MaxStudents = createClassCommand.MaxStudents,
-      UserId = userId
+      CourseId = Route<Guid>("CourseId"),
+      RegistrationDeadline = request.RegistrationDeadline,
+      CourseStartDate = request.CourseStartDate,
+      CourseEndDate = request.CourseEndDate,
+      MaxStudents = request.MaxStudents,
+      UserId = User.GetUserId().ToString()
     });
 
-    await _outputCache.EvictByTagAsync("classes", ct);
     return Result.Success;
   }
 }

@@ -27,7 +27,7 @@ namespace Service.Enrollments.Common.Database.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
-                        .HasComment("Unique identifier");
+                        .HasComment("Unique identifier (same as in the Courses service)");
 
                     b.Property<DateTime>("CourseEndDate")
                         .HasColumnType("timestamp with time zone")
@@ -35,7 +35,7 @@ namespace Service.Enrollments.Common.Database.Migrations
 
                     b.Property<Guid>("CourseId")
                         .HasColumnType("uuid")
-                        .HasComment("Foreign key to the course");
+                        .HasComment("Course the class belongs to");
 
                     b.Property<DateTime>("CourseStartDate")
                         .HasColumnType("timestamp with time zone")
@@ -97,15 +97,16 @@ namespace Service.Enrollments.Common.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was created");
+                        .HasComment("Date and time when the enrollment was created");
 
                     b.Property<DateTime>("EnrollmentDateTime")
-                        .HasColumnType("timestamp without time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasComment("Date and time when the student enrolled (UTC)");
 
                     b.Property<string>("StudentFirstName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("character varying(100)")
                         .HasComment("Student's first name");
 
                     b.Property<Guid>("StudentId")
@@ -115,14 +116,14 @@ namespace Service.Enrollments.Common.Database.Migrations
                     b.Property<string>("StudentLastName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("text")
+                        .HasColumnType("character varying(100)")
                         .HasComment("Student's last name");
 
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP")
-                        .HasComment("Date and time when the class was last updated");
+                        .HasComment("Date and time when the enrollment was last updated");
 
                     b.HasKey("Id");
 
@@ -130,19 +131,11 @@ namespace Service.Enrollments.Common.Database.Migrations
 
                     b.HasIndex("CourseId");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("CourseId"), "BTREE");
-
                     b.HasIndex("StudentId");
 
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("StudentId"), "BTREE");
-
-                    b.HasIndex("StudentFirstName", "StudentLastName")
-                        .HasAnnotation("Npgsql:TsVectorConfig", "english");
-
-                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("StudentFirstName", "StudentLastName"), "GIN");
-
                     b.HasIndex("StudentId", "ClassId")
-                        .IsUnique();
+                        .IsUnique()
+                        .HasDatabaseName("IX_Enrollments_StudentId_ClassId");
 
                     b.ToTable("Enrollments");
                 });
@@ -163,10 +156,11 @@ namespace Service.Enrollments.Common.Database.Migrations
                     b.Property<string>("Operation")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("text")
+                        .HasColumnType("character varying(50)")
                         .HasComment("Which operation this key was recorded for (Enroll or Unenroll)");
 
-                    b.HasKey("IdempotencyKey");
+                    b.HasKey("IdempotencyKey")
+                        .HasName("PK_IdempotencyRecords");
 
                     b.ToTable("IdempotencyRecords");
                 });
@@ -176,6 +170,7 @@ namespace Service.Enrollments.Common.Database.Migrations
                     b.HasOne("Service.Enrollments.Common.Database.Entities.Class", "Class")
                         .WithMany("Enrollments")
                         .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
                         .HasConstraintName("FK_Enrollments_Classes");
 

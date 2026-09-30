@@ -1,30 +1,28 @@
-﻿using Contracts.Users.Requests;
+using Contracts.Users.Requests;
 
 using FastEndpoints;
-
-using Library.Auth;
 
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.Identity;
 
-using Platform.Common.Database;
+using Platform.Common.Auth;
 using Platform.Common.Database.Entities;
-using Platform.Common.Services.JWT;
 
 namespace Platform.Features.Auth.UserLogin;
 
+/// <summary>
+/// Signs a user in with email and password. After several wrong passwords the account is locked for a while
+/// (ASP.NET Identity lockout). The error never says whether the email or the password was wrong.
+/// </summary>
 public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenResponse>>
 {
-  private readonly ApplicationDbContext _db;
-  private readonly IJwtService _jwtService;
+  private readonly IAuthTokenService _authTokens;
   private readonly SignInManager<ApplicationUser> _signInManager;
 
-  public UserLoginEndpoint(SignInManager<ApplicationUser> signInManager, IJwtService jwtService,
-    ApplicationDbContext db)
+  public UserLoginEndpoint(SignInManager<ApplicationUser> signInManager, IAuthTokenService authTokens)
   {
     _signInManager = signInManager;
-    _jwtService = jwtService;
-    _db = db;
+    _authTokens = authTokens;
   }
 
   public override void Configure()
@@ -34,33 +32,21 @@ public class UserLoginEndpoint : Endpoint<UserLoginRequest, ErrorOr<AccessTokenR
     Description(x => x.WithTags("Auth"));
   }
 
-  public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserLoginRequest req, CancellationToken ct)
+  public override async Task<ErrorOr<AccessTokenResponse>> ExecuteAsync(UserLoginRequest request,
+    CancellationToken ct)
   {
-    var result = await _signInManager.PasswordSignInAsync(req.Email, req.Password, false, true);
-    if (!result.Succeeded)
+    var user = await _signInManager.UserManager.FindByEmailAsync(request.Email);
+    if (user is null)
     {
-      return Error.Unauthorized(description: "Invalid email or password");
+      return AuthErrors.InvalidCredentials;
     }
 
-    var user = await _signInManager.UserManager.FindByEmailAsync(req.Email);
-
-
-    var jwtTokenResponse = await _jwtService.GenerateJwtToken(user);
-
-    var refreshToken = new RefreshToken
+    var result = await _signInManager.CheckPasswordSignInAsync(user, request.Password, lockoutOnFailure: true);
+    if (!result.Succeeded)
     {
-      Token = Generators.GenerateToken(), ExpiresAt = DateTime.Now.AddDays(7), UserId = user.Id
-    };
+      return AuthErrors.InvalidCredentials;
+    }
 
-    await _signInManager.UserManager.UpdateAsync(user);
-    await _db.RefreshTokens.AddAsync(refreshToken, ct);
-    await _db.SaveChangesAsync(ct);
-
-    return new AccessTokenResponse
-    {
-      AccessToken = jwtTokenResponse.AccessToken,
-      ExpiresIn = jwtTokenResponse.ExpiresIn,
-      RefreshToken = refreshToken.Token
-    };
+    return await _authTokens.IssueTokensAsync(user, ct);
   }
 }

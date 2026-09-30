@@ -18,8 +18,10 @@ public class IncreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<Incre
 
   public async Task Handle(IncreaseClassEnrollmentsCountEvent message)
   {
-    var result =
-      await _mediator.Send(new UpdateNumberOfEnrolledStudentsCommand(message.CourseId, message.ClassId, true));
+    var command = new UpdateNumberOfEnrolledStudentsCommand(
+      message.EventId, message.CourseId, message.ClassId, EnrollmentChange.AddStudent);
+    var result = await _mediator.Send(command);
+
     if (result.IsError)
     {
       await _bus.Publish(new IncreaseClassEnrollmentsCountFailedEvent
@@ -27,15 +29,14 @@ public class IncreaseCourseEnrollmentsCountEventConsumer : IHandleMessages<Incre
         CourseId = message.CourseId,
         ClassId = message.ClassId,
         EventId = message.EventId,
-        ErrorMessage = result.Errors.FirstOrDefault().Description
+        ErrorMessage = result.FirstError.Description
       });
+      return;
     }
-    else
+
+    await _bus.Publish(new IncreaseClassEnrollmentsCountSuccessEvent
     {
-      await _bus.Publish(new IncreaseClassEnrollmentsCountSuccessEvent
-      {
-        CourseId = message.CourseId, EventId = message.EventId
-      });
-    }
+      CourseId = message.CourseId, EventId = message.EventId
+    });
   }
 }

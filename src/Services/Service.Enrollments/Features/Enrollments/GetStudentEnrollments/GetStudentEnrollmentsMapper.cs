@@ -1,12 +1,20 @@
 using EnrollmentsGRPC;
 
+using Library.GRPC;
+
 namespace Service.Enrollments.Features.Enrollments.GetStudentEnrollments;
 
 public static class GetStudentEnrollmentsMapper
 {
-  public static GetStudentEnrollmentsQuery MapToGetStudentEnrollmentsQuery(
-    this GrpcGetStudentEnrollmentsRequest request)
+  public static GetStudentEnrollmentsQuery ToGetStudentEnrollmentsQuery(this GrpcGetStudentEnrollmentsRequest request)
   {
-    return new(Guid.Parse(request.StudentId), string.IsNullOrEmpty(request.CourseId) ? null : Guid.Parse(request.CourseId));
+    var studentId = GrpcInput.ParseGuid(request.StudentId, nameof(request.StudentId));
+
+    // The course filter is optional: empty means "all courses".
+    Guid? courseId = string.IsNullOrEmpty(request.CourseId)
+      ? null
+      : GrpcInput.ParseGuid(request.CourseId, nameof(request.CourseId));
+
+    return new GetStudentEnrollmentsQuery(studentId, courseId);
   }
 }
