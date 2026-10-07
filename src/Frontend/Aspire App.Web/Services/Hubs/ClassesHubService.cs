@@ -2,6 +2,8 @@
 
 using Contracts.Classes.Hub;
 
+using Library.Infrastructure;
+
 using Microsoft.AspNetCore.SignalR.Client;
 
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
@@ -22,7 +24,7 @@ public class ClassesHubService : AbstractHubService
   ];
 
   public ClassesHubService(IConfiguration configuration, IAuthenticationService authenticationService) : base(
-    configuration, authenticationService, "/classHub")
+    configuration, authenticationService, HubRoutes.Classes)
   {
   }
 

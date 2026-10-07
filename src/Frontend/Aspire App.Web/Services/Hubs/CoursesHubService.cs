@@ -2,6 +2,8 @@
 
 using Contracts.Courses.Hub;
 
+using Library.Infrastructure;
+
 using Microsoft.AspNetCore.SignalR.Client;
 
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
@@ -22,7 +24,7 @@ public class CoursesHubService : AbstractHubService
   ];
 
   public CoursesHubService(IConfiguration configuration, IAuthenticationService authService) : base(configuration,
-    authService, "/courseHub")
+    authService, HubRoutes.Courses)
   {
   }
 

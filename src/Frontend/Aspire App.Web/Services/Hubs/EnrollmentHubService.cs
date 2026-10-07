@@ -2,6 +2,8 @@
 
 using Contracts.Enrollments.Hub;
 
+using Library.Infrastructure;
+
 using Microsoft.AspNetCore.SignalR.Client;
 
 using IAuthenticationService = Aspire_App.Web.Services.Auth.IAuthenticationService;
@@ -19,7 +21,7 @@ public class EnrollmentHubService : AbstractHubService
   ];
 
   public EnrollmentHubService(IConfiguration configuration, IAuthenticationService authenticationService) : base(
-    configuration, authenticationService, "/enrollmentHub")
+    configuration, authenticationService, HubRoutes.Enrollments)
   {
   }
 

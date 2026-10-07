@@ -1,4 +1,4 @@
-namespace Platform.Common.Setup;
+namespace Library.Infrastructure;
 
 /// <summary>
 /// URLs of the SignalR hubs. The frontend connects to these to receive live notifications.
